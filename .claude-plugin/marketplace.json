@@ -1,0 +1,15 @@
+{
+  "name": "zico-io",
+  "owner": { "name": "Nico Zamora", "url": "https://github.com/zico-io" },
+  "metadata": { "description": "mop: slop mops for Claude Code, plus the mop-lint ESLint harness they use." },
+  "plugins": [
+    {
+      "name": "mop",
+      "source": "./plugins/mop",
+      "version": "0.1.0",
+      "description": "Slop mops: /mop cleans everything a branch changed; /mop:tests, /mop:code, /mop:docs and /mop:ui each run one detect, fix and verify loop with proof nothing broke.",
+      "category": "development",
+      "keywords": ["slop", "cleanup", "tests", "lint", "docs", "ui"]
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "name": "mop",
+  "version": "0.1.0",
+  "description": "Slop mops: audit what a branch changed and clean it up, with proof nothing broke. /mop routes by file type; /mop:tests, /mop:code, /mop:docs and /mop:ui each run one detect, fix and verify loop.",
+  "author": { "name": "Nico Zamora", "url": "https://github.com/zico-io" },
+  "repository": "https://github.com/zico-io/mop",
+  "license": "MIT",
+  "keywords": ["slop", "cleanup", "tests", "lint", "docs", "ui", "review"]
+}
