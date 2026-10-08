@@ -1,7 +1,5 @@
 # mop
 
-Slop mops for Claude Code, and the strict ESLint harness behind them.
-
 ## Install the plugin
 
 ```
