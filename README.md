@@ -92,7 +92,7 @@ export default harness(await loadConfig());
 ## Develop
 
 ```bash
-npm install
-npm run typecheck
-npm test
+pnpm install
+pnpm typecheck
+pnpm test
 ```
