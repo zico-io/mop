@@ -1,5 +1,7 @@
 # mop
 
+New here? Read [How mop works](docs/how-mop-works.md). To change mop, read [Contribute to mop](docs/contributing.md).
+
 ## Install the plugin
 
 ```
