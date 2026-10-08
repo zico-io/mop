@@ -96,3 +96,5 @@ pnpm install
 pnpm typecheck
 pnpm test
 ```
+
+A change that should ship needs a changeset: run `pnpm changeset`, pick the bump, and commit the file it writes. On `main`, the release workflow opens a version PR that bumps `package.json` and the plugin manifests and writes `CHANGELOG.md`. Merging that PR publishes to npm through trusted publishing.
