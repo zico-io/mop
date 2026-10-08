@@ -82,7 +82,7 @@ export default {
 | `rules` | Raw ESLint overrides, applied last |
 | `mop.fix`, `mop.leave` | How `/mop:code` sorts findings; `plugin/*` matches a whole plugin; `null` drops a `leave` |
 
-Use the harness in your own `eslint.config.mjs` too (`npm i -D github:zico-io/mop`):
+Use the harness in your own `eslint.config.mjs` too (`npm i -D github:zico-io/mop`). pnpm blocks the build a git install runs until you add the `allowBuilds` entry its error prints, once per commit:
 
 ```js
 import { harness, loadConfig } from "mop-harness";
