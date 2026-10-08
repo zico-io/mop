@@ -31,7 +31,7 @@ export const DETERMINISM_SYNTAX = [
 const VI_CALL =
   "CallExpression[callee.type='MemberExpression'][callee.object.name='vi']";
 // Matches test(...), test.skip(...), test.each(...)(...), test.skip.each(...)(...) and test.for(...)(...).
-const blockOf = (names) =>
+const blockOf = (names: string): string =>
   `:matches(${[
     "callee.name",
     "callee.object.name",

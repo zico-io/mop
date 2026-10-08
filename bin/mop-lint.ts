@@ -2,8 +2,11 @@
 import path from "node:path";
 import { parseArgs } from "node:util";
 import { ESLint } from "eslint";
-import { changedCode, git, resolveBase } from "../src/changes.mjs";
-import { harness, loadConfig, sortRule } from "../src/index.mjs";
+import { changedCode, git, resolveBase, type Lines, type Target } from "../src/changes.ts";
+import { harness, loadConfig, sortRule, type Sorting } from "../src/index.ts";
+import type { Finding } from "../src/judge.ts";
+
+type LintFinding = Finding & Sorting & { file: string; line: number };
 
 const { values, positionals } = parseArgs({
   allowPositionals: true,
@@ -26,11 +29,11 @@ if (values["print-config"]) {
 const base = positionals.length > 0 ? undefined : resolveBase(root, values.base);
 const targets = base
   ? changedCode(root, base)
-  : positionals.map((file) => ({ file: path.relative(root, path.resolve(file)), lines: "all" }));
+  : positionals.map((file): Target => ({ file: path.relative(root, path.resolve(file)), lines: "all" }));
 const overrideConfig = harness(config);
-const owns = (lines, line) => lines === "all" || lines.has(line);
+const owns = (lines: Lines, line: number): boolean => lines === "all" || lines.has(line);
 
-const lintTarget = async ({ file, lines }) => {
+const lintTarget = async ({ file, lines }: Target): Promise<LintFinding[]> => {
   const eslint = new ESLint({
     cwd: root,
     overrideConfigFile: true,
@@ -43,7 +46,7 @@ const lintTarget = async ({ file, lines }) => {
   return results.flatMap((result) =>
     result.messages
       .filter((message) => owns(lines, message.line))
-      .map((message) => ({
+      .map((message): LintFinding => ({
         file,
         line: message.line,
         rule: message.ruleId ?? "parse-error",
@@ -53,10 +56,10 @@ const lintTarget = async ({ file, lines }) => {
   );
 };
 
-const findings = [];
+const findings: LintFinding[] = [];
 for (const target of targets) findings.push(...(await lintTarget(target)));
 
-const byRule = {};
+const byRule: Record<string, Pick<LintFinding, "action" | "reason"> & { count: number }> = {};
 for (const { rule, action, reason } of findings) {
   byRule[rule] ??= { count: 0, action, reason };
   byRule[rule].count += 1;

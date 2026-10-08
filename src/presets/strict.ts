@@ -1,6 +1,8 @@
+import type { Config } from "../config.ts";
+
 const SIZE_LIMIT = "Size limits are a design conversation; fix only when asked.";
 
-export default {
+const strict: Config = {
   ignores: [
     "**/node_modules/**",
     "**/dist/**",
@@ -73,3 +75,5 @@ export default {
     },
   },
 };
+
+export default strict;
