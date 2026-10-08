@@ -16,6 +16,7 @@ Slop mops for Claude Code, and the strict ESLint harness behind them.
 | `/mop:code` | Code: `mop-lint` findings on changed lines |
 | `/mop:docs` | Markdown and MDX: doc lint and AI prose tells |
 | `/mop:ui` | Components: Impeccable detector findings |
+| `/mop:break` | Code: tries to break it, fixes what it can reproduce |
 
 ## mop-lint
 

@@ -9,9 +9,10 @@ Slop mops for a branch. Each one finds the slop a branch added, fixes it on the 
 | `/mop:code` | Code: `mop-lint` findings on changed lines, tuned by `mop.config` | Typecheck, tests, lint rerun |
 | `/mop:docs` | Markdown and MDX: doc lint and AI prose tells | Doc linter at zero warnings |
 | `/mop:ui` | Components: Impeccable detector findings | Detector rerun and a rendered check |
+| `/mop:break` | Code: adversarial attacks on inputs, state, failure paths and contracts | A reproduction per hole, and a regression test that fails without each fix |
 
 Every mop takes `[BASE_REF|path] [--no-commit]` and never pushes unless asked.
 
-Every mop asks Jev which findings to enforce and hands the uncertain ones to you under **Needs your call**; see [JUDGE.md](JUDGE.md).
+Every slop mop asks Jev which findings to enforce and hands the uncertain ones to you under **Needs your call**; see [JUDGE.md](JUDGE.md). `/mop:break` reports only holes it can reproduce and hands you the ones that are product calls.
 
 Depends on: Node 22+ for `mop-lint` and `mop-judge` ( fetched with `npx` from this repo), pstack's `unslop` (docs), the `impeccable` plugin (ui). Judging needs the `jev` CLI with a key; without it, the mops fall back to their own sort.
