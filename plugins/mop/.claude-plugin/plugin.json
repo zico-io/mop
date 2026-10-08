@@ -1,6 +1,6 @@
 {
   "name": "mop",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Slop mops: audit what a branch changed and clean it up, with proof nothing broke. /mop routes by file type; /mop:tests, /mop:code, /mop:docs and /mop:ui each run one detect, fix and verify loop; /mop:break attacks the result and fixes what it can reproduce.",
   "author": { "name": "Nico Zamora", "url": "https://github.com/zico-io" },
   "repository": "https://github.com/zico-io/mop",
