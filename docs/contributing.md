@@ -107,6 +107,7 @@ On `main`, the release workflow opens a "chore: version packages" PR. It bumps `
 ## Next steps
 
 - **How mop works**: the model behind the code. [Learn more](how-mop-works.md)
-- **Config reference**: every `mop.config` key. [Learn more](../README.md#config)
+- **Harness API**: the exports and rule sets you change. [Learn more](reference/harness.md)
+- **Troubleshooting**: errors you may hit while developing. [Learn more](troubleshooting.md)
 - **Judging**: what the Jev questions decide. [Learn more](../plugins/mop/JUDGE.md)
 - **Changesets**: bump types and the CLI. [Learn more](https://changesets.dev)

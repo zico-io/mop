@@ -1,10 +1,10 @@
 # mop
 
-New here? Read [How mop works](docs/how-mop-works.md). To change mop, read [Contribute to mop](docs/contributing.md).
+New here? Read [How mop works](docs/how-mop-works.md). The [docs index](docs/README.md) lists every page.
 
 ## Install the plugin
 
-```
+```text
 /plugin marketplace add zico-io/mop
 /plugin install mop@zico-io
 ```
@@ -30,11 +30,11 @@ npx -y -p mop-harness mop-lint src/app.ts      # whole files
 npx -y -p mop-harness mop-lint --print-config
 ```
 
-Exits 1 while `fix` findings remain.
+Exits 1 while `fix` findings remain. See the [mop-lint reference](docs/reference/mop-lint.md) and [troubleshooting](docs/troubleshooting.md).
 
 ## mop-judge
 
-Asks Jev, through one `jev batch` call, whether each finding should be enforced. Verdicts are `enforce`, `waive`, `human` (you decide) or `unjudged` (Jev unavailable). Needs the `jev` CLI on the `PATH` with a key (`jev auth status`).
+Asks Jev, through one `jev batch` call, whether each finding should be enforced. Verdicts are `enforce`, `waive`, `human` (you decide) or `unjudged` (Jev unavailable). See the [mop-judge reference](docs/reference/mop-judge.md). Needs the `jev` CLI on the `PATH` with a key (`jev auth status`).
 
 ```bash
 npx -y -p mop-harness mop-lint --base main --json > findings.json
@@ -52,8 +52,7 @@ Four layers, last wins. Objects merge key by key; arrays replace.
 | Org | whatever the repo config `extends` (a path or a package) |
 | Repo | `mop.config.{mjs,js,json}` at the repo root |
 
-```js
-// mop.config.mjs
+```js title="mop.config.mjs"
 export default {
   extends: ["@acme/mop-config"],
   comments: { allow: ["eslint", "@ts-", "ponytail:"] },
@@ -64,23 +63,12 @@ export default {
   env: false,
   rules: { "unicorn/no-null": "off" },
   mop: {
-    fix: ["no-comments/disallowComments", "unicorn/*"],
     leave: { "unicorn/filename-case": "Next.js route files", "unicorn/no-null": null },
   },
 };
 ```
 
-| Key | Controls |
-|---|---|
-| `ignores` | Globs never linted |
-| `inlineConfig` | Whether `eslint-disable` comments work (strict: no) |
-| `comments.allow` | Comment prefixes that survive the no-comments rule |
-| `env` | The `process.env` ban and its message; `false` turns it off |
-| `limits` | Params, function and file lines, complexity, depth, statements, id length, magic numbers |
-| `tests` | Mock, spy and global budgets, allowed module mocks, describe depth, snapshot size |
-| `tailwind`, `playwright` | Opt-in rule sets |
-| `rules` | Raw ESLint overrides, applied last |
-| `mop.fix`, `mop.leave` | How `/mop:code` sorts findings; `plugin/*` matches a whole plugin; `null` drops a `leave` |
+The [mop.config reference](docs/reference/config.md) lists every key, its default and the merge rules.
 
 Use the harness in your own `eslint.config.mjs` too (`pnpm add -D mop-harness`):
 

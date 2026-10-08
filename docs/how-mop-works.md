@@ -71,7 +71,7 @@ Run `mop-lint --print-config` to see the merged result and its `sources`.
 
 ### The judge
 
-`mop-judge` sends every finding to Jev in one `jev batch` call. Jev answers three questions: is it real slop, does the code around it follow the pattern on purpose, and could the fix change behavior. The verdict is `enforce` only when Jev is at least 90% sure of each answer and all three point to a safe fix. Any doubt becomes `human`. See [JUDGE.md](../plugins/mop/JUDGE.md).
+`mop-judge` sends every finding to Jev in one `jev batch` call. Jev answers three questions: is it real slop, does the code around it follow the pattern on purpose, and could the fix change behavior. The verdict is `enforce` only when Jev is at least 90% sure of each answer and all three point to a safe fix. Any doubt becomes `human`. See the [mop-judge reference](reference/mop-judge.md).
 
 ## Guarantees
 
@@ -102,7 +102,8 @@ Do not use mop to find bugs or add coverage; use a code review instead. Do not u
 ## Explore mop
 
 - **Plugin skills**: what each mop does, step by step. [Learn more](../plugins/mop/README.md)
-- **Config keys**: every `mop.config` key and the CLI flags. [Learn more](../README.md#config)
-- **Judging**: verdicts and the **Needs your call** table. [Learn more](../plugins/mop/JUDGE.md)
-- **Contributing**: change the harness, a rule, or a mop. [Learn more](contributing.md)
-- **Strict preset**: the default limits and sort lists. [Learn more](../src/presets/strict.ts)
+- **mop.config**: every key, default and merge rule. [Learn more](reference/config.md)
+- **mop-lint**: flags, scope, output and exit codes. [Learn more](reference/mop-lint.md)
+- **mop-judge**: the Jev questions and verdict rules. [Learn more](reference/mop-judge.md)
+- **Harness API**: use the rules in your own ESLint config. [Learn more](reference/harness.md)
+- **Troubleshooting**: errors and what fixes them. [Learn more](troubleshooting.md)
