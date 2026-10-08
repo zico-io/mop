@@ -86,3 +86,10 @@ pnpm test
 ```
 
 A change that should ship needs a changeset: run `pnpm changeset`, pick the bump, and commit the file it writes. On `main`, the release workflow opens a version PR that bumps `package.json` and the plugin manifests and writes `CHANGELOG.md`. Merging that PR publishes to npm through trusted publishing.
+
+## Next steps
+
+- [How mop works](docs/how-mop-works.md): the model behind the mops and the harness.
+- [mop.config reference](docs/reference/config.md): every key and default.
+- [Troubleshooting](docs/troubleshooting.md): errors and their fixes.
+- [Contribute to mop](docs/contributing.md): change the harness or a mop.

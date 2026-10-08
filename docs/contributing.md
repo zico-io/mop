@@ -71,12 +71,12 @@ Each mop is `plugins/mop/skills/<name>/SKILL.md`, with recipes in `REFERENCE.md`
 
 ### Load your local copy
 
-```text
-/plugin marketplace add /path/to/mop
-/plugin install mop@zico-io
+```bash
+claude plugin validate ./plugins/mop
+claude --plugin-dir ./plugins/mop
 ```
 
-Restart Claude Code after each edit to reload the skill. <!-- VERIFY: whether a local-path marketplace picks up edits on restart or needs /plugin marketplace update -->
+The plugin loads for that session only, as `mop@inline`. After you edit a skill, run `/reload-plugins` in the session to load the change. If you also installed mop from the marketplace, run `claude plugin disable mop@zico-io` while you develop, so only your checkout loads.
 
 > **💡 Note:** The skills call `npx -y -p mop-harness`, which downloads the published package. A harness change in your checkout does not reach a mop until it ships. To test both together, point the skill's command at `node --import tsx /path/to/mop/bin/mop-lint.ts` locally, and do not commit that edit.
 

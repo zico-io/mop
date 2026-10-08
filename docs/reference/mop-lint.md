@@ -69,7 +69,7 @@ The first line counts findings and files. Each next line is one rule: count, act
 | --- | --- | --- |
 | `file` | `string` | Path from the git root. |
 | `line` | `number` | 1-based line. |
-| `rule` | `string` | ESLint rule id, or `parse-error` when ESLint gives no rule id. |
+| `rule` | `string` | ESLint rule id. `parse-error` when ESLint could not parse the file. `eslint-directive` for a notice about an inline `eslint-` comment. |
 | `message` | `string` | ESLint message. |
 | `action` | `"fix" \| "leave" \| "review"` | From `mop.fix` and `mop.leave`. |
 | `reason` | `string` | Present when `action` is `leave`. |

@@ -47,7 +47,7 @@ npx -y -p mop-harness mop-lint --base main
 
 ## `<comment> has no effect because you have 'noInlineConfig' setting in your config`
 
-**Cause.** `strict` sets `inlineConfig: false`, so ESLint ignores `eslint-disable` comments and reports each one. `mop-lint` shows this finding under the rule `parse-error`, because ESLint gives it no rule id.
+**Cause.** `strict` sets `inlineConfig: false`, so ESLint ignores `eslint-disable` comments and reports each one. `mop-lint` shows this finding under the rule `eslint-directive`.
 
 **Fix.** Delete the comment. Turn the rule off in [`rules`](reference/config.md#rules) if it does not fit the repo.
 
