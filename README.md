@@ -31,6 +31,15 @@ npx -y -p github:zico-io/mop mop-lint --print-config
 
 Exits 1 while `fix` findings remain.
 
+## mop-judge
+
+Asks Jev (`typesafe-ai/jev` on the Vercel AI Gateway) whether each finding should be enforced. Verdicts are `enforce`, `waive`, `human` (you decide) or `unjudged` (Jev unavailable). Needs `AI_GATEWAY_API_KEY` or `VERCEL_OIDC_TOKEN`.
+
+```bash
+npx -y -p github:zico-io/mop mop-lint --base main --json > findings.json
+npx -y -p github:zico-io/mop mop-judge --mop code findings.json
+```
+
 ## Config
 
 Four layers, last wins. Objects merge key by key; arrays replace.

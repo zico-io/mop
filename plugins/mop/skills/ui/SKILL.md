@@ -20,15 +20,18 @@ Remove the design slop a branch added, without redesigning anything.
    ```
    Pass paths through `xargs -0` or quote them: route folders such as `(authenticated)` and `[[...slug]]` break word splitting. Keep findings whose line the branch changed; list the rest as pre-existing.
 
-3. **Fix within the system.** Use the project's tokens and shared components. Do not change copy, layout intent, or behaviour. Fix each finding with the matching row in [REFERENCE.md](REFERENCE.md#fixes).
+3. **Judge.** Send the detector findings on branch lines to Jev with `--mop ui`, following [JUDGE.md](../../JUDGE.md). Fix only `enforce` findings.
 
-4. **Verify in the app.** Rerun the detector to zero new findings. Then render the changed surfaces at desktop and mobile widths with the browser tooling available (T3 preview, Playwright, or the cmux browser) and check light and dark themes once. If the app needs a login you cannot get, say so and list what to check by eye.
+4. **Fix within the system.** Use the project's tokens and shared components. Do not change copy, layout intent, or behaviour. Fix each finding with the matching row in [REFERENCE.md](REFERENCE.md#fixes).
 
-5. **Commit** unless `--no-commit`. Push only when asked.
+5. **Verify in the app.** Rerun the detector to zero new findings apart from `waive` and `human` ones. Then render the changed surfaces at desktop and mobile widths with the browser tooling available (T3 preview, Playwright, or the cmux browser) and check light and dark themes once. If the app needs a login you cannot get, say so and list what to check by eye.
+
+6. **Report and commit.** Fixed findings, `waive` findings with their reason, and **Needs your call**. Commit unless `--no-commit`. Push only when asked.
 
 ## Definition of done
 
 - [ ] The detector reports zero findings on lines the branch changed, or each one left is listed with a reason.
+- [ ] Every `human` verdict is listed under **Needs your call** and left untouched, or the report says Jev was skipped and why.
 - [ ] Every fix uses the project's existing tokens and components; no new colours, spacing values or one-off components.
 - [ ] Copy, layout intent and behaviour are unchanged.
 - [ ] The changed surfaces were seen rendered at desktop and mobile widths and in light and dark themes, or the report says why not and lists what to check by eye.

@@ -12,7 +12,8 @@
     ".": "./src/index.mjs"
   },
   "bin": {
-    "mop-lint": "./bin/mop-lint.mjs"
+    "mop-lint": "./bin/mop-lint.mjs",
+    "mop-judge": "./bin/mop-judge.mjs"
   },
   "files": [
     "src",
@@ -24,6 +25,7 @@
   "dependencies": {
     "@eslint-react/eslint-plugin": "5.20.8",
     "@vitest/eslint-plugin": "1.6.27",
+    "ai": "7.0.133",
     "eslint": "10.11.0",
     "eslint-plugin-better-max-params": "1.0.0",
     "eslint-plugin-no-comments": "1.2.1",
