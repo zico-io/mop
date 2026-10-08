@@ -14,4 +14,4 @@ Every mop takes `[BASE_REF|path] [--no-commit]` and never pushes unless asked.
 
 Every mop asks Jev which findings to enforce and hands the uncertain ones to you under **Needs your call**; see [JUDGE.md](JUDGE.md).
 
-Depends on: Node 22+ for `mop-lint` and `mop-judge` ( fetched with `npx` from this repo), pstack's `unslop` (docs), the `impeccable` plugin (ui). Jev needs `AI_GATEWAY_API_KEY` or `VERCEL_OIDC_TOKEN`; without one, the mops fall back to their own sort.
+Depends on: Node 22+ for `mop-lint` and `mop-judge` ( fetched with `npx` from this repo), pstack's `unslop` (docs), the `impeccable` plugin (ui). Judging needs the `jev` CLI with a key; without it, the mops fall back to their own sort.

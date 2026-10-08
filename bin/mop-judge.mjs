@@ -11,12 +11,9 @@ const { values, positionals } = parseArgs({
 const raw = positionals[0] ? await readFile(positionals[0], "utf8") : await new Response(process.stdin).text();
 const input = JSON.parse(raw);
 const findings = (Array.isArray(input) ? input : input.findings).map((finding) => ({ mop: values.mop, ...finding }));
-const enabled = process.env.JEV_ENABLED !== "0" && (process.env.AI_GATEWAY_API_KEY || process.env.VERCEL_OIDC_TOKEN);
-
-const { experimental_evaluate: evaluate } = enabled ? await import("ai") : {};
-const judged = enabled
-  ? await judge(findings, { evaluate })
-  : findings.map((finding) => ({ ...finding, verdict: "unjudged", why: "no AI_GATEWAY_API_KEY or VERCEL_OIDC_TOKEN" }));
+const judged = process.env.JEV_ENABLED === "0"
+  ? findings.map((finding) => ({ ...finding, verdict: "unjudged", why: "JEV_ENABLED=0" }))
+  : await judge(findings);
 
 const counts = {};
 for (const { verdict } of judged) counts[verdict] = (counts[verdict] ?? 0) + 1;

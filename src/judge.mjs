@@ -1,12 +1,12 @@
+import { execFile } from "node:child_process";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
-export const JEV = "typesafe-ai/jev";
 export const AUTO = 0.9;
 
 export const QUESTIONS = {
   slop: {
-    type: "boolean",
+    type: "noul",
     instructions:
       "Is `finding` real slop or a real defect on the `>` line of `snippet`, something a careful senior reviewer of this codebase would ask to change, rather than a false positive?",
     criteria: {
@@ -15,7 +15,7 @@ export const QUESTIONS = {
     },
   },
   deliberate: {
-    type: "boolean",
+    type: "noul",
     instructions:
       "Does the surrounding code in `snippet` deliberately follow the pattern the finding flags, as a convention of this codebase or file type?",
     criteria: {
@@ -24,7 +24,7 @@ export const QUESTIONS = {
     },
   },
   risky: {
-    type: "boolean",
+    type: "noul",
     instructions:
       "Could fixing this finding change runtime behaviour, user-facing copy or layout, a public API, a file format another tool reads, or weaken a test's assertions?",
     criteria: {
@@ -34,10 +34,10 @@ export const QUESTIONS = {
   },
 };
 
-const certainty = (answer) => Math.max(answer.probability, 1 - answer.probability);
+const certainty = (answer) => Math.max(answer.noul, 1 - answer.noul);
 
 export const verdictOf = (answers) => {
-  const yes = (id) => answers[id].probability >= 0.5;
+  const yes = (id) => answers[id].noul >= 0.5;
   const sure = (id) => certainty(answers[id]) >= AUTO;
   if (!sure("slop")) return { verdict: "human", why: "Jev is unsure whether this is slop" };
   if (!yes("slop")) return { verdict: "waive", why: "not slop on this line" };
@@ -61,37 +61,47 @@ export const snippetOf = async (root, { file, line }, radius = 4) => {
   }
 };
 
-const judgeOne = async (finding, { root, evaluate }) => {
-  const state = {
-    mop: finding.mop ?? "code",
-    rule: finding.rule,
-    finding: finding.message,
-    file: finding.file,
-    snippet: finding.snippet ?? (await snippetOf(root, finding)),
-  };
-  try {
-    const result = await evaluate({ model: JEV, state, questions: QUESTIONS, maxRetries: 1 });
-    if (Object.keys(QUESTIONS).some((id) => typeof result.answers[id]?.probability !== "number"))
-      return { ...finding, verdict: "unjudged", why: "Jev returned no answer" };
-    const probabilities = Object.fromEntries(
-      Object.entries(result.answers).map(([id, answer]) => [id, Math.round(answer.probability * 100) / 100]),
+export const jevBatch = (rows) =>
+  new Promise((resolve, reject) => {
+    const child = execFile(
+      "jev",
+      ["batch", "--input", "-", "--state-key", "state", "--questions-json", JSON.stringify(QUESTIONS), "--concurrency", "8", "--compact"],
+      { maxBuffer: 64 * 1024 * 1024 },
+      (error, stdout) => {
+        if (error) return reject(error);
+        resolve(stdout.split("\n").filter((line) => line.startsWith("{")).map((line) => JSON.parse(line)));
+      },
     );
-    return { ...finding, ...verdictOf(result.answers), probabilities };
-  } catch (error) {
-    return { ...finding, verdict: "unjudged", why: error instanceof Error ? error.message : String(error) };
-  }
-};
+    child.stdin.end(rows.map((row) => JSON.stringify(row)).join("\n"));
+  });
 
-export const judge = async (findings, { root = process.cwd(), evaluate, concurrency = 8 }) => {
-  const judged = Array.from({ length: findings.length });
-  let next = 0;
-  const worker = async () => {
-    while (next < findings.length) {
-      const index = next;
-      next += 1;
-      judged[index] = await judgeOne(findings[index], { root, evaluate });
-    }
-  };
-  await Promise.all(Array.from({ length: Math.min(concurrency, findings.length) }, worker));
-  return judged;
+const unjudged = (finding, why) => ({ ...finding, verdict: "unjudged", why });
+
+export const judge = async (findings, { root = process.cwd(), run = jevBatch } = {}) => {
+  const rows = await Promise.all(
+    findings.map(async (finding, id) => ({
+      id,
+      state: {
+        mop: finding.mop ?? "code",
+        rule: finding.rule,
+        finding: finding.message,
+        file: finding.file,
+        snippet: finding.snippet ?? (await snippetOf(root, finding)),
+      },
+    })),
+  );
+  let results;
+  try {
+    results = await run(rows);
+  } catch (error) {
+    return findings.map((finding) => unjudged(finding, `jev failed: ${error instanceof Error ? error.message : String(error)}`));
+  }
+  const byId = new Map(results.map((result) => [result.id, result]));
+  return findings.map((finding, id) => {
+    const { answers, error } = byId.get(id) ?? {};
+    if (Object.keys(QUESTIONS).some((key) => typeof answers?.[key]?.noul !== "number"))
+      return unjudged(finding, error ?? "jev returned no answer");
+    const probabilities = Object.fromEntries(Object.entries(answers).map(([key, answer]) => [key, Math.round(answer.noul * 100) / 100]));
+    return { ...finding, ...verdictOf(answers), probabilities };
+  });
 };

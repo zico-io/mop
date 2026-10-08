@@ -3,9 +3,9 @@ import { test } from "node:test";
 import { judge } from "../src/judge.mjs";
 
 const answer = (slop, deliberate, risky) => ({
-  slop: { type: "boolean", probability: slop },
-  deliberate: { type: "boolean", probability: deliberate },
-  risky: { type: "boolean", probability: risky },
+  slop: { type: "noul", noul: slop },
+  deliberate: { type: "noul", noul: deliberate },
+  risky: { type: "noul", noul: risky },
 });
 
 test("sorts findings into enforce, waive and human, and never guesses when Jev fails", async () => {
@@ -16,12 +16,15 @@ test("sorts findings into enforce, waive and human, and never guesses when Jev f
     risky: { answers: answer(0.98, 0.04, 0.95) },
     unsure: { answers: answer(0.6, 0.2, 0.1) },
   };
-  const evaluate = async ({ state }) => {
-    if (state.rule === "down") throw new Error("gateway 503");
-    return replies[state.rule];
-  };
-  const findings = [...Object.keys(replies), "down"].map((rule) => ({ rule, message: rule, snippet: "x" }));
-  const judged = await judge(findings, { evaluate });
+  const rules = [...Object.keys(replies), "down"];
+  const run = async (rows) =>
+    rows.map(({ id, state }) =>
+      state.rule === "down" ? { id, error: "question failed" } : { id, ...replies[state.rule] },
+    );
+  const findings = rules.map((rule) => ({ rule, message: rule, snippet: "x" }));
+  const judged = await judge(findings, { run });
+  const outage = await judge(findings.slice(0, 1), { run: async () => { throw new Error("jev: not found"); } });
+  assert.equal(outage[0].verdict, "unjudged");
   assert.deepEqual(
     judged.map(({ rule, verdict }) => [rule, verdict]),
     [

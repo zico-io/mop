@@ -33,7 +33,7 @@ Exits 1 while `fix` findings remain.
 
 ## mop-judge
 
-Asks Jev (`typesafe-ai/jev` on the Vercel AI Gateway) whether each finding should be enforced. Verdicts are `enforce`, `waive`, `human` (you decide) or `unjudged` (Jev unavailable). Needs `AI_GATEWAY_API_KEY` or `VERCEL_OIDC_TOKEN`.
+Asks Jev, through one `jev batch` call, whether each finding should be enforced. Verdicts are `enforce`, `waive`, `human` (you decide) or `unjudged` (Jev unavailable). Needs the `jev` CLI on the `PATH` with a key (`jev auth status`).
 
 ```bash
 npx -y -p github:zico-io/mop mop-lint --base main --json > findings.json
