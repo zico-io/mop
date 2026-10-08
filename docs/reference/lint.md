@@ -1,15 +1,15 @@
 ---
-title: mop-lint
-description: mop-lint flags, scope, output format and exit codes.
+title: lint
+description: The lint CLI: flags, scope, output format and exit codes.
 type: reference
 updated: 2026-10-08
 owner: zico-io
 ---
 
-`mop-lint` lints the lines a branch added with the harness, and tags each finding `fix`, `leave` or `review`.
+`lint` lints the lines a branch added with the harness, and tags each finding `fix`, `leave` or `review`.
 
 ```bash
-npx -y -p mop-harness mop-lint --base main
+npx -y -p mop-harness lint --base main
 ```
 
 ```text title="Output"
@@ -22,9 +22,9 @@ npx -y -p mop-harness mop-lint --base main
 ## Usage
 
 ```text
-mop-lint [--base <ref>] [--fix] [--json]
-mop-lint <file...> [--fix] [--json]
-mop-lint --print-config
+lint [--base <ref>] [--fix] [--json]
+lint <file...> [--fix] [--json]
+lint --print-config
 ```
 
 Run it anywhere inside a git repository. It loads config from the git root, not the current directory.
@@ -33,7 +33,7 @@ Run it anywhere inside a git repository. It loads config from the git root, not 
 
 | Flag | Description |
 | --- | --- |
-| `--base <ref>` | Branch to compare with. `mop-lint` uses `origin/<ref>` when it exists, else `<ref>`. Default: `origin/HEAD`. |
+| `--base <ref>` | Branch to compare with. `lint` uses `origin/<ref>` when it exists, else `<ref>`. Default: `origin/HEAD`. |
 | `--fix` | Autofix findings tagged `fix`, only on lines in scope. Other findings stay. |
 | `--json` | Print one JSON object instead of the summary. |
 | `--print-config` | Print the merged config and its `sources`, then exit 0. |
@@ -41,7 +41,7 @@ Run it anywhere inside a git repository. It loads config from the git root, not 
 
 ## Scope
 
-With no file arguments, `mop-lint` checks:
+With no file arguments, `lint` checks:
 
 - Files that are added or modified between the merge base and the working tree, and untracked files that are not ignored.
 - Only `.js`, `.jsx`, `.ts`, `.tsx` files and their `.c*` and `.m*` variants.
@@ -74,7 +74,7 @@ The first line counts findings and files. Each next line is one rule: count, act
 | `action` | `"fix" \| "leave" \| "review"` | From `mop.fix` and `mop.leave`. |
 | `reason` | `string` | Present when `action` is `leave`. |
 
-`mop-judge` reads this JSON as it is.
+`judge` reads this JSON as it is.
 
 ## Exit codes
 
@@ -85,6 +85,7 @@ The first line counts findings and files. Each next line is one rule: count, act
 
 ## Don't
 
+- Don't run `npx lint` or `npx judge` without `-p mop-harness`. npm has unrelated packages named `lint` and `judge`, and npx downloads and runs them.
 - Don't read exit code `1` as a crash. Check the output first. A crash prints a stack trace.
 - Don't trust `--fix` blind. Lint autofixes can rewrite more than the flagged line. Review the diff.
 - Don't pass a file list when you want the branch scope. File arguments lint every line of those files.
@@ -92,6 +93,6 @@ The first line counts findings and files. Each next line is one rule: count, act
 ## Next steps
 
 - **Config keys**: what decides `fix`, `leave` and `review`. [Learn more](config.md)
-- **Judge the findings**: pipe the JSON into `mop-judge`. [Learn more](mop-judge.md)
+- **Judge the findings**: pipe the JSON into `judge`. [Learn more](judge.md)
 - **Errors**: what each crash means. [Learn more](../troubleshooting.md)
-- **Source**: the CLI. [Learn more](../../bin/mop-lint.ts)
+- **Source**: the CLI. [Learn more](../../bin/lint.ts)

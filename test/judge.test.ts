@@ -52,7 +52,7 @@ process.stdin.on("data", (chunk) => (input += chunk)).on("end", () => {
 });
 `;
 
-test("mop-judge reads snippets from the git root when run from a subdirectory", async () => {
+test("judge reads snippets from the git root when run from a subdirectory", async () => {
   const repo = await mkdtemp(path.join(os.tmpdir(), "mop-judge-"));
   const bin = path.join(repo, "bin");
   await Promise.all([mkdir(path.join(repo, "pkg")), mkdir(bin)]);
@@ -64,7 +64,7 @@ test("mop-judge reads snippets from the git root when run from a subdirectory", 
 
   const output = execFileSync(
     process.execPath,
-    ["--import", import.meta.resolve("tsx"), path.resolve("bin/mop-judge.ts"), "--json"],
+    ["--import", import.meta.resolve("tsx"), path.resolve("bin/judge.ts"), "--json"],
     { cwd: path.join(repo, "pkg"), input: findings, encoding: "utf8", env: { ...process.env, PATH: `${bin}${path.delimiter}${process.env.PATH}` } },
   );
 

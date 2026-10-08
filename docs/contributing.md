@@ -12,10 +12,10 @@ Change the harness, a rule, or a mop skill, and ship it in the next release.
 git clone https://github.com/zico-io/mop && cd mop
 pnpm install
 pnpm typecheck && pnpm test
-node --import tsx bin/mop-lint.ts src/judge.ts
+node --import tsx bin/lint.ts src/judge.ts
 ```
 
-The last command runs `mop-lint` from source against one file, with no build step.
+The last command runs `lint` from source against one file, with no build step.
 
 ## Prerequisites
 
@@ -33,7 +33,7 @@ src/
   judge.ts            Jev questions and verdictOf
   presets/strict.ts   the default config every layer merges onto
   rules/              the test-guardrails plugin and restricted test syntax
-bin/                  mop-lint and mop-judge CLIs
+bin/                  `lint` and `judge` CLIs
 test/                 node:test suites
 plugins/mop/          the Claude Code plugin: one folder per skill, plus JUDGE.md
 scripts/              sync-plugin-version.ts, run at release
@@ -60,7 +60,7 @@ Add an assertion to `test/harness.test.ts`. Lint a literal snippet with `harness
 From a branch in another repo, run the CLI from your checkout:
 
 ```bash
-node --import tsx /path/to/mop/bin/mop-lint.ts --base main
+node --import tsx /path/to/mop/bin/lint.ts --base main
 ```
 
 ## Change a mop
@@ -78,7 +78,7 @@ claude --plugin-dir ./plugins/mop
 
 The plugin loads for that session only, as `mop@inline`. After you edit a skill, run `/reload-plugins` in the session to load the change. If you also installed mop from the marketplace, run `claude plugin disable mop@zico-io` while you develop, so only your checkout loads.
 
-> **💡 Note:** The skills call `npx -y -p mop-harness`, which downloads the published package. A harness change in your checkout does not reach a mop until it ships. To test both together, point the skill's command at `node --import tsx /path/to/mop/bin/mop-lint.ts` locally, and do not commit that edit.
+> **💡 Note:** The skills call `npx -y -p mop-harness`, which downloads the published package. A harness change in your checkout does not reach a mop until it ships. To test both together, point the skill's command at `node --import tsx /path/to/mop/bin/lint.ts` locally, and do not commit that edit.
 
 ## Ship the change
 

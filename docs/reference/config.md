@@ -120,23 +120,23 @@ Applies to `*.test.*`, `*.spec.*` and `__tests__/**` files.
 
 ### `mop.fix`
 
-`string[]`. Rule ids that `mop-lint` tags `fix` and `--fix` autofixes. A pattern is an exact rule id, or `plugin/*` for every rule of a plugin. Default: 15 rules, including `no-comments/disallowComments`, `unicorn/no-nested-ternary` and `@typescript-eslint/no-non-null-assertion`. See `src/presets/strict.ts`.
+`string[]`. Rule ids that `lint` tags `fix` and `--fix` autofixes. A pattern is an exact rule id, or `plugin/*` for every rule of a plugin. Default: 15 rules, including `no-comments/disallowComments`, `unicorn/no-nested-ternary` and `@typescript-eslint/no-non-null-assertion`. See `src/presets/strict.ts`.
 
 ### `mop.leave`
 
-`Record<string, string | null>`. Rule patterns that `mop-lint` tags `leave`, each mapped to the reason. A `null` or empty reason drops the entry. `leave` wins over `fix`. Default: 10 entries, including `unicorn/filename-case`, `unicorn/no-null` and the four size rules.
+`Record<string, string | null>`. Rule patterns that `lint` tags `leave`, each mapped to the reason. A `null` or empty reason drops the entry. `leave` wins over `fix`. Default: 10 entries, including `unicorn/filename-case`, `unicorn/no-null` and the four size rules.
 
 A rule in neither list is tagged `review`.
 
 ## Don't
 
-- Don't set `mop.fix`, `comments.allow` or `ignores` to add one item. Arrays replace, so your list drops every default. Copy the defaults from `mop-lint --print-config` and add to them.
+- Don't set `mop.fix`, `comments.allow` or `ignores` to add one item. Arrays replace, so your list drops every default. Copy the defaults from `lint --print-config` and add to them.
 - Don't write `.` or `(` in `comments.allow` without a backslash. The entries are regular expressions.
-- Don't put rules in your repo's `eslint.config.mjs` and expect `mop-lint` to apply them. `mop-lint` reads only `mop.config`.
+- Don't put rules in your repo's `eslint.config.mjs` and expect `lint` to apply them. `lint` reads only `mop.config`.
 
 ## Next steps
 
-- **Print the merged config**: `mop-lint --print-config` shows the result and its `sources`. [Learn more](mop-lint.md)
+- **Print the merged config**: `lint --print-config` shows the result and its `sources`. [Learn more](lint.md)
 - **Use the config in ESLint**: `loadConfig()` and `harness()`. [Learn more](harness.md)
 - **Why a rule fired**: common config mistakes. [Learn more](../troubleshooting.md)
 - **The model**: how config, lint and judge fit. [Learn more](../how-mop-works.md)

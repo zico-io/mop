@@ -15,32 +15,32 @@ New here? Read [How mop works](docs/how-mop-works.md). The [docs index](docs/REA
 |---|---|
 | `/mop` | Everything the branch changed, routed by file type |
 | `/mop:tests` | Test files: one test per behaviour, no service mocks |
-| `/mop:code` | Code: `mop-lint` findings on changed lines |
+| `/mop:code` | Code: `lint` findings on changed lines |
 | `/mop:docs` | Markdown and MDX: doc lint and AI prose tells |
 | `/mop:ui` | Components: Impeccable detector findings |
 | `/mop:break` | Code: tries to break it, fixes what it can reproduce |
 
-## mop-lint
+## `lint`
 
 Lints only the lines a branch added, and tags each finding `fix`, `leave` or `review` from your config.
 
 ```bash
-npx -y -p mop-harness mop-lint                 # vs origin/HEAD
-npx -y -p mop-harness mop-lint --base main --json
-npx -y -p mop-harness mop-lint --base main --fix   # fix rules, branch lines only
-npx -y -p mop-harness mop-lint src/app.ts      # whole files
-npx -y -p mop-harness mop-lint --print-config
+npx -y -p mop-harness lint                 # vs origin/HEAD
+npx -y -p mop-harness lint --base main --json
+npx -y -p mop-harness lint --base main --fix   # fix rules, branch lines only
+npx -y -p mop-harness lint src/app.ts      # whole files
+npx -y -p mop-harness lint --print-config
 ```
 
-Exits 1 while `fix` findings remain. See the [mop-lint reference](docs/reference/mop-lint.md) and [troubleshooting](docs/troubleshooting.md).
+Exits 1 while `fix` findings remain. See the [`lint` reference](docs/reference/lint.md) and [troubleshooting](docs/troubleshooting.md).
 
-## mop-judge
+## `judge`
 
-Asks Jev, through one `jev batch` call, whether each finding should be enforced. Verdicts are `enforce`, `waive`, `human` (you decide) or `unjudged` (Jev unavailable). See the [mop-judge reference](docs/reference/mop-judge.md). Needs the `jev` CLI on the `PATH` with a key (`jev auth status`).
+Asks Jev, through one `jev batch` call, whether each finding should be enforced. Verdicts are `enforce`, `waive`, `human` (you decide) or `unjudged` (Jev unavailable). See the [`judge` reference](docs/reference/judge.md). Needs the `jev` CLI on the `PATH` with a key (`jev auth status`).
 
 ```bash
-npx -y -p mop-harness mop-lint --base main --json > findings.json
-npx -y -p mop-harness mop-judge --mop code findings.json
+npx -y -p mop-harness lint --base main --json > findings.json
+npx -y -p mop-harness judge --mop code findings.json
 ```
 
 ## Config

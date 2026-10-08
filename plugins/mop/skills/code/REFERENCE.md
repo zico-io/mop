@@ -2,7 +2,7 @@
 
 ## Config
 
-mop-lint merges four layers, last wins:
+`lint` merges four layers, last wins:
 
 | Layer | Where | Use it for |
 |---|---|---|
@@ -26,7 +26,7 @@ export default {
 };
 ```
 
-Run `npx -y -p mop-harness mop-lint --print-config` to see the merged result and which files applied. The full default set is `src/presets/strict.ts` in the mop repo.
+Run `npx -y -p mop-harness lint --print-config` to see the merged result and which files applied. The full default set is `src/presets/strict.ts` in the mop repo.
 
 ## Fix recipes
 

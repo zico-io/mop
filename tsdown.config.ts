@@ -1,7 +1,7 @@
 import { defineConfig } from "tsdown";
 
 export default defineConfig({
-  entry: { index: "src/index.ts", "mop-lint": "bin/mop-lint.ts", "mop-judge": "bin/mop-judge.ts" },
+  entry: { index: "src/index.ts", lint: "bin/lint.ts", judge: "bin/judge.ts" },
   platform: "node",
   dts: true,
 });

@@ -13,7 +13,7 @@ const { values, positionals } = parseArgs({
 const raw = positionals[0] ? await readFile(positionals[0], "utf8") : await text(process.stdin);
 const input: Finding[] | { findings: Finding[] } = JSON.parse(raw);
 const findings = (Array.isArray(input) ? input : input.findings).map((finding) => ({ mop: values.mop, ...finding }));
-// mop-lint writes paths from the git root, so snippets resolve from there too.
+// `lint` writes paths from the git root, so snippets resolve from there too.
 const repoRoot = (): string => {
   try {
     return git(process.cwd(), "rev-parse", "--show-toplevel");

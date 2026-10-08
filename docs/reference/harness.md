@@ -6,7 +6,7 @@ updated: 2026-10-08
 owner: zico-io
 ---
 
-`mop-harness` exports the ESLint config that `mop-lint` runs, so your editor and CI can run the same rules.
+`mop-harness` exports the ESLint config that `lint` runs, so your editor and CI can run the same rules.
 
 ```js title="eslint.config.mjs"
 import { harness, loadConfig } from "mop-harness";
@@ -143,6 +143,6 @@ The default `Config`. Every layer merges onto it. See `src/presets/strict.ts` fo
 ## Next steps
 
 - **Config keys**: every value `harness()` reads. [Learn more](config.md)
-- **Lint a branch**: `mop-lint` runs this config on added lines. [Learn more](mop-lint.md)
+- **Lint a branch**: `lint` runs this config on added lines. [Learn more](lint.md)
 - **Change a rule**: add or retune one in this repo. [Learn more](../contributing.md#change-the-harness)
 - **Source**: the config builder. [Learn more](../../src/harness.ts)

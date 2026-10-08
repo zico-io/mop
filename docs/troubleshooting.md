@@ -1,6 +1,6 @@
 ---
 title: Troubleshooting
-description: mop-lint, mop-judge and config errors, what causes them, and how to fix them.
+description: lint, judge and config errors, what causes them, and how to fix them.
 type: troubleshooting
 updated: 2026-10-08
 owner: zico-io
@@ -10,12 +10,12 @@ Find your error message below. Each entry gives the cause, the fix, and how to s
 
 ## `fatal: ref refs/remotes/origin/HEAD is not a symbolic ref`
 
-**Cause.** You ran `mop-lint` with no `--base`, and the clone has no `origin/HEAD`. Local-only repos and some CI checkouts lack it.
+**Cause.** You ran `lint` with no `--base`, and the clone has no `origin/HEAD`. Local-only repos and some CI checkouts lack it.
 
 **Fix.** Pass the base branch:
 
 ```bash
-npx -y -p mop-harness mop-lint --base main
+npx -y -p mop-harness lint --base main
 ```
 
 **Prevent.** Run `git remote set-head origin --auto` once in the clone.
@@ -28,26 +28,26 @@ npx -y -p mop-harness mop-lint --base main
 
 ```bash
 git fetch origin main
-npx -y -p mop-harness mop-lint --base main
+npx -y -p mop-harness lint --base main
 ```
 
 **Prevent.** In CI, check out with full history, for example `fetch-depth: 0` on `actions/checkout`.
 
 ## `fatal: not a git repository`
 
-**Cause.** `mop-lint` finds the config and the diff from the git root, so it needs a repository.
+**Cause.** `lint` finds the config and the diff from the git root, so it needs a repository.
 
 **Fix.** Run it inside the repository.
 
-## `mop-lint` exits 1 with no stack trace
+## `lint` exits 1 with no stack trace
 
 **Cause.** At least one finding is tagged `fix`. This is the signal for "slop remains", not a crash.
 
-**Fix.** Run `/mop:code`, or `mop-lint --base main --fix` and review the diff. To stop a rule failing the run, move it to [`mop.leave`](reference/config.md#mopleave).
+**Fix.** Run `/mop:code`, or `lint --base main --fix` and review the diff. To stop a rule failing the run, move it to [`mop.leave`](reference/config.md#mopleave).
 
 ## `<comment> has no effect because you have 'noInlineConfig' setting in your config`
 
-**Cause.** `strict` sets `inlineConfig: false`, so ESLint ignores `eslint-disable` comments and reports each one. `mop-lint` shows this finding under the rule `eslint-directive`.
+**Cause.** `strict` sets `inlineConfig: false`, so ESLint ignores `eslint-disable` comments and reports each one. `lint` shows this finding under the rule `eslint-directive`.
 
 **Fix.** Delete the comment. Turn the rule off in [`rules`](reference/config.md#rules) if it does not fit the repo.
 
@@ -57,7 +57,7 @@ npx -y -p mop-harness mop-lint --base main
 
 **Cause.** ESLint could not parse the file. Every other rule is skipped for that file.
 
-**Fix.** Fix the syntax error first, then run `mop-lint` again.
+**Fix.** Fix the syntax error first, then run `lint` again.
 
 ## `Comments are forbidden` on a comment you want to keep
 
@@ -71,13 +71,13 @@ export default {
 };
 ```
 
-**Prevent.** Run `mop-lint --print-config` after you edit an array, and check that the defaults stayed.
+**Prevent.** Run `lint --print-config` after you edit an array, and check that the defaults stayed.
 
 ## A default rule or `fix` entry disappeared
 
 **Cause.** Arrays replace whole. A repo `mop.fix: ["unicorn/*"]` drops the 15 `strict` entries.
 
-**Fix.** Copy the current list from `mop-lint --print-config` into your config, then add your entries.
+**Fix.** Copy the current list from `lint --print-config` into your config, then add your entries.
 
 ## `Mocking first-party module '<path>'`
 
@@ -103,25 +103,25 @@ export default { tests: { allowMocks: ["^@acme/payments-sdk$"] } };
 
 ## `Error: ENOENT: no such file or directory, open '<path>'`
 
-**Cause.** An `extends` path, or the input file to `mop-judge`, does not exist. `extends` paths resolve from the config that names them, not from the current directory.
+**Cause.** An `extends` path, or the input file to `judge`, does not exist. `extends` paths resolve from the config that names them, not from the current directory.
 
 **Fix.** Correct the path.
 
 ## `SyntaxError: ... in JSON at position <n>`
 
-**Cause.** A `mop.config.json` file, or the `mop-judge` input, is not valid JSON.
+**Cause.** A `mop.config.json` file, or the `judge` input, is not valid JSON.
 
 **Fix.** Fix the JSON. A `.mjs` config allows comments and trailing commas.
 
 ## A rule from my `eslint.config.mjs` does not run
 
-**Cause.** `mop-lint` reads only `mop.config` and ignores the repo's ESLint config.
+**Cause.** `lint` reads only `mop.config` and ignores the repo's ESLint config.
 
 **Fix.** Put the rule in [`rules`](reference/config.md#rules) in `mop.config`.
 
 ## Every verdict is `unjudged`
 
-**Cause.** `mop-judge` could not use Jev. The `why` field says which case applies.
+**Cause.** `judge` could not use Jev. The `why` field says which case applies.
 
 | `why` | Fix |
 | --- | --- |
@@ -136,7 +136,7 @@ The mops still run without Jev. They fall back to the config sort and say so in 
 
 **Cause.** The mop skills run `npx -y -p mop-harness`, which downloads the published package.
 
-**Fix.** Run your checkout directly with `node --import tsx /path/to/mop/bin/mop-lint.ts`. See [Contribute to mop](contributing.md#load-your-local-copy).
+**Fix.** Run your checkout directly with `node --import tsx /path/to/mop/bin/lint.ts`. See [Contribute to mop](contributing.md#load-your-local-copy).
 
 ## `ERR_PNPM_BROKEN_LOCKFILE ... expected a single document in the stream`
 
@@ -146,7 +146,7 @@ The mops still run without Jev. They fall back to the config sort and say so in 
 
 ## Next steps
 
-- [Open an issue](https://github.com/zico-io/mop/issues/new) with the command, the full output, and your `mop-lint --print-config`.
-- [mop-lint reference](reference/mop-lint.md): flags, scope and exit codes.
+- [Open an issue](https://github.com/zico-io/mop/issues/new) with the command, the full output, and your `lint --print-config`.
+- [`lint` reference](reference/lint.md): flags, scope and exit codes.
 - [mop.config reference](reference/config.md): every key and default.
-- [mop-judge reference](reference/mop-judge.md): verdict rules.
+- [`judge` reference](reference/judge.md): verdict rules.

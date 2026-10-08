@@ -15,8 +15,8 @@
     }
   },
   "bin": {
-    "mop-lint": "./dist/mop-lint.mjs",
-    "mop-judge": "./dist/mop-judge.mjs"
+    "lint": "./dist/lint.mjs",
+    "judge": "./dist/judge.mjs"
   },
   "files": [
     "dist"

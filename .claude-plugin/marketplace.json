@@ -1,7 +1,7 @@
 {
   "name": "zico-io",
   "owner": { "name": "Nico Zamora", "url": "https://github.com/zico-io" },
-  "metadata": { "description": "mop: slop mops for Claude Code, plus the mop-lint ESLint harness they use." },
+  "metadata": { "description": "mop: slop mops for Claude Code, plus the mop-harness ESLint config they use." },
   "plugins": [
     {
       "name": "mop",

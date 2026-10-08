@@ -10,9 +10,9 @@ mop cleans the slop a branch added, and the harness decides what counts as slop.
 
 ```mermaid
 flowchart LR
-  A[Branch diff] --> B[mop-lint]
+  A[Branch diff] --> B[lint]
   C[mop.config layers] --> B
-  B -->|fix / leave / review| D[mop-judge]
+  B -->|fix / leave / review| D[judge]
   D -->|enforce| E[Mop fixes it]
   D -->|waive| F[Left on purpose]
   D -->|human| G[Needs your call]
@@ -24,7 +24,7 @@ This repo ships two things that release together under one version:
 | Part | What it is | Where |
 | --- | --- | --- |
 | mop plugin | Claude Code skills: `/mop`, `/mop:tests`, `/mop:code`, `/mop:docs`, `/mop:ui`, `/mop:break` | `plugins/mop/` |
-| `mop-harness` | npm package: the ESLint harness, the `mop-lint` and `mop-judge` CLIs | `src/`, `bin/` |
+| `mop-harness` | npm package: the ESLint harness, the `lint` and `judge` CLIs | `src/`, `bin/` |
 
 ## Why it exists
 
@@ -38,7 +38,7 @@ Each mop runs one loop on one kind of file: detect, judge, fix, verify, report. 
 
 | Mop | Detector | Proof that nothing broke |
 | --- | --- | --- |
-| `code` | `mop-lint` | Typecheck, tests, lint rerun |
+| `code` | `lint` | Typecheck, tests, lint rerun |
 | `tests` | Test audit rules | Breaks the source and watches a remaining test fail |
 | `docs` | The repo's doc linter, AI prose tells | Doc linter at zero warnings |
 | `ui` | Impeccable detector | Detector rerun and a rendered check |
@@ -48,7 +48,7 @@ Each mop runs one loop on one kind of file: detect, judge, fix, verify, report. 
 
 `harness(config)` in `src/harness.ts` returns a flat ESLint config. It stacks the sonarjs, unicorn, security and React recommended rules. Then it adds the mop rules: no comments, size limits and a `process.env` ban. Test files also get mock budgets, a ban on mocking the subject under test, and deterministic fixtures. Tailwind and Playwright rules are opt-in.
 
-`mop-lint` runs that config. It finds the merge base with the base ref, keeps findings on added lines only, and counts untracked files as fully added. Each finding gets an action from `mop.fix` and `mop.leave`:
+`lint` runs that config. It finds the merge base with the base ref, keeps findings on added lines only, and counts untracked files as fully added. Each finding gets an action from `mop.fix` and `mop.leave`:
 
 | Action | Meaning |
 | --- | --- |
@@ -67,15 +67,15 @@ Each mop runs one loop on one kind of file: detect, judge, fix, verify, report. 
 | Org | Whatever the repo or taste file names in `extends`: a path, a package, or `"strict"` |
 | Repo | `mop.config.{mjs,js,json}` at the git root |
 
-Run `mop-lint --print-config` to see the merged result and its `sources`.
+Run `lint --print-config` to see the merged result and its `sources`.
 
 ### The judge
 
-`mop-judge` sends every finding to Jev in one `jev batch` call. Jev answers three questions: is it real slop, does the code around it follow the pattern on purpose, and could the fix change behavior. The verdict is `enforce` only when Jev is at least 90% sure of each answer and all three point to a safe fix. Any doubt becomes `human`. See the [mop-judge reference](reference/mop-judge.md).
+`judge` sends every finding to Jev in one `jev batch` call. Jev answers three questions: is it real slop, does the code around it follow the pattern on purpose, and could the fix change behavior. The verdict is `enforce` only when Jev is at least 90% sure of each answer and all three point to a safe fix. Any doubt becomes `human`. See the [`judge` reference](reference/judge.md).
 
 ## Guarantees
 
-- **Branch lines only.** With `--base`, `mop-lint` reports and autofixes lines the branch added since the merge base. Commits that land on the base later never count.
+- **Branch lines only.** With `--base`, `lint` reports and autofixes lines the branch added since the merge base. Commits that land on the base later never count.
 - **`leave` is final.** No Jev verdict and no mop overrides a config `leave`.
 - **No guessing on doubt.** A finding Jev is unsure about, or whose fix could change behavior, goes to **Needs your call** untouched.
 - **Jev is optional.** Without `jev`, or with `JEV_ENABLED=0`, every verdict is `unjudged` and the mops fall back to the config sort.
@@ -87,11 +87,11 @@ Not guaranteed: lint autofixes can rewrite more of a file than the finding. Each
 | Item | Value |
 | --- | --- |
 | Node | 22 or later |
-| Files `mop-lint` checks | `.js`, `.jsx`, `.ts`, `.tsx` and their `c`/`m` variants |
+| Files `lint` checks | `.js`, `.jsx`, `.ts`, `.tsx` and their `c`/`m` variants |
 | Jev auto threshold | 0.9 certainty per question |
 | Strict size limits | 2 params, 50 lines per function, 250 per file, 600 per `.tsx` file |
 | `eslint-disable` comments | Ignored under `strict` (`inlineConfig: false`) |
-| Repo `eslint.config.mjs` | Ignored by `mop-lint`; put repo taste in `mop.config.mjs` |
+| Repo `eslint.config.mjs` | Ignored by `lint`; put repo taste in `mop.config.mjs` |
 
 Function length, file length, complexity and statement count are `leave` under `strict`. A mop reports them but does not split your functions, because a size limit is a design conversation.
 
@@ -103,7 +103,7 @@ Do not use mop to find bugs or add coverage; use a code review instead. Do not u
 
 - **Plugin skills**: what each mop does, step by step. [Learn more](../plugins/mop/README.md)
 - **mop.config**: every key, default and merge rule. [Learn more](reference/config.md)
-- **mop-lint**: flags, scope, output and exit codes. [Learn more](reference/mop-lint.md)
-- **mop-judge**: the Jev questions and verdict rules. [Learn more](reference/mop-judge.md)
+- **`lint`**: flags, scope, output and exit codes. [Learn more](reference/lint.md)
+- **`judge`**: the Jev questions and verdict rules. [Learn more](reference/judge.md)
 - **Harness API**: use the rules in your own ESLint config. [Learn more](reference/harness.md)
 - **Troubleshooting**: errors and what fixes them. [Learn more](troubleshooting.md)

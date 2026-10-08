@@ -1,16 +1,16 @@
 ---
-title: mop-judge
-description: mop-judge input, Jev questions, verdict rules, output format and the judge() API.
+title: judge
+description: The judge CLI: input, Jev questions, verdict rules, output format and the judge() API.
 type: reference
 updated: 2026-10-08
 owner: zico-io
 ---
 
-`mop-judge` asks Jev whether each finding should be fixed, and returns a verdict for each one.
+`judge` asks Jev whether each finding should be fixed, and returns a verdict for each one.
 
 ```bash
-npx -y -p mop-harness mop-lint --base main --json > findings.json
-npx -y -p mop-harness mop-judge --mop code findings.json
+npx -y -p mop-harness lint --base main --json > findings.json
+npx -y -p mop-harness judge --mop code findings.json
 ```
 
 ```text title="Output"
@@ -21,12 +21,12 @@ human  src/cart.ts:42  sonarjs/no-nested-conditional  the fix could change behav
 ## Usage
 
 ```text
-mop-judge [--mop <name>] [--json] [<file>]
+judge [--mop <name>] [--json] [<file>]
 ```
 
 | Argument | Description |
 | --- | --- |
-| `<file>` | JSON input. When absent, `mop-judge` reads stdin. |
+| `<file>` | JSON input. When absent, `judge` reads stdin. |
 | `--mop <name>` | Mop name sent to Jev as context: `code`, `ui`, `tests` or `docs`. A finding's own `mop` field wins. Default: `code`. |
 | `--json` | Print counts and every judged finding as JSON. |
 
@@ -36,26 +36,26 @@ mop-judge [--mop <name>] [--json] [<file>]
 | --- | --- |
 | `JEV_ENABLED=0` | Skip Jev. Every finding is `unjudged`. |
 
-`mop-judge` needs the `jev` CLI on the `PATH` with a key. Run `jev auth status` to check the key.
+`judge` needs the `jev` CLI on the `PATH` with a key. Run `jev auth status` to check the key.
 
 ## Input
 
-A JSON array of findings, or an object with a `findings` array, as `mop-lint --json` prints.
+A JSON array of findings, or an object with a `findings` array, as `lint --json` prints.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `rule` | `string` | Yes | Rule id or detector name. |
 | `message` | `string` | Yes | What is wrong. |
-| `file` | `string` | No | Path from the git root, as `mop-lint` writes it. Outside a git repository, from the current directory. |
+| `file` | `string` | No | Path from the git root, as `lint` writes it. Outside a git repository, from the current directory. |
 | `line` | `number` | No | 1-based line. |
-| `snippet` | `string` | No | Code to show Jev. When absent, `mop-judge` reads 4 lines on each side of `line` from `file`. |
+| `snippet` | `string` | No | Code to show Jev. When absent, `judge` reads 4 lines on each side of `line` from `file`. |
 | `mop` | `string` | No | Overrides `--mop` for this finding. |
 
 Other properties pass through to the output.
 
 ## How a verdict is chosen
 
-`mop-judge` sends all findings in one `jev batch` call, with up to 8 in flight. Jev answers three yes-or-no questions per finding, each as a probability:
+`judge` sends all findings in one `jev batch` call, with up to 8 in flight. Jev answers three yes-or-no questions per finding, each as a probability:
 
 | Question | Yes means |
 | --- | --- |
@@ -97,12 +97,13 @@ The exit code is `0` unless the input cannot be read or parsed. A Jev failure do
 
 ## Don't
 
+- Don't run `npx lint` or `npx judge` without `-p mop-harness`. npm has unrelated packages named `lint` and `judge`, and npx downloads and runs them.
 - Don't read `unjudged` as `waive`. It means nobody judged the finding. The mops fall back to the config sort and say so.
 - Don't treat a verdict as an override. A config `leave` and the mop's own rules still win over `enforce`.
 
 ## Next steps
 
 - **Act on verdicts**: what each mop does with them. [Learn more](../../plugins/mop/JUDGE.md)
-- **Produce findings**: `mop-lint --json`. [Learn more](mop-lint.md)
+- **Produce findings**: `lint --json`. [Learn more](lint.md)
 - **Jev errors**: `unjudged` causes and fixes. [Learn more](../troubleshooting.md)
 - **Source**: the questions and `verdictOf`. [Learn more](../../src/judge.ts)
