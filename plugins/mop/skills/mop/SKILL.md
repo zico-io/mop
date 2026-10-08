@@ -1,12 +1,12 @@
 ---
 name: mop
-description: "Cleans up everything a branch changed: sorts its changed files by type, runs the matching slop mop on each group (tests, code, docs, ui), then verifies the whole branch once. Use when the user says mop, slop mop, de-slop, clean up this branch, tidy this PR before review, remove the AI slop, or /mop. For one kind of file only, use /mop:tests, /mop:code, /mop:docs or /mop:ui directly. Usage - /mop, /mop main, /mop code ui --no-commit"
+description: "Cleans up everything a branch changed: sorts its changed files by type, runs the matching slop mop on each group (tests, code, docs, ui), then attacks the cleaned code with /mop:break and verifies the whole branch once. Use when the user says mop, slop mop, de-slop, clean up this branch, tidy this PR before review, remove the AI slop, or /mop. For one kind of file only, use /mop:tests, /mop:code, /mop:docs, /mop:ui or /mop:break directly. Usage - /mop, /mop main, /mop code ui break --no-commit"
 ---
 
-Run every slop mop that applies to a branch, then verify once.
+Run every slop mop that applies to a branch, try to break the result, then verify once.
 
 **Arguments:** `$ARGUMENTS`
-- Mop names (`tests`, `code`, `docs`, `ui`): run only these. Default: every mop with files in scope.
+- Mop names (`tests`, `code`, `docs`, `ui`, `break`): run only these. Default: every mop with files in scope.
 - `BASE_REF`: the name of the branch the PR targets, without `origin/`. Default: the open PR's base (`gh pr view --json baseRefName`), else the repo's default branch.
 - A path or package (for example `packages/docs`): limit scope to it.
 - `--no-commit`: stop after verification.
@@ -21,14 +21,15 @@ Run every slop mop that applies to a branch, then verify once.
    | code | other `.ts`, `.tsx`, `.js`, `.mjs`, `.py` |
    | docs | `.md`, `.mdx`, READMEs, docs content folders |
    | ui | `.tsx`, `.jsx`, `.css`, `.html` that render UI (also in code) |
+   | break | every code and ui file |
 
    Print the counts per mop before running anything.
 
-2. **Order.** Run `code`, then `ui`, then `tests`, then `docs`. Code edits can break tests, and the test mop proves coverage against the final source.
+2. **Order.** Run `code`, then `ui`, then `tests`, then `docs`, then `break`. Code edits can break tests, the test mop proves coverage against the final source, and `break` attacks the code as it will ship.
 
 3. **Run.** Invoke each mop's skill (`/mop:code` and so on) with its file list, one mop at a time. Each mop commits its own work before the next one starts, so code and ui edits to the same file stay in separate commits. Pass `--no-commit` to every mop only when the user passed it to `/mop`. A mop with more than about 15 files fans out to subagents itself; do not nest a second fan-out on top.
 
-4. **Collect the calls.** Each mop judges its findings with Jev ([JUDGE.md](../../JUDGE.md)) and returns its **Needs your call** rows. Keep them; do not act on them.
+4. **Collect the calls.** Each slop mop judges its findings with Jev ([JUDGE.md](../../JUDGE.md)), and `break` proves its findings by reproduction. Each returns its **Needs your call** rows. Keep them; do not act on them.
 
 5. **Verify once.** Typecheck, lint, and every touched test suite, using the repo's own commands. A failure that also fails on `BASE_REF` is pre-existing: report it, do not fix it here.
 
@@ -52,5 +53,5 @@ Run every slop mop that applies to a branch, then verify once.
 
 ## Reference
 
-- Each mop's rules and recipes: [tests](../tests/SKILL.md), [code](../code/SKILL.md), [docs](../docs/SKILL.md), [ui](../ui/SKILL.md), and their `REFERENCE.md` files.
+- Each mop's rules and recipes: [tests](../tests/SKILL.md), [code](../code/SKILL.md), [docs](../docs/SKILL.md), [ui](../ui/SKILL.md), [break](../break/SKILL.md), and their `REFERENCE.md` files.
 - Dependencies per mop: [plugin README](../../README.md).
