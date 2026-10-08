@@ -1,5 +1,7 @@
 # mop
 
+agents love making a mess, give yours a mop to clean up their slop.
+
 New here? Read [How mop works](docs/how-mop-works.md). The [docs index](docs/README.md) lists every page.
 
 ## Install the plugin
