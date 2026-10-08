@@ -1,5 +1,5 @@
 {
-  "name": "mop-harness",
+  "name": "slopmop",
   "version": "0.1.0",
   "description": "A strict, layered ESLint harness for cleaning up what a branch changed. Ships the mop Claude Code plugin.",
   "type": "module",
@@ -15,8 +15,7 @@
     }
   },
   "bin": {
-    "mop-lint": "./dist/mop-lint.mjs",
-    "mop-judge": "./dist/mop-judge.mjs"
+    "slopmop": "./dist/slopmop.mjs"
   },
   "files": [
     "dist"

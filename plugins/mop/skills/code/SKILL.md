@@ -1,6 +1,6 @@
 ---
 name: code
-description: "Slop mop for code: lints a branch's changed lines with mop-lint (a strict ESLint harness tuned per repo, org and taste through mop.config files), then fixes the findings that are real slop (comments the branch added, nested ternaries, dead code, non-null assertions, implicit length checks, array lookups that should be Sets) and leaves the ones the config marks as fighting the repo's conventions, with typecheck and tests as proof. Use when the user says code slop, harness lint, de-slop the code, lint my changes, strip the comments I added, or /mop:code. Not for over-engineering review (use /ponytail-review) or bugs (use /code-review). Usage - /mop:code, /mop:code main, /mop:code packages/api --no-commit"
+description: "Slop mop for code: lints a branch's changed lines with `lint` (a strict ESLint harness tuned per repo, org and taste through mop.config files), then fixes the findings that are real slop (comments the branch added, nested ternaries, dead code, non-null assertions, implicit length checks, array lookups that should be Sets) and leaves the ones the config marks as fighting the repo's conventions, with typecheck and tests as proof. Use when the user says code slop, harness lint, de-slop the code, lint my changes, strip the comments I added, or /mop:code. Not for over-engineering review (use /ponytail-review) or bugs (use /code-review). Usage - /mop:code, /mop:code main, /mop:code packages/api --no-commit"
 ---
 
 Fix the slop the branch added to its code, on the lines it owns.
@@ -13,34 +13,34 @@ Fix the slop the branch added to its code, on the lines it owns.
 
 1. **Lint changed lines.** From the repo root:
    ```bash
-   npx -y -p mop-harness mop-lint --base "$BASE_REF" --json > /tmp/mop-lint.json
+   npx -y slopmop lint --base "$BASE_REF" --json > /tmp/mop-findings.json
    ```
-   Pass paths instead of `--base` to lint whole files. mop-lint compares the working tree with the merge base, keeps only findings on lines the branch added, and tags each one `fix`, `leave` (with the reason) or `review` from the merged config. Report `byRule` counts and `sources` (which config files applied).
+   Pass paths instead of `--base` to lint whole files. `lint` compares the working tree with the merge base, keeps only findings on lines the branch added, and tags each one `fix`, `leave` (with the reason) or `review` from the merged config. Report `byRule` counts and `sources` (which config files applied).
 
 2. **Sort.** `fix` and `leave` come from the config; see [REFERENCE.md](REFERENCE.md#config) for how layers merge. `leave` is final.
 
 3. **Judge.** Send every `fix` and `review` finding to Jev with `--mop code`, following [JUDGE.md](../../JUDGE.md). Fix only `enforce`; `waive` joins the left list; `human` goes to **Needs your call**. If Jev is skipped, fix `fix` findings and decide each `review` rule yourself. Show the split and wait for a go-ahead when it is over about 100 fixes.
 
-4. **Fix** the `enforce` findings with the recipes in [REFERENCE.md](REFERENCE.md#fix-recipes). `mop-lint --base "$BASE_REF" --fix` autofixes every `fix` rule on lines the branch added, so revert any autofix on a `waive` or `human` finding; review the result. Recheck every edited file with `prettier --check`.
+4. **Fix** the `enforce` findings with the recipes in [REFERENCE.md](REFERENCE.md#fix-recipes). `npx -y slopmop lint --base "$BASE_REF" --fix` autofixes every `fix` rule on lines the branch added, so revert any autofix on a `waive` or `human` finding; review the result. Recheck every edited file with `prettier --check`.
 
-5. **Verify.** Format, typecheck, run the touched suites, rerun mop-lint and report before and after counts for the fixed rules.
+5. **Verify.** Format, typecheck, run the touched suites, rerun `lint` and report before and after counts for the fixed rules.
 
 6. **Report and commit.** Fixed counts by rule, what was left and why (config `leave` and Jev `waive`), and **Needs your call**. Commit unless `--no-commit`. Push only when asked.
 
 ## Definition of done
 
-- [ ] mop-lint ran on every changed code file, filtered to lines the branch added.
+- [ ] `lint` ran on every changed code file, filtered to lines the branch added.
 - [ ] Every `enforce` finding is fixed, or listed with the reason it stays.
 - [ ] Every `human` verdict is listed under **Needs your call** and left untouched, or the report says Jev was skipped and why.
 - [ ] Every `leave` rule is named in the report with its reason from the config.
 - [ ] Every `review` finding has a Jev verdict, or a decision of yours when Jev was skipped.
-- [ ] Rerunning mop-lint shows zero `fix` findings, apart from `waive`, `human` and the listed exceptions.
+- [ ] Rerunning `lint` shows zero `fix` findings, apart from `waive`, `human` and the listed exceptions.
 - [ ] `prettier --check` parses every edited file.
 - [ ] Typecheck and the touched suites pass, apart from failures listed as pre-existing on `BASE_REF`.
 
 ## Gotchas
 
-- mop-lint exits 1 while `fix` findings remain. That is the signal, not a crash.
-- A repo's own `eslint.config.mjs` is ignored; mop-lint applies the harness. Put repo taste in `mop.config.mjs` instead.
+- `lint` exits 1 while `fix` findings remain. That is the signal, not a crash.
+- A repo's own `eslint.config.mjs` is ignored; `lint` applies the harness. Put repo taste in `mop.config.mjs` instead.
 - unicorn's autofix for nested ternaries only adds parentheses, which still trips `sonarjs/no-nested-conditional`. Rewrite by hand.
 - Destructuring to omit a key (`const { [key]: _removed, ...rest } = obj`) trips unused-variable rules but is the idiom; leave it.

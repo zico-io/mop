@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import path from "node:path";
 import { parseArgs } from "node:util";
 import { ESLint } from "eslint";
@@ -49,7 +48,7 @@ const lintTarget = async ({ file, lines }: Target): Promise<LintFinding[]> => {
       .map((message): LintFinding => ({
         file,
         line: message.line,
-        rule: message.ruleId ?? "parse-error",
+        rule: message.ruleId ?? (message.fatal ? "parse-error" : "eslint-directive"),
         message: message.message,
         ...sortRule(config, message.ruleId),
       })),

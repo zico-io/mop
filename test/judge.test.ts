@@ -1,4 +1,8 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import { chmod, mkdir, mkdtemp, writeFile } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 import { test } from "node:test";
 import { judge, type JevResult, type JevRow } from "../src/judge";
 
@@ -36,4 +40,33 @@ test("sorts findings into enforce, waive and human, and never guesses when Jev f
       ["down", "unjudged"],
     ],
   );
+});
+
+const FAKE_JEV = `#!/usr/bin/env node
+let input = "";
+process.stdin.on("data", (chunk) => (input += chunk)).on("end", () => {
+  for (const line of input.split("\\n").filter(Boolean)) {
+    const { id, state } = JSON.parse(line);
+    console.log(JSON.stringify({ id, error: state.snippet }));
+  }
+});
+`;
+
+test("judge reads snippets from the git root when run from a subdirectory", async () => {
+  const repo = await mkdtemp(path.join(os.tmpdir(), "mop-judge-"));
+  const bin = path.join(repo, "bin");
+  await Promise.all([mkdir(path.join(repo, "pkg")), mkdir(bin)]);
+  await writeFile(path.join(repo, "pkg", "cart.ts"), "one\ntwo\nthree\n");
+  await writeFile(path.join(bin, "jev"), FAKE_JEV);
+  await chmod(path.join(bin, "jev"), 0o755);
+  execFileSync("git", ["init", "-q"], { cwd: repo });
+  const findings = JSON.stringify([{ file: "pkg/cart.ts", line: 2, rule: "r", message: "m" }]);
+
+  const output = execFileSync(
+    process.execPath,
+    ["--import", import.meta.resolve("tsx"), path.resolve("bin/slopmop.ts"), "judge", "--json"],
+    { cwd: path.join(repo, "pkg"), input: findings, encoding: "utf8", env: { ...process.env, PATH: `${bin}${path.delimiter}${process.env.PATH}` } },
+  );
+
+  assert.equal(JSON.parse(output).findings[0].why, "  1 one\n> 2 two\n  3 three\n  4 ");
 });
