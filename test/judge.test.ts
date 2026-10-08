@@ -64,7 +64,7 @@ test("judge reads snippets from the git root when run from a subdirectory", asyn
 
   const output = execFileSync(
     process.execPath,
-    ["--import", import.meta.resolve("tsx"), path.resolve("bin/judge.ts"), "--json"],
+    ["--import", import.meta.resolve("tsx"), path.resolve("bin/slopmop.ts"), "judge", "--json"],
     { cwd: path.join(repo, "pkg"), input: findings, encoding: "utf8", env: { ...process.env, PATH: `${bin}${path.delimiter}${process.env.PATH}` } },
   );
 

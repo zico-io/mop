@@ -1,6 +1,6 @@
 ---
-title: lint
-description: The lint CLI: flags, scope, output format and exit codes.
+title: slopmop lint
+description: The slopmop lint command: flags, scope, output format and exit codes.
 type: reference
 updated: 2026-10-08
 owner: zico-io
@@ -9,7 +9,7 @@ owner: zico-io
 `lint` lints the lines a branch added with the harness, and tags each finding `fix`, `leave` or `review`.
 
 ```bash
-npx -y -p mop-harness lint --base main
+npx -y slopmop lint --base main
 ```
 
 ```text title="Output"
@@ -22,9 +22,9 @@ npx -y -p mop-harness lint --base main
 ## Usage
 
 ```text
-lint [--base <ref>] [--fix] [--json]
-lint <file...> [--fix] [--json]
-lint --print-config
+slopmop lint [--base <ref>] [--fix] [--json]
+slopmop lint <file...> [--fix] [--json]
+slopmop lint --print-config
 ```
 
 Run it anywhere inside a git repository. It loads config from the git root, not the current directory.
@@ -85,7 +85,6 @@ The first line counts findings and files. Each next line is one rule: count, act
 
 ## Don't
 
-- Don't run `npx lint` or `npx judge` without `-p mop-harness`. npm has unrelated packages named `lint` and `judge`, and npx downloads and runs them.
 - Don't read exit code `1` as a crash. Check the output first. A crash prints a stack trace.
 - Don't trust `--fix` blind. Lint autofixes can rewrite more than the flagged line. Review the diff.
 - Don't pass a file list when you want the branch scope. File arguments lint every line of those files.

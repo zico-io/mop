@@ -1,20 +1,20 @@
 ---
 title: Harness API
-description: The mop-harness exports, the rule sets harness() builds, and the test guardrail rules.
+description: The slopmop exports, the rule sets harness() builds, and the test guardrail rules.
 type: reference
 updated: 2026-10-08
 owner: zico-io
 ---
 
-`mop-harness` exports the ESLint config that `lint` runs, so your editor and CI can run the same rules.
+`slopmop` exports the ESLint config that `lint` runs, so your editor and CI can run the same rules.
 
 ```js title="eslint.config.mjs"
-import { harness, loadConfig } from "mop-harness";
+import { harness, loadConfig } from "slopmop";
 
 export default harness(await loadConfig());
 ```
 
-Install it with `pnpm add -D mop-harness`. It needs Node 22 or later and ships ESLint 10, typescript-eslint and every plugin it uses as dependencies.
+Install it with `pnpm add -D slopmop`. It needs Node 22 or later and ships ESLint 10, typescript-eslint and every plugin it uses as dependencies.
 
 ## `harness`
 

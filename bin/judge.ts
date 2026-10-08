@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import { readFile } from "node:fs/promises";
 import { text } from "node:stream/consumers";
 import { parseArgs } from "node:util";

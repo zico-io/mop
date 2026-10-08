@@ -20,27 +20,27 @@ New here? Read [How mop works](docs/how-mop-works.md). The [docs index](docs/REA
 | `/mop:ui` | Components: Impeccable detector findings |
 | `/mop:break` | Code: tries to break it, fixes what it can reproduce |
 
-## `lint`
+## `slopmop lint`
 
 Lints only the lines a branch added, and tags each finding `fix`, `leave` or `review` from your config.
 
 ```bash
-npx -y -p mop-harness lint                 # vs origin/HEAD
-npx -y -p mop-harness lint --base main --json
-npx -y -p mop-harness lint --base main --fix   # fix rules, branch lines only
-npx -y -p mop-harness lint src/app.ts      # whole files
-npx -y -p mop-harness lint --print-config
+npx -y slopmop lint                 # vs origin/HEAD
+npx -y slopmop lint --base main --json
+npx -y slopmop lint --base main --fix   # fix rules, branch lines only
+npx -y slopmop lint src/app.ts      # whole files
+npx -y slopmop lint --print-config
 ```
 
-Exits 1 while `fix` findings remain. See the [`lint` reference](docs/reference/lint.md) and [troubleshooting](docs/troubleshooting.md).
+Exits 1 while `fix` findings remain. See the [`slopmop lint` reference](docs/reference/lint.md) and [troubleshooting](docs/troubleshooting.md).
 
-## `judge`
+## `slopmop judge`
 
-Asks Jev, through one `jev batch` call, whether each finding should be enforced. Verdicts are `enforce`, `waive`, `human` (you decide) or `unjudged` (Jev unavailable). See the [`judge` reference](docs/reference/judge.md). Needs the `jev` CLI on the `PATH` with a key (`jev auth status`).
+Asks Jev, through one `jev batch` call, whether each finding should be enforced. Verdicts are `enforce`, `waive`, `human` (you decide) or `unjudged` (Jev unavailable). See the [`slopmop judge` reference](docs/reference/judge.md). Needs the `jev` CLI on the `PATH` with a key (`jev auth status`).
 
 ```bash
-npx -y -p mop-harness lint --base main --json > findings.json
-npx -y -p mop-harness judge --mop code findings.json
+npx -y slopmop lint --base main --json > findings.json
+npx -y slopmop judge --mop code findings.json
 ```
 
 ## Config
@@ -72,10 +72,10 @@ export default {
 
 The [mop.config reference](docs/reference/config.md) lists every key, its default and the merge rules.
 
-Use the harness in your own `eslint.config.mjs` too (`pnpm add -D mop-harness`):
+Use the harness in your own `eslint.config.mjs` too (`pnpm add -D slopmop`):
 
 ```js
-import { harness, loadConfig } from "mop-harness";
+import { harness, loadConfig } from "slopmop";
 export default harness(await loadConfig());
 ```
 

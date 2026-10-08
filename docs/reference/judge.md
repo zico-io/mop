@@ -1,6 +1,6 @@
 ---
-title: judge
-description: The judge CLI: input, Jev questions, verdict rules, output format and the judge() API.
+title: slopmop judge
+description: The slopmop judge command: input, Jev questions, verdict rules, output format and the judge() API.
 type: reference
 updated: 2026-10-08
 owner: zico-io
@@ -9,8 +9,8 @@ owner: zico-io
 `judge` asks Jev whether each finding should be fixed, and returns a verdict for each one.
 
 ```bash
-npx -y -p mop-harness lint --base main --json > findings.json
-npx -y -p mop-harness judge --mop code findings.json
+npx -y slopmop lint --base main --json > findings.json
+npx -y slopmop judge --mop code findings.json
 ```
 
 ```text title="Output"
@@ -21,7 +21,7 @@ human  src/cart.ts:42  sonarjs/no-nested-conditional  the fix could change behav
 ## Usage
 
 ```text
-judge [--mop <name>] [--json] [<file>]
+slopmop judge [--mop <name>] [--json] [<file>]
 ```
 
 | Argument | Description |
@@ -40,7 +40,7 @@ judge [--mop <name>] [--json] [<file>]
 
 ## Input
 
-A JSON array of findings, or an object with a `findings` array, as `lint --json` prints.
+A JSON array of findings, or an object with a `findings` array, as `slopmop lint --json` prints.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -97,13 +97,12 @@ The exit code is `0` unless the input cannot be read or parsed. A Jev failure do
 
 ## Don't
 
-- Don't run `npx lint` or `npx judge` without `-p mop-harness`. npm has unrelated packages named `lint` and `judge`, and npx downloads and runs them.
 - Don't read `unjudged` as `waive`. It means nobody judged the finding. The mops fall back to the config sort and say so.
 - Don't treat a verdict as an override. A config `leave` and the mop's own rules still win over `enforce`.
 
 ## Next steps
 
 - **Act on verdicts**: what each mop does with them. [Learn more](../../plugins/mop/JUDGE.md)
-- **Produce findings**: `lint --json`. [Learn more](lint.md)
+- **Produce findings**: `slopmop lint --json`. [Learn more](lint.md)
 - **Jev errors**: `unjudged` causes and fixes. [Learn more](../troubleshooting.md)
 - **Source**: the questions and `verdictOf`. [Learn more](../../src/judge.ts)

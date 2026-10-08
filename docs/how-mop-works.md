@@ -1,6 +1,6 @@
 ---
 title: How mop works
-description: The mop plugin, the mop-harness package, and how a finding moves from lint to fix.
+description: The mop plugin, the slopmop package, and how a finding moves from lint to fix.
 type: concept
 updated: 2026-10-08
 owner: zico-io
@@ -24,7 +24,7 @@ This repo ships two things that release together under one version:
 | Part | What it is | Where |
 | --- | --- | --- |
 | mop plugin | Claude Code skills: `/mop`, `/mop:tests`, `/mop:code`, `/mop:docs`, `/mop:ui`, `/mop:break` | `plugins/mop/` |
-| `mop-harness` | npm package: the ESLint harness, the `lint` and `judge` CLIs | `src/`, `bin/` |
+| `slopmop` | npm package: the ESLint harness, the `slopmop` CLI and its `lint` and `judge` commands | `src/`, `bin/` |
 
 ## Why it exists
 
@@ -67,11 +67,11 @@ Each mop runs one loop on one kind of file: detect, judge, fix, verify, report. 
 | Org | Whatever the repo or taste file names in `extends`: a path, a package, or `"strict"` |
 | Repo | `mop.config.{mjs,js,json}` at the git root |
 
-Run `lint --print-config` to see the merged result and its `sources`.
+Run `slopmop lint --print-config` to see the merged result and its `sources`.
 
 ### The judge
 
-`judge` sends every finding to Jev in one `jev batch` call. Jev answers three questions: is it real slop, does the code around it follow the pattern on purpose, and could the fix change behavior. The verdict is `enforce` only when Jev is at least 90% sure of each answer and all three point to a safe fix. Any doubt becomes `human`. See the [`judge` reference](reference/judge.md).
+`judge` sends every finding to Jev in one `jev batch` call. Jev answers three questions: is it real slop, does the code around it follow the pattern on purpose, and could the fix change behavior. The verdict is `enforce` only when Jev is at least 90% sure of each answer and all three point to a safe fix. Any doubt becomes `human`. See the [`slopmop judge` reference](reference/judge.md).
 
 ## Guarantees
 
@@ -103,7 +103,7 @@ Do not use mop to find bugs or add coverage; use a code review instead. Do not u
 
 - **Plugin skills**: what each mop does, step by step. [Learn more](../plugins/mop/README.md)
 - **mop.config**: every key, default and merge rule. [Learn more](reference/config.md)
-- **`lint`**: flags, scope, output and exit codes. [Learn more](reference/lint.md)
-- **`judge`**: the Jev questions and verdict rules. [Learn more](reference/judge.md)
+- **`slopmop lint`**: flags, scope, output and exit codes. [Learn more](reference/lint.md)
+- **`slopmop judge`**: the Jev questions and verdict rules. [Learn more](reference/judge.md)
 - **Harness API**: use the rules in your own ESLint config. [Learn more](reference/harness.md)
 - **Troubleshooting**: errors and what fixes them. [Learn more](troubleshooting.md)

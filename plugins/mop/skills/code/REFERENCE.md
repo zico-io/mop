@@ -26,7 +26,7 @@ export default {
 };
 ```
 
-Run `npx -y -p mop-harness lint --print-config` to see the merged result and which files applied. The full default set is `src/presets/strict.ts` in the mop repo.
+Run `npx -y slopmop lint --print-config` to see the merged result and which files applied. The full default set is `src/presets/strict.ts` in the mop repo.
 
 ## Fix recipes
 

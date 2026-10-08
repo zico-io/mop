@@ -9,7 +9,7 @@ owner: zico-io
 `mop.config` sets the harness rules and how the mops sort findings, per repo, per org and per person.
 
 ```js title="mop.config.mjs"
-import { defineConfig } from "mop-harness";
+import { defineConfig } from "slopmop";
 
 export default defineConfig({
   extends: ["@acme/mop-config"],
@@ -130,13 +130,13 @@ A rule in neither list is tagged `review`.
 
 ## Don't
 
-- Don't set `mop.fix`, `comments.allow` or `ignores` to add one item. Arrays replace, so your list drops every default. Copy the defaults from `lint --print-config` and add to them.
+- Don't set `mop.fix`, `comments.allow` or `ignores` to add one item. Arrays replace, so your list drops every default. Copy the defaults from `slopmop lint --print-config` and add to them.
 - Don't write `.` or `(` in `comments.allow` without a backslash. The entries are regular expressions.
 - Don't put rules in your repo's `eslint.config.mjs` and expect `lint` to apply them. `lint` reads only `mop.config`.
 
 ## Next steps
 
-- **Print the merged config**: `lint --print-config` shows the result and its `sources`. [Learn more](lint.md)
+- **Print the merged config**: `slopmop lint --print-config` shows the result and its `sources`. [Learn more](lint.md)
 - **Use the config in ESLint**: `loadConfig()` and `harness()`. [Learn more](harness.md)
 - **Why a rule fired**: common config mistakes. [Learn more](../troubleshooting.md)
 - **The model**: how config, lint and judge fit. [Learn more](../how-mop-works.md)

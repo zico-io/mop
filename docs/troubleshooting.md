@@ -15,7 +15,7 @@ Find your error message below. Each entry gives the cause, the fix, and how to s
 **Fix.** Pass the base branch:
 
 ```bash
-npx -y -p mop-harness lint --base main
+npx -y slopmop lint --base main
 ```
 
 **Prevent.** Run `git remote set-head origin --auto` once in the clone.
@@ -28,7 +28,7 @@ npx -y -p mop-harness lint --base main
 
 ```bash
 git fetch origin main
-npx -y -p mop-harness lint --base main
+npx -y slopmop lint --base main
 ```
 
 **Prevent.** In CI, check out with full history, for example `fetch-depth: 0` on `actions/checkout`.
@@ -43,7 +43,7 @@ npx -y -p mop-harness lint --base main
 
 **Cause.** At least one finding is tagged `fix`. This is the signal for "slop remains", not a crash.
 
-**Fix.** Run `/mop:code`, or `lint --base main --fix` and review the diff. To stop a rule failing the run, move it to [`mop.leave`](reference/config.md#mopleave).
+**Fix.** Run `/mop:code`, or `slopmop lint --base main --fix` and review the diff. To stop a rule failing the run, move it to [`mop.leave`](reference/config.md#mopleave).
 
 ## `<comment> has no effect because you have 'noInlineConfig' setting in your config`
 
@@ -71,13 +71,13 @@ export default {
 };
 ```
 
-**Prevent.** Run `lint --print-config` after you edit an array, and check that the defaults stayed.
+**Prevent.** Run `slopmop lint --print-config` after you edit an array, and check that the defaults stayed.
 
 ## A default rule or `fix` entry disappeared
 
 **Cause.** Arrays replace whole. A repo `mop.fix: ["unicorn/*"]` drops the 15 `strict` entries.
 
-**Fix.** Copy the current list from `lint --print-config` into your config, then add your entries.
+**Fix.** Copy the current list from `slopmop lint --print-config` into your config, then add your entries.
 
 ## `Mocking first-party module '<path>'`
 
@@ -134,9 +134,9 @@ The mops still run without Jev. They fall back to the config sort and say so in 
 
 ## A mop ignores my local harness change
 
-**Cause.** The mop skills run `npx -y -p mop-harness`, which downloads the published package.
+**Cause.** The mop skills run `npx -y slopmop`, which downloads the published package.
 
-**Fix.** Run your checkout directly with `node --import tsx /path/to/mop/bin/lint.ts`. See [Contribute to mop](contributing.md#load-your-local-copy).
+**Fix.** Run your checkout directly with `node --import tsx /path/to/mop/bin/slopmop.ts lint`. See [Contribute to mop](contributing.md#load-your-local-copy).
 
 ## `ERR_PNPM_BROKEN_LOCKFILE ... expected a single document in the stream`
 
@@ -146,7 +146,7 @@ The mops still run without Jev. They fall back to the config sort and say so in 
 
 ## Next steps
 
-- [Open an issue](https://github.com/zico-io/mop/issues/new) with the command, the full output, and your `lint --print-config`.
-- [`lint` reference](reference/lint.md): flags, scope and exit codes.
+- [Open an issue](https://github.com/zico-io/mop/issues/new) with the command, the full output, and your `slopmop lint --print-config`.
+- [`slopmop lint` reference](reference/lint.md): flags, scope and exit codes.
 - [mop.config reference](reference/config.md): every key and default.
-- [`judge` reference](reference/judge.md): verdict rules.
+- [`slopmop judge` reference](reference/judge.md): verdict rules.

@@ -13,7 +13,7 @@ Fix the slop the branch added to its code, on the lines it owns.
 
 1. **Lint changed lines.** From the repo root:
    ```bash
-   npx -y -p mop-harness lint --base "$BASE_REF" --json > /tmp/mop-findings.json
+   npx -y slopmop lint --base "$BASE_REF" --json > /tmp/mop-findings.json
    ```
    Pass paths instead of `--base` to lint whole files. `lint` compares the working tree with the merge base, keeps only findings on lines the branch added, and tags each one `fix`, `leave` (with the reason) or `review` from the merged config. Report `byRule` counts and `sources` (which config files applied).
 
@@ -21,7 +21,7 @@ Fix the slop the branch added to its code, on the lines it owns.
 
 3. **Judge.** Send every `fix` and `review` finding to Jev with `--mop code`, following [JUDGE.md](../../JUDGE.md). Fix only `enforce`; `waive` joins the left list; `human` goes to **Needs your call**. If Jev is skipped, fix `fix` findings and decide each `review` rule yourself. Show the split and wait for a go-ahead when it is over about 100 fixes.
 
-4. **Fix** the `enforce` findings with the recipes in [REFERENCE.md](REFERENCE.md#fix-recipes). `npx -y -p mop-harness lint --base "$BASE_REF" --fix` autofixes every `fix` rule on lines the branch added, so revert any autofix on a `waive` or `human` finding; review the result. Recheck every edited file with `prettier --check`.
+4. **Fix** the `enforce` findings with the recipes in [REFERENCE.md](REFERENCE.md#fix-recipes). `npx -y slopmop lint --base "$BASE_REF" --fix` autofixes every `fix` rule on lines the branch added, so revert any autofix on a `waive` or `human` finding; review the result. Recheck every edited file with `prettier --check`.
 
 5. **Verify.** Format, typecheck, run the touched suites, rerun `lint` and report before and after counts for the fixed rules.
 
