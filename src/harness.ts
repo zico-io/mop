@@ -11,10 +11,10 @@ import unicorn from "eslint-plugin-unicorn";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 import type { Linter } from "eslint";
-import strict from "./presets/strict.ts";
-import { merge, type Config, type Limits, type TestLimits, type UserConfig } from "./config.ts";
-import testGuardrails from "./rules/test-guardrails.ts";
-import { DETERMINISM_SYNTAX, FIXTURE_FILES, TEST_FILES, TEST_SYNTAX } from "./rules/test-syntax.ts";
+import strict from "./presets/strict";
+import { merge, type Config, type Limits, type TestLimits, type UserConfig } from "./config";
+import testGuardrails from "./rules/test-guardrails";
+import { DETERMINISM_SYNTAX, FIXTURE_FILES, TEST_FILES, TEST_SYNTAX } from "./rules/test-syntax";
 
 const SOURCE = "**/*.{js,mjs,cjs,jsx,ts,mts,cts,tsx}";
 

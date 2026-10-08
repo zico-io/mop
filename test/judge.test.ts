@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { judge, type JevResult, type JevRow } from "../src/judge.ts";
+import { judge, type JevResult, type JevRow } from "../src/judge";
 
 const answer = (slop: number, deliberate: number, risky: number) => ({
   slop: { type: "noul", noul: slop },

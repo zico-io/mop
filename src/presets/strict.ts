@@ -1,4 +1,4 @@
-import type { Config } from "../config.ts";
+import type { Config } from "../config";
 
 const SIZE_LIMIT = "Size limits are a design conversation; fix only when asked.";
 

@@ -4,8 +4,8 @@ import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { ESLint } from "eslint";
-import { addedLines } from "../src/changes.ts";
-import { harness, loadConfig, sortRule } from "../src/index.ts";
+import { addedLines } from "../src/changes";
+import { harness, loadConfig, sortRule } from "../src";
 
 test("layers merge strict < user taste < org < repo", async () => {
   const dir = await mkdtemp(path.join(os.tmpdir(), "mop-"));

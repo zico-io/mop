@@ -2,7 +2,7 @@
 import { readFile } from "node:fs/promises";
 import { text } from "node:stream/consumers";
 import { parseArgs } from "node:util";
-import { judge, type Finding, type Judged } from "../src/judge.ts";
+import { judge, type Finding, type Judged } from "../src/judge";
 
 const { values, positionals } = parseArgs({
   allowPositionals: true,

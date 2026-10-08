@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import type { Linter } from "eslint";
-import strict from "./presets/strict.ts";
+import strict from "./presets/strict";
 
 export interface Limits {
   params: number;

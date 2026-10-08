@@ -2,9 +2,9 @@
 import path from "node:path";
 import { parseArgs } from "node:util";
 import { ESLint } from "eslint";
-import { changedCode, git, resolveBase, type Lines, type Target } from "../src/changes.ts";
-import { harness, loadConfig, sortRule, type Sorting } from "../src/index.ts";
-import type { Finding } from "../src/judge.ts";
+import { changedCode, git, resolveBase, type Lines, type Target } from "../src/changes";
+import { harness, loadConfig, sortRule, type Sorting } from "../src";
+import type { Finding } from "../src/judge";
 
 type LintFinding = Finding & Sorting & { file: string; line: number };
 
