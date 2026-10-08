@@ -46,7 +46,7 @@ A JSON array of findings, or an object with a `findings` array, as `mop-lint --j
 | --- | --- | --- | --- |
 | `rule` | `string` | Yes | Rule id or detector name. |
 | `message` | `string` | Yes | What is wrong. |
-| `file` | `string` | No | Path from the current directory. |
+| `file` | `string` | No | Path from the git root, as `mop-lint` writes it. Outside a git repository, from the current directory. |
 | `line` | `number` | No | 1-based line. |
 | `snippet` | `string` | No | Code to show Jev. When absent, `mop-judge` reads 4 lines on each side of `line` from `file`. |
 | `mop` | `string` | No | Overrides `--mop` for this finding. |
