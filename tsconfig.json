@@ -19,6 +19,7 @@
     "src",
     "bin",
     "test",
-    "tsdown.config.ts"
+    "tsdown.config.ts",
+    "scripts"
   ]
 }

@@ -7,7 +7,7 @@ Every mop asks Jev, through the `jev` CLI from TypeSafe, whether each finding sh
 Write the findings as a JSON array of `{file, line, rule, message}`. `mop-lint --json` output works as it is.
 
 ```bash
-npx -y -p github:zico-io/mop mop-judge --mop <code|ui|tests|docs> --json /tmp/mop-<mop>-findings.json > /tmp/mop-<mop>-judged.json
+npx -y -p mop-harness mop-judge --mop <code|ui|tests|docs> --json /tmp/mop-<mop>-findings.json > /tmp/mop-<mop>-judged.json
 ```
 
 It runs `jev batch` once for all findings, so it needs `jev` on the `PATH` with a key (`jev auth status`; `jev doctor` checks the round trip). `JEV_ENABLED=0` turns judging off.

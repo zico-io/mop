@@ -23,11 +23,11 @@ Slop mops for Claude Code, and the strict ESLint harness behind them.
 Lints only the lines a branch added, and tags each finding `fix`, `leave` or `review` from your config.
 
 ```bash
-npx -y -p github:zico-io/mop mop-lint                 # vs origin/HEAD
-npx -y -p github:zico-io/mop mop-lint --base main --json
-npx -y -p github:zico-io/mop mop-lint --base main --fix   # fix rules, branch lines only
-npx -y -p github:zico-io/mop mop-lint src/app.ts      # whole files
-npx -y -p github:zico-io/mop mop-lint --print-config
+npx -y -p mop-harness mop-lint                 # vs origin/HEAD
+npx -y -p mop-harness mop-lint --base main --json
+npx -y -p mop-harness mop-lint --base main --fix   # fix rules, branch lines only
+npx -y -p mop-harness mop-lint src/app.ts      # whole files
+npx -y -p mop-harness mop-lint --print-config
 ```
 
 Exits 1 while `fix` findings remain.
@@ -37,8 +37,8 @@ Exits 1 while `fix` findings remain.
 Asks Jev, through one `jev batch` call, whether each finding should be enforced. Verdicts are `enforce`, `waive`, `human` (you decide) or `unjudged` (Jev unavailable). Needs the `jev` CLI on the `PATH` with a key (`jev auth status`).
 
 ```bash
-npx -y -p github:zico-io/mop mop-lint --base main --json > findings.json
-npx -y -p github:zico-io/mop mop-judge --mop code findings.json
+npx -y -p mop-harness mop-lint --base main --json > findings.json
+npx -y -p mop-harness mop-judge --mop code findings.json
 ```
 
 ## Config
@@ -82,7 +82,7 @@ export default {
 | `rules` | Raw ESLint overrides, applied last |
 | `mop.fix`, `mop.leave` | How `/mop:code` sorts findings; `plugin/*` matches a whole plugin; `null` drops a `leave` |
 
-Use the harness in your own `eslint.config.mjs` too (`npm i -D github:zico-io/mop`):
+Use the harness in your own `eslint.config.mjs` too (`pnpm add -D mop-harness`):
 
 ```js
 import { harness, loadConfig } from "mop-harness";
@@ -92,7 +92,9 @@ export default harness(await loadConfig());
 ## Develop
 
 ```bash
-npm install
-npm run typecheck
-npm test
+pnpm install
+pnpm typecheck
+pnpm test
 ```
+
+A change that should ship needs a changeset: run `pnpm changeset`, pick the bump, and commit the file it writes. On `main`, the release workflow opens a version PR that bumps `package.json` and the plugin manifests and writes `CHANGELOG.md`. Merging that PR publishes to npm through trusted publishing.
