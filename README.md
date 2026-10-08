@@ -31,6 +31,15 @@ npx -y -p github:zico-io/mop mop-lint --print-config
 
 Exits 1 while `fix` findings remain.
 
+## mop-judge
+
+Asks Jev, through one `jev batch` call, whether each finding should be enforced. Verdicts are `enforce`, `waive`, `human` (you decide) or `unjudged` (Jev unavailable). Needs the `jev` CLI on the `PATH` with a key (`jev auth status`).
+
+```bash
+npx -y -p github:zico-io/mop mop-lint --base main --json > findings.json
+npx -y -p github:zico-io/mop mop-judge --mop code findings.json
+```
+
 ## Config
 
 Four layers, last wins. Objects merge key by key; arrays replace.

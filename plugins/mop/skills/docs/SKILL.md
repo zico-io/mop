@@ -15,24 +15,27 @@ Clean the prose a branch changed, keeping every fact.
 
 2. **Lint.** Run the repo's doc linter (the command CI runs, for example `node scripts/doclint.mjs docs --max-warnings 0`). Record findings. No linter in the repo: go on, and say in the report that the lint gate was skipped.
 
-3. **Fix structure first.** A numbered list needs a blank line before it, or Markdown folds its steps into the paragraph above and Prettier joins them. Long paragraphs (the lint's sentence limit) usually hide a list.
+3. **Judge.** Write the linter findings, plus each slop pattern you mean to rewrite (rule = the pattern name, message = the phrase), and send them to Jev with `--mop docs`, following [JUDGE.md](../../JUDGE.md). Fix only `enforce` findings.
+
+4. **Fix structure first.** A numbered list needs a blank line before it, or Markdown folds its steps into the paragraph above and Prettier joins them. Long paragraphs (the lint's sentence limit) usually hide a list.
    ```md
    Set up the webhook:
    1. Open **Settings**.
    ```
    renders as one paragraph. Put a blank line after `Set up the webhook:` to get a list.
 
-4. **Read for slop.** Load the `unslop` skill (pstack) and apply its patterns to the changed paragraphs; the short list with before and after examples is in [REFERENCE.md](REFERENCE.md#slop-patterns). For procedural docs, also apply `simplified-technical-english`: one instruction per step, imperative mood.
+5. **Read for slop.** Load the `unslop` skill (pstack) and apply its patterns to the changed paragraphs; the short list with before and after examples is in [REFERENCE.md](REFERENCE.md#slop-patterns). For procedural docs, also apply `simplified-technical-english`: one instruction per step, imperative mood.
 
-5. **Rewrite, never invent.** Keep product names, UI labels in bold exactly as the product shows them, numbers, and links. If a sentence makes a claim you cannot verify from the repo, keep it and flag it rather than rewording it into a new claim.
+6. **Rewrite, never invent.** Keep product names, UI labels in bold exactly as the product shows them, numbers, and links. If a sentence makes a claim you cannot verify from the repo, keep it and flag it rather than rewording it into a new claim.
 
-6. **Verify.** Rerun the doc linter to zero warnings and run Prettier on the files. Report before and after findings.
+7. **Verify.** Rerun the doc linter to zero warnings apart from `waive` and `human` findings, and run Prettier on the files. Report before and after findings, `waive` findings with their reason, and **Needs your call**.
 
-7. **Commit** unless `--no-commit`. Push only when asked.
+8. **Commit** unless `--no-commit`. Push only when asked.
 
 ## Definition of done
 
-- [ ] The repo's doc linter reports zero errors and zero warnings on the files in scope, or the report says the repo has no linter.
+- [ ] The repo's doc linter reports zero errors and zero warnings on the files in scope apart from `waive` and `human` findings, or the report says the repo has no linter.
+- [ ] Every `human` verdict is listed under **Needs your call** and left untouched, or the report says Jev was skipped and why.
 - [ ] No em dashes, mid-sentence colons, or "serves as" style phrasing remain in changed paragraphs.
 - [ ] Every numbered procedure renders as a list: a blank line before it, one instruction per step.
 - [ ] Every product name, bold UI label, number and link from the original text is still there.

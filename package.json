@@ -12,7 +12,8 @@
     ".": "./src/index.mjs"
   },
   "bin": {
-    "mop-lint": "./bin/mop-lint.mjs"
+    "mop-lint": "./bin/mop-lint.mjs",
+    "mop-judge": "./bin/mop-judge.mjs"
   },
   "files": [
     "src",

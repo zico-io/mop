@@ -19,15 +19,18 @@ Shrink a branch's tests to one test per behaviour, with proof that coverage held
 
 3. **Brief each subagent** with its files, the repo path, the test and typecheck commands, and the rules in [REFERENCE.md](REFERENCE.md#subagent-brief) verbatim. Ask for the report listed there. If the user changes scope mid-run, SendMessage each running subagent instead of restarting it.
 
-4. **Verify.** `git status --short` shows no stray files. Review each diff and reject merges that dropped an `expect`, swapped a literal for `expect.any`, or added a mock. Run typecheck and every touched suite with its own package runner. Compare failures with `BASE_REF`; report pre-existing ones.
+4. **Judge.** Merges keep every `expect`, so they need no judging. Send each deletion beyond a merge (rule `delete-covered-test`, message naming the covering test) and each service mock a subagent flagged (rule `service-mock`) to Jev with `--mop tests`, following [JUDGE.md](../../JUDGE.md). Restore any deleted test that is not `enforce`.
 
-5. **Report and commit.** One table: area, tests before, tests after. Then deletions beyond merges, mutation results, pre-existing failures, and what subagents flagged but left (such as service mocks). Commit as `test: cover the same behaviour with fewer tests` with the totals in the body. Push only when asked.
+5. **Verify.** `git status --short` shows no stray files. Review each diff and reject merges that dropped an `expect`, swapped a literal for `expect.any`, or added a mock. Run typecheck and every touched suite with its own package runner. Compare failures with `BASE_REF`; report pre-existing ones.
+
+6. **Report and commit.** One table: area, tests before, tests after. Then deletions beyond merges, mutation results, pre-existing failures, what subagents flagged but left (such as service mocks), and **Needs your call**. Commit as `test: cover the same behaviour with fewer tests` with the totals in the body. Push only when asked.
 
 ## Definition of done
 
 - [ ] Every test file in scope was read in full, not only its changed lines.
 - [ ] Each remaining test covers a behaviour no other remaining test covers.
-- [ ] Every deleted test names the remaining test that fails if its behaviour breaks.
+- [ ] Every deleted test names the remaining test that fails if its behaviour breaks, and Jev judged its deletion `enforce` (or Jev was skipped).
+- [ ] Every `human` verdict is listed under **Needs your call** and left untouched, or the report says Jev was skipped and why.
 - [ ] No merge dropped an `expect`, swapped a literal for `expect.any`, or added a mock.
 - [ ] At least 3 mutation checks per subagent each failed a remaining test, and `git diff` shows no source file changed.
 - [ ] No non-null assertions, `globalThis` assignments, or `expect` inside loops or conditionals on the lines touched.

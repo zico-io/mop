@@ -17,21 +17,24 @@ Fix the slop the branch added to its code, on the lines it owns.
    ```
    Pass paths instead of `--base` to lint whole files. mop-lint compares the working tree with the merge base, keeps only findings on lines the branch added, and tags each one `fix`, `leave` (with the reason) or `review` from the merged config. Report `byRule` counts and `sources` (which config files applied).
 
-2. **Sort.** `fix` and `leave` come from the config; see [REFERENCE.md](REFERENCE.md#config) for how layers merge. Decide each `review` rule yourself, and name it in the report. Show the split and wait for a go-ahead when it is over about 100 fixes.
+2. **Sort.** `fix` and `leave` come from the config; see [REFERENCE.md](REFERENCE.md#config) for how layers merge. `leave` is final.
 
-3. **Fix** with the recipes in [REFERENCE.md](REFERENCE.md#fix-recipes). `mop-lint --base "$BASE_REF" --fix` autofixes only `fix` rules and only on lines the branch added; review the result. Recheck every edited file with `prettier --check`.
+3. **Judge.** Send every `fix` and `review` finding to Jev with `--mop code`, following [JUDGE.md](../../JUDGE.md). Fix only `enforce`; `waive` joins the left list; `human` goes to **Needs your call**. If Jev is skipped, fix `fix` findings and decide each `review` rule yourself. Show the split and wait for a go-ahead when it is over about 100 fixes.
 
-4. **Verify.** Format, typecheck, run the touched suites, rerun mop-lint and report before and after counts for the fixed rules.
+4. **Fix** the `enforce` findings with the recipes in [REFERENCE.md](REFERENCE.md#fix-recipes). `mop-lint --base "$BASE_REF" --fix` autofixes every `fix` rule on lines the branch added, so revert any autofix on a `waive` or `human` finding; review the result. Recheck every edited file with `prettier --check`.
 
-5. **Report and commit.** Fixed counts by rule, what was left and why, and any `review` rule you chose to fix or leave. Commit unless `--no-commit`. Push only when asked.
+5. **Verify.** Format, typecheck, run the touched suites, rerun mop-lint and report before and after counts for the fixed rules.
+
+6. **Report and commit.** Fixed counts by rule, what was left and why (config `leave` and Jev `waive`), and **Needs your call**. Commit unless `--no-commit`. Push only when asked.
 
 ## Definition of done
 
 - [ ] mop-lint ran on every changed code file, filtered to lines the branch added.
-- [ ] Every `fix` finding is fixed, or listed with the reason it stays.
+- [ ] Every `enforce` finding is fixed, or listed with the reason it stays.
+- [ ] Every `human` verdict is listed under **Needs your call** and left untouched, or the report says Jev was skipped and why.
 - [ ] Every `leave` rule is named in the report with its reason from the config.
-- [ ] Every `review` rule has a decision in the report.
-- [ ] Rerunning mop-lint shows zero `fix` findings, apart from the listed exceptions.
+- [ ] Every `review` finding has a Jev verdict, or a decision of yours when Jev was skipped.
+- [ ] Rerunning mop-lint shows zero `fix` findings, apart from `waive`, `human` and the listed exceptions.
 - [ ] `prettier --check` parses every edited file.
 - [ ] Typecheck and the touched suites pass, apart from failures listed as pre-existing on `BASE_REF`.
 

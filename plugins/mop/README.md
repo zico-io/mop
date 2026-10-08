@@ -12,4 +12,6 @@ Slop mops for a branch. Each one finds the slop a branch added, fixes it on the 
 
 Every mop takes `[BASE_REF|path] [--no-commit]` and never pushes unless asked.
 
-Depends on: Node 22+ for `mop-lint` (code, fetched with `npx` from this repo), pstack's `unslop` (docs), the `impeccable` plugin (ui).
+Every mop asks Jev which findings to enforce and hands the uncertain ones to you under **Needs your call**; see [JUDGE.md](JUDGE.md).
+
+Depends on: Node 22+ for `mop-lint` and `mop-judge` ( fetched with `npx` from this repo), pstack's `unslop` (docs), the `impeccable` plugin (ui). Judging needs the `jev` CLI with a key; without it, the mops fall back to their own sort.
