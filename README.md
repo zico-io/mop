@@ -1,5 +1,7 @@
 # mop
 
+agents love making a mess, give yours a mop to clean up their slop.
+
 ## Install the plugin
 
 ```
