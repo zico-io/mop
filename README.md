@@ -23,11 +23,11 @@ Slop mops for Claude Code, and the strict ESLint harness behind them.
 Lints only the lines a branch added, and tags each finding `fix`, `leave` or `review` from your config.
 
 ```bash
-npx -y -p github:zico-io/mop mop-lint                 # vs origin/HEAD
-npx -y -p github:zico-io/mop mop-lint --base main --json
-npx -y -p github:zico-io/mop mop-lint --base main --fix   # fix rules, branch lines only
-npx -y -p github:zico-io/mop mop-lint src/app.ts      # whole files
-npx -y -p github:zico-io/mop mop-lint --print-config
+npx -y -p mop-harness mop-lint                 # vs origin/HEAD
+npx -y -p mop-harness mop-lint --base main --json
+npx -y -p mop-harness mop-lint --base main --fix   # fix rules, branch lines only
+npx -y -p mop-harness mop-lint src/app.ts      # whole files
+npx -y -p mop-harness mop-lint --print-config
 ```
 
 Exits 1 while `fix` findings remain.
@@ -37,8 +37,8 @@ Exits 1 while `fix` findings remain.
 Asks Jev, through one `jev batch` call, whether each finding should be enforced. Verdicts are `enforce`, `waive`, `human` (you decide) or `unjudged` (Jev unavailable). Needs the `jev` CLI on the `PATH` with a key (`jev auth status`).
 
 ```bash
-npx -y -p github:zico-io/mop mop-lint --base main --json > findings.json
-npx -y -p github:zico-io/mop mop-judge --mop code findings.json
+npx -y -p mop-harness mop-lint --base main --json > findings.json
+npx -y -p mop-harness mop-judge --mop code findings.json
 ```
 
 ## Config
@@ -82,7 +82,7 @@ export default {
 | `rules` | Raw ESLint overrides, applied last |
 | `mop.fix`, `mop.leave` | How `/mop:code` sorts findings; `plugin/*` matches a whole plugin; `null` drops a `leave` |
 
-Use the harness in your own `eslint.config.mjs` too (`npm i -D github:zico-io/mop`). pnpm blocks the build a git install runs until you add the `allowBuilds` entry its error prints, once per commit:
+Use the harness in your own `eslint.config.mjs` too (`pnpm add -D mop-harness`):
 
 ```js
 import { harness, loadConfig } from "mop-harness";

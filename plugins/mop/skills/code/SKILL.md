@@ -13,7 +13,7 @@ Fix the slop the branch added to its code, on the lines it owns.
 
 1. **Lint changed lines.** From the repo root:
    ```bash
-   npx -y -p github:zico-io/mop mop-lint --base "$BASE_REF" --json > /tmp/mop-lint.json
+   npx -y -p mop-harness mop-lint --base "$BASE_REF" --json > /tmp/mop-lint.json
    ```
    Pass paths instead of `--base` to lint whole files. mop-lint compares the working tree with the merge base, keeps only findings on lines the branch added, and tags each one `fix`, `leave` (with the reason) or `review` from the merged config. Report `byRule` counts and `sources` (which config files applied).
 
