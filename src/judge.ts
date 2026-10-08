@@ -34,11 +34,44 @@ export const QUESTIONS = {
   },
 };
 
-const certainty = (answer) => Math.max(answer.noul, 1 - answer.noul);
+type QuestionId = keyof typeof QUESTIONS;
+const QUESTION_IDS = Object.keys(QUESTIONS) as QuestionId[];
 
-export const verdictOf = (answers) => {
-  const yes = (id) => answers[id].noul >= 0.5;
-  const sure = (id) => certainty(answers[id]) >= AUTO;
+type Answers = Record<QuestionId, { noul: number }>;
+
+export interface Finding {
+  rule: string;
+  message: string;
+  file?: string;
+  line?: number;
+  mop?: string;
+  snippet?: string;
+}
+
+export interface JevRow {
+  id: number;
+  state: { mop: string; rule: string; finding: string; file?: string; snippet: string };
+}
+
+export interface JevResult {
+  id: number;
+  answers?: Partial<Record<string, { noul?: unknown }>>;
+  error?: string;
+}
+
+export type Ruling = { verdict: "enforce" | "waive" | "human"; why: string };
+
+export type Judged<Input extends Finding> = Input &
+  (
+    | { verdict: "unjudged"; why: string }
+    | (Ruling & { probabilities: Record<QuestionId, number> })
+  );
+
+const certainty = (answer: { noul: number }): number => Math.max(answer.noul, 1 - answer.noul);
+
+export const verdictOf = (answers: Answers): Ruling => {
+  const yes = (id: QuestionId) => answers[id].noul >= 0.5;
+  const sure = (id: QuestionId) => certainty(answers[id]) >= AUTO;
   if (!sure("slop")) return { verdict: "human", why: "Jev is unsure whether this is slop" };
   if (!yes("slop")) return { verdict: "waive", why: "not slop on this line" };
   if (!sure("deliberate")) return { verdict: "human", why: "Jev is unsure whether the pattern is deliberate here" };
@@ -47,7 +80,11 @@ export const verdictOf = (answers) => {
   return { verdict: "enforce", why: "real slop with a mechanical fix" };
 };
 
-export const snippetOf = async (root, { file, line }, radius = 4) => {
+export const snippetOf = async (
+  root: string,
+  { file, line }: Pick<Finding, "file" | "line">,
+  radius = 4,
+): Promise<string> => {
   if (!file || !line) return "";
   try {
     const lines = (await readFile(path.resolve(root, file), "utf8")).split("\n");
@@ -61,7 +98,7 @@ export const snippetOf = async (root, { file, line }, radius = 4) => {
   }
 };
 
-export const jevBatch = (rows) =>
+export const jevBatch = (rows: JevRow[]): Promise<JevResult[]> =>
   new Promise((resolve, reject) => {
     const child = execFile(
       "jev",
@@ -69,17 +106,27 @@ export const jevBatch = (rows) =>
       { maxBuffer: 64 * 1024 * 1024 },
       (error, stdout) => {
         if (error) return reject(error);
-        resolve(stdout.split("\n").filter((line) => line.startsWith("{")).map((line) => JSON.parse(line)));
+        resolve(stdout.split("\n").filter((line) => line.startsWith("{")).map((line): JevResult => JSON.parse(line)));
       },
     );
-    child.stdin.end(rows.map((row) => JSON.stringify(row)).join("\n"));
+    child.stdin?.end(rows.map((row) => JSON.stringify(row)).join("\n"));
   });
 
-const unjudged = (finding, why) => ({ ...finding, verdict: "unjudged", why });
+const isAnswered = (answers: JevResult["answers"]): answers is Answers =>
+  QUESTION_IDS.every((key) => typeof answers?.[key]?.noul === "number");
 
-export const judge = async (findings, { root = process.cwd(), run = jevBatch } = {}) => {
+const unjudged = <Input extends Finding>(finding: Input, why: string): Judged<Input> => ({
+  ...finding,
+  verdict: "unjudged",
+  why,
+});
+
+export const judge = async <Input extends Finding>(
+  findings: Input[],
+  { root = process.cwd(), run = jevBatch }: { root?: string; run?: (rows: JevRow[]) => Promise<JevResult[]> } = {},
+): Promise<Judged<Input>[]> => {
   const rows = await Promise.all(
-    findings.map(async (finding, id) => ({
+    findings.map(async (finding, id): Promise<JevRow> => ({
       id,
       state: {
         mop: finding.mop ?? "code",
@@ -90,7 +137,7 @@ export const judge = async (findings, { root = process.cwd(), run = jevBatch } =
       },
     })),
   );
-  let results;
+  let results: JevResult[];
   try {
     results = await run(rows);
   } catch (error) {
@@ -99,9 +146,10 @@ export const judge = async (findings, { root = process.cwd(), run = jevBatch } =
   const byId = new Map(results.map((result) => [result.id, result]));
   return findings.map((finding, id) => {
     const { answers, error } = byId.get(id) ?? {};
-    if (Object.keys(QUESTIONS).some((key) => typeof answers?.[key]?.noul !== "number"))
-      return unjudged(finding, error ?? "jev returned no answer");
-    const probabilities = Object.fromEntries(Object.entries(answers).map(([key, answer]) => [key, Math.round(answer.noul * 100) / 100]));
+    if (!isAnswered(answers)) return unjudged(finding, error ?? "jev returned no answer");
+    const probabilities = Object.fromEntries(
+      QUESTION_IDS.map((key) => [key, Math.round(answers[key].noul * 100) / 100]),
+    ) as Record<QuestionId, number>;
     return { ...finding, ...verdictOf(answers), probabilities };
   });
 };

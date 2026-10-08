@@ -9,18 +9,23 @@
     "node": ">=22"
   },
   "exports": {
-    ".": "./src/index.mjs"
+    ".": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    }
   },
   "bin": {
-    "mop-lint": "./bin/mop-lint.mjs",
-    "mop-judge": "./bin/mop-judge.mjs"
+    "mop-lint": "./dist/mop-lint.mjs",
+    "mop-judge": "./dist/mop-judge.mjs"
   },
   "files": [
-    "src",
-    "bin"
+    "dist"
   ],
   "scripts": {
-    "test": "node --test test/*.test.mjs"
+    "build": "tsdown",
+    "prepare": "npm run build",
+    "typecheck": "tsc",
+    "test": "node --import tsx --test test/*.test.ts"
   },
   "dependencies": {
     "@eslint-react/eslint-plugin": "5.20.8",
@@ -36,5 +41,10 @@
     "globals": "17.12.0",
     "typescript": "6.0.3",
     "typescript-eslint": "8.70.1"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.1",
+    "tsdown": "0.23.0",
+    "tsx": "4.23.15"
   }
 }

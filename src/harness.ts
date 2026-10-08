@@ -10,14 +10,20 @@ import tailwindcss from "eslint-plugin-tailwindcss";
 import unicorn from "eslint-plugin-unicorn";
 import globals from "globals";
 import tseslint from "typescript-eslint";
-import strict from "./presets/strict.mjs";
-import { merge } from "./config.mjs";
-import testGuardrails from "./rules/test-guardrails.mjs";
-import { DETERMINISM_SYNTAX, FIXTURE_FILES, TEST_FILES, TEST_SYNTAX } from "./rules/test-syntax.mjs";
+import type { Linter } from "eslint";
+import strict from "./presets/strict";
+import { merge, type Config, type Limits, type TestLimits, type UserConfig } from "./config";
+import testGuardrails from "./rules/test-guardrails";
+import { DETERMINISM_SYNTAX, FIXTURE_FILES, TEST_FILES, TEST_SYNTAX } from "./rules/test-syntax";
 
 const SOURCE = "**/*.{js,mjs,cjs,jsx,ts,mts,cts,tsx}";
 
-const envSyntax = (env) =>
+type RestrictedSyntax = { selector: string; message: string };
+
+// Typed as a typescript-eslint FlatConfig or an array, which Linter.Config rejects; at runtime it is one plain config object.
+const tailwindRecommended = tailwindcss.configs.recommended as Linter.Config;
+
+const envSyntax = (env: Config["env"]): RestrictedSyntax[] =>
   env
     ? [
         "MemberExpression[object.name='process'][property.name='env']",
@@ -27,7 +33,7 @@ const envSyntax = (env) =>
       ].map((selector) => ({ selector, message: env.message }))
     : [];
 
-const envImports = (env) =>
+const envImports = (env: Config["env"]) =>
   env
     ? ["node:process", "process"].map((name) => ({
         name,
@@ -36,7 +42,7 @@ const envImports = (env) =>
       }))
     : [];
 
-const sizeRules = (limits) => ({
+const sizeRules = (limits: Limits): Linter.RulesRecord => ({
   "better-max-params/better-max-params": [
     "error",
     { constructor: limits.constructorParams, func: limits.params },
@@ -54,7 +60,7 @@ const sizeRules = (limits) => ({
   "id-length": ["error", { min: limits.idLength }],
 });
 
-const testRules = (tests, restrictedSyntax) => ({
+const testRules = (tests: TestLimits, restrictedSyntax: RestrictedSyntax[]): Linter.RulesRecord => ({
   "no-restricted-syntax": ["error", ...restrictedSyntax, ...DETERMINISM_SYNTAX, ...TEST_SYNTAX],
   "test-guardrails/max-mocks-per-file": [
     "error",
@@ -104,8 +110,8 @@ const testRules = (tests, restrictedSyntax) => ({
   "@typescript-eslint/no-non-null-assertion": "error",
 });
 
-export default function harness(input = {}) {
-  const config = merge(strict, input);
+export default function harness(input: UserConfig = {}): Linter.Config[] {
+  const config = merge<Config>(strict, input);
   const restrictedSyntax = envSyntax(config.env);
   const playwrightFiles = config.playwright ? [`${config.playwright.dir}/**/*.spec.ts`] : [];
   return defineConfig([
@@ -122,7 +128,7 @@ export default function harness(input = {}) {
     ...(config.tailwind
       ? [
           {
-            ...tailwindcss.configs.recommended,
+            ...tailwindRecommended,
             files: config.tailwind.files ?? ["**/*.{jsx,tsx}"],
             settings: { tailwindcss: { cssConfigPath: config.tailwind.entryPoint } },
           },

@@ -3,9 +3,15 @@ import { execFileSync } from "node:child_process";
 const CODE = /\.[cm]?[jt]sx?$/;
 const HUNK = /^@@ -\S+ \+(\d+)(?:,(\d+))? @@/;
 
-export const git = (cwd, ...args) => execFileSync("git", args, { cwd, encoding: "utf8" }).trim();
+export type Lines = ReadonlySet<number> | "all";
+export interface Target {
+  file: string;
+  lines: Lines;
+}
 
-const refExists = (cwd, ref) => {
+export const git = (cwd: string, ...args: string[]): string => execFileSync("git", args, { cwd, encoding: "utf8" }).trim();
+
+const refExists = (cwd: string, ref: string): boolean => {
   try {
     git(cwd, "rev-parse", "--verify", "--quiet", ref);
     return true;
@@ -14,13 +20,13 @@ const refExists = (cwd, ref) => {
   }
 };
 
-export const resolveBase = (cwd, base) => {
+export const resolveBase = (cwd: string, base?: string): string => {
   if (!base) return git(cwd, "symbolic-ref", "--short", "refs/remotes/origin/HEAD");
   return refExists(cwd, `origin/${base}`) ? `origin/${base}` : base;
 };
 
-export const addedLines = (diff) => {
-  const lines = new Set();
+export const addedLines = (diff: string): Set<number> => {
+  const lines = new Set<number>();
   for (const line of diff.split("\n")) {
     const hunk = HUNK.exec(line);
     if (!hunk) continue;
@@ -32,13 +38,13 @@ export const addedLines = (diff) => {
 };
 
 // Compares the working tree with the merge base, so commits that land on the base later never count.
-export const changedCode = (cwd, base) => {
+export const changedCode = (cwd: string, base: string): Target[] => {
   const mergeBase = git(cwd, "merge-base", base, "HEAD");
   const tracked = git(cwd, "diff", "--name-only", "--diff-filter=AM", mergeBase).split("\n");
   const untracked = git(cwd, "ls-files", "--others", "--exclude-standard").split("\n");
   return [...tracked, ...untracked]
     .filter((file) => CODE.test(file))
-    .map((file) => ({
+    .map((file): Target => ({
       file,
       lines: untracked.includes(file)
         ? "all"

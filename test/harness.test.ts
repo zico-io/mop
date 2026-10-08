@@ -4,8 +4,8 @@ import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { ESLint } from "eslint";
-import { addedLines } from "../src/changes.mjs";
-import { harness, loadConfig, sortRule } from "../src/index.mjs";
+import { addedLines } from "../src/changes";
+import { harness, loadConfig, sortRule } from "../src";
 
 test("layers merge strict < user taste < org < repo", async () => {
   const dir = await mkdtemp(path.join(os.tmpdir(), "mop-"));
@@ -36,8 +36,8 @@ test("lints with the configured taste and reads added lines from a diff", async 
     overrideConfig: harness({ comments: { allow: ["ponytail:"] } }),
   });
   const code = "// ponytail: kept\n// dropped\nexport const pick = (a, b) => (a ? 'a' : b ? 'b' : 'c');\n";
-  const [result] = await eslint.lintText(code, { filePath: "pick.mjs" });
-  const rules = result.messages.map(({ ruleId, line }) => `${line}:${ruleId}`);
+  const results = await eslint.lintText(code, { filePath: "pick.mjs" });
+  const rules = results.flatMap(({ messages }) => messages).map(({ ruleId, line }) => `${line}:${ruleId}`);
 
   assert.ok(rules.includes("2:no-comments/disallowComments"), rules.join(", "));
   assert.ok(!rules.includes("1:no-comments/disallowComments"), rules.join(", "));

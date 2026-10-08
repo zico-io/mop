@@ -47,7 +47,7 @@ Four layers, last wins. Objects merge key by key; arrays replace.
 
 | Layer | Where |
 |---|---|
-| Preset | `strict` ([src/presets/strict.mjs](src/presets/strict.mjs)) |
+| Preset | `strict` ([src/presets/strict.ts](src/presets/strict.ts)) |
 | Taste | `~/.config/mop/mop.config.{mjs,js,json}` |
 | Org | whatever the repo config `extends` (a path or a package) |
 | Repo | `mop.config.{mjs,js,json}` at the repo root |
@@ -93,5 +93,6 @@ export default harness(await loadConfig());
 
 ```bash
 npm install
+npm run typecheck
 npm test
 ```
