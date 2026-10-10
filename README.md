@@ -34,6 +34,17 @@ export { default } from "slopmop-eve";
 
 The mount exposes `slopmop__mop`, `slopmop__code` and the rest, and the agent loads them on `/mop` and `/mop:<name>`. The skills run `npx -y slopmop` and `git` in the agent's sandbox, so it needs Node 22+ and network access to npm. `/mop:ui` needs the Impeccable detector, which the eve sandbox does not have, so it stops and says so.
 
+## `slopmop init`
+
+Inspects the git repo, then asks about each setting and writes `mop.config.json` at the git root. It detects Tailwind and its CSS entry point, the Playwright test directory and an `env` module from tracked files, and offers those as defaults. It writes only the keys that differ from `strict`.
+
+```bash
+npx -y slopmop init           # asks, with detected defaults
+npx -y slopmop init --yes     # takes every default
+```
+
+It stops if a `mop.config` file exists. `--force` replaces an existing `mop.config.json`.
+
 ## `slopmop lint`
 
 Lints only the lines a branch added, and tags each finding `fix`, `leave` or `review` from your config.
