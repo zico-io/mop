@@ -2,7 +2,7 @@
 title: How mop works
 description: The mop plugin, the slopmop package, and how a finding moves from lint to fix.
 type: concept
-updated: 2026-10-08
+updated: 2026-10-10
 owner: zico-io
 ---
 
@@ -48,7 +48,7 @@ Each mop runs one loop on one kind of file: detect, judge, fix, verify, report. 
 
 `harness(config)` in `src/harness.ts` returns a flat ESLint config. It stacks the sonarjs, unicorn, security and React recommended rules. Then it adds the mop rules: no comments, size limits and a `process.env` ban. Test files also get mock budgets, a ban on mocking the subject under test, and deterministic fixtures. Tailwind and Playwright rules are opt-in.
 
-`lint` runs that config. It finds the merge base with the base ref, keeps findings on added lines only, and counts untracked files as fully added. Each finding gets an action from `mop.fix` and `mop.leave`:
+`lint` runs that config on JS and TS. Python, Go, Rust, Terraform and YAML go to ruff, staticcheck, clippy, tflint and yamllint, plus the same comment ban. It finds the merge base with the base ref, keeps findings on added lines only, and counts untracked files as fully added. Each finding gets an action from `mop.fix` and `mop.leave`:
 
 | Action | Meaning |
 | --- | --- |
@@ -87,7 +87,7 @@ Not guaranteed: lint autofixes can rewrite more of a file than the finding. Each
 | Item | Value |
 | --- | --- |
 | Node | 22 or later |
-| Files `lint` checks | `.js`, `.jsx`, `.ts`, `.tsx` and their `c`/`m` variants |
+| Files `lint` checks | JS and TS through ESLint; Python, Go, Rust, Terraform and YAML through their own linters |
 | Jev auto threshold | 0.9 certainty per question |
 | Strict size limits | 2 params, 50 lines per function, 250 per file, 600 per `.tsx` file |
 | `eslint-disable` comments | Ignored under `strict` (`inlineConfig: false`) |

@@ -1,6 +1,7 @@
 import type { Config } from "../config";
 
 const SIZE_LIMIT = "Size limits are a design conversation; fix only when asked.";
+const DOC_COMMENTS = "mop strips comments, so whether docs are required is the repo's call.";
 
 const strict: Config = {
   ignores: [
@@ -12,7 +13,22 @@ const strict: Config = {
   ],
   inlineConfig: false,
   comments: {
-    allow: ["eslint", "global", "@ts-", "@vitest-environment", "prettier-ignore"],
+    allow: [
+      "eslint",
+      "global",
+      "@ts-",
+      "@vitest-environment",
+      "prettier-ignore",
+      "!",
+      "-\\*- coding",
+      "noqa",
+      "type: ignore",
+      "pyright:",
+      "go:",
+      "nolint",
+      "tflint-ignore",
+      "yamllint",
+    ],
   },
   env: {
     message:
@@ -43,6 +59,13 @@ const strict: Config = {
   tailwind: false,
   playwright: false,
   rules: {},
+  linters: {
+    python: ["--select", "F,E,W,B,C4,C90,SIM,RET,PIE,ERA,UP,PL,RUF,ARG,T20", "--ignore", "E501"],
+    go: ["-checks", "all"],
+    rust: ["-W", "clippy::pedantic"],
+    terraform: [],
+    yaml: ["-d", "{extends: default, rules: {line-length: disable, document-start: disable}}"],
+  },
   mop: {
     fix: [
       "no-comments/disallowComments",
@@ -60,6 +83,22 @@ const strict: Config = {
       "unicorn/prefer-node-protocol",
       "unicorn/prefer-add-event-listener",
       "unicorn/prefer-top-level-await",
+      "mop/no-comments",
+      "ruff/F401",
+      "ruff/F841",
+      "ruff/ERA001",
+      "ruff/T201",
+      "ruff/RET505",
+      "ruff/PIE790",
+      "staticcheck/U1000",
+      "staticcheck/S1008",
+      "clippy/needless_return",
+      "clippy/redundant_clone",
+      "rustc/unused_imports",
+      "rustc/unused_variables",
+      "rustc/dead_code",
+      "tflint/terraform_unused_declarations",
+      "yamllint/trailing-spaces",
     ],
     leave: {
       "unicorn/filename-case": "PascalCase component files are the convention.",
@@ -72,6 +111,17 @@ const strict: Config = {
       "max-lines": SIZE_LIMIT,
       complexity: SIZE_LIMIT,
       "max-statements": SIZE_LIMIT,
+      "ruff/C901": SIZE_LIMIT,
+      "ruff/PLR0911": SIZE_LIMIT,
+      "ruff/PLR0912": SIZE_LIMIT,
+      "ruff/PLR0913": SIZE_LIMIT,
+      "ruff/PLR0915": SIZE_LIMIT,
+      "clippy/too_many_lines": SIZE_LIMIT,
+      "clippy/too_many_arguments": SIZE_LIMIT,
+      "clippy/missing_errors_doc": DOC_COMMENTS,
+      "clippy/missing_panics_doc": DOC_COMMENTS,
+      "staticcheck/ST1000": DOC_COMMENTS,
+      "yamllint/truthy": "yes and on are keys some tools read, like GitHub Actions' on:.",
     },
   },
 };

@@ -42,6 +42,7 @@ export interface Config {
   tailwind: false | { entryPoint?: string; files?: string[] };
   playwright: false | { dir: string };
   rules: Linter.RulesRecord;
+  linters: Record<"python" | "go" | "rust" | "terraform" | "yaml", false | string[]>;
   mop: { fix: string[]; leave: Record<string, string | null> };
 }
 

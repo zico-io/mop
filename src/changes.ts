@@ -1,6 +1,7 @@
 import { execFileSync } from "node:child_process";
+import { languageOf } from "./languages";
 
-const CODE = /\.[cm]?[jt]sx?$/;
+export const CODE = /\.[cm]?[jt]sx?$/;
 const HUNK = /^@@ -\S+ \+(\d+)(?:,(\d+))? @@/;
 
 export type Lines = ReadonlySet<number> | "all";
@@ -43,7 +44,7 @@ export const changedCode = (cwd: string, base: string): Target[] => {
   const tracked = git(cwd, "diff", "--name-only", "--diff-filter=AM", mergeBase).split("\n");
   const untracked = git(cwd, "ls-files", "--others", "--exclude-standard").split("\n");
   return [...tracked, ...untracked]
-    .filter((file) => CODE.test(file))
+    .filter((file) => CODE.test(file) || languageOf(file) !== undefined)
     .map((file): Target => ({
       file,
       lines: untracked.includes(file)
