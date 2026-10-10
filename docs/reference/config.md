@@ -2,7 +2,7 @@
 title: mop.config
 description: Every mop.config key, its type and strict default, and how the layers merge.
 type: reference
-updated: 2026-10-08
+updated: 2026-10-10
 owner: zico-io
 ---
 
@@ -19,6 +19,8 @@ export default defineConfig({
   mop: { leave: { "unicorn/no-null": null } },
 });
 ```
+
+Run `npx -y slopmop init` to write a starting `mop.config.json` from what the repo uses.
 
 ## Files and layers
 
