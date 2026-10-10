@@ -11,6 +11,13 @@ New here? Read [How mop works](docs/how-mop-works.md). The [docs index](docs/REA
 /plugin install mop@zico-io
 ```
 
+In Codex:
+
+```sh
+codex plugin marketplace add zico-io/mop
+codex plugin add mop@zico-io
+```
+
 | Skill | Cleans |
 |---|---|
 | `/mop` | Everything the branch changed, routed by file type |
