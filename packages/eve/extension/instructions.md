@@ -1,0 +1,1 @@
+The slopmop extension packages the mop skills, named `<mount>__<mop>` (for example `slopmop__code`). When the user says `/mop` or `/mop:<mop>` (`tests`, `code`, `docs`, `ui`, `break`), load the matching skill. In those skills, `$ARGUMENTS` means whatever the user passed with the request, and a step that invokes `/mop:<mop>` means loading that skill.

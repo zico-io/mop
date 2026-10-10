@@ -20,6 +20,20 @@ New here? Read [How mop works](docs/how-mop-works.md). The [docs index](docs/REA
 | `/mop:ui` | Components: Impeccable detector findings |
 | `/mop:break` | Code: tries to break it, fixes what it can reproduce |
 
+## Use with eve
+
+The same skills ship as an [eve extension](https://eve.dev/docs/extensions), `slopmop-eve`. Install it in your agent and mount it:
+
+```bash
+npm i slopmop-eve
+```
+
+```ts title="agent/extensions/slopmop.ts"
+export { default } from "slopmop-eve";
+```
+
+The mount exposes `slopmop__mop`, `slopmop__code` and the rest, and the agent loads them on `/mop` and `/mop:<name>`. The skills run `npx -y slopmop` and `git` in the agent's sandbox, so it needs Node 22+ and network access to npm. `/mop:ui` needs the Impeccable detector, which the eve sandbox does not have, so it stops and says so.
+
 ## `slopmop lint`
 
 Lints only the lines a branch added, and tags each finding `fix`, `leave` or `review` from your config.

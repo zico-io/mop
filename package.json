@@ -23,7 +23,7 @@
   "scripts": {
     "build": "tsdown",
     "prepare": "npm run build",
-    "typecheck": "tsc",
+    "typecheck": "tsc && pnpm --filter slopmop-eve typecheck",
     "test": "node --import tsx --test test/*.test.ts",
     "changeset": "changeset",
     "version-packages": "changeset version && node scripts/sync-plugin-version.ts",

@@ -36,6 +36,7 @@ src/
 bin/                  the slopmop CLI: lint and judge commands
 test/                 node:test suites
 plugins/mop/          the Claude Code plugin: one folder per skill, plus JUDGE.md
+packages/eve/         slopmop-eve: the same skills as an eve extension, copied at build
 scripts/              sync-plugin-version.ts, run at release
 ```
 
@@ -75,6 +76,8 @@ Each mop is `plugins/mop/skills/<name>/SKILL.md`, with recipes in `REFERENCE.md`
 claude plugin validate ./plugins/mop
 claude --plugin-dir ./plugins/mop
 ```
+
+The eve extension copies these skills when it builds (`pnpm --filter slopmop-eve build`), so edit them here, never under `packages/eve/extension/skills`.
 
 The plugin loads for that session only, as `mop@inline`. After you edit a skill, run `/reload-plugins` in the session to load the change. If you also installed mop from the marketplace, run `claude plugin disable mop@zico-io` while you develop, so only your checkout loads.
 
