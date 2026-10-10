@@ -1,0 +1,53 @@
+{
+  "name": "slopmop-eve",
+  "version": "0.0.0",
+  "description": "The mop skills as an eve extension: clean up what a branch changed, with proof nothing broke.",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zico-io/mop",
+    "directory": "packages/eve"
+  },
+  "eve": {
+    "extension": {
+      "source": "./extension",
+      "dist": "./dist/extension"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./tools": {
+      "types": "./dist/tools/index.d.ts",
+      "default": "./dist/tools/index.mjs"
+    }
+  },
+  "scripts": {
+    "build": "node scripts/sync-skills.ts && eve extension build",
+    "prepare": "npm run build",
+    "typecheck": "tsc"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.1",
+    "eve": "0.76.0",
+    "typescript": "6.0.3"
+  },
+  "peerDependencies": {
+    "eve": "*"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "keywords": [
+    "eve",
+    "eve-extension",
+    "slop",
+    "lint"
+  ]
+}
