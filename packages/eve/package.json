@@ -1,6 +1,6 @@
 {
   "name": "slopmop-eve",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "The mop skills as an eve extension: clean up what a branch changed, with proof nothing broke.",
   "type": "module",
   "license": "MIT",
