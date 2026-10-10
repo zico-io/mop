@@ -2,7 +2,7 @@
 title: slopmop lint
 description: The slopmop lint command: flags, scope, output format and exit codes.
 type: reference
-updated: 2026-10-08
+updated: 2026-10-10
 owner: zico-io
 ---
 
@@ -34,7 +34,7 @@ Run it anywhere inside a git repository. It loads config from the git root, not 
 | Flag | Description |
 | --- | --- |
 | `--base <ref>` | Branch to compare with. `lint` uses `origin/<ref>` when it exists, else `<ref>`. Default: `origin/HEAD`. |
-| `--fix` | Autofix findings tagged `fix`, only on lines in scope. Other findings stay. |
+| `--fix` | Autofix findings tagged `fix` in JS and TS, only on lines in scope. Other findings stay. |
 | `--json` | Print one JSON object instead of the summary. |
 | `--print-config` | Print the merged config and its `sources`, then exit 0. |
 | `<file...>` | Lint these whole files. `--base` is ignored. |
@@ -44,10 +44,25 @@ Run it anywhere inside a git repository. It loads config from the git root, not 
 With no file arguments, `lint` checks:
 
 - Files that are added or modified between the merge base and the working tree, and untracked files that are not ignored.
-- Only `.js`, `.jsx`, `.ts`, `.tsx` files and their `.c*` and `.m*` variants.
+- Only files in a supported language, below.
 - Only the lines that the diff adds. An untracked file counts as fully added.
 
 The merge base is fixed, so commits that land on the base after you branch do not count. Deleted lines and context lines are never in scope.
+
+## Languages
+
+| Language | Files | Linter | Rule prefix | Runs from |
+| --- | --- | --- | --- | --- |
+| JS, TS | `.js`, `.jsx`, `.ts`, `.tsx`, `.c*`, `.m*` | ESLint with the harness | plugin name | git root |
+| Python | `.py`, `.pyi` | `ruff check --isolated` | `ruff/` | git root |
+| Go | `.go` | `staticcheck` | `staticcheck/` | each package directory |
+| Rust | `.rs` | `cargo clippy` | `clippy/`, `rustc/` | each cargo workspace |
+| Terraform | `.tf` | `tflint` | `tflint/` | each module directory |
+| YAML | `.yml`, `.yaml` | `yamllint` | `yamllint/` | git root |
+
+Every language other than JS and TS also gets `mop/no-comments`: a full-line comment on an added line, unless it matches `comments.allow`. Each linter takes its arguments from the `linters` key of the config.
+
+The linter must be on `PATH`. When it is missing or crashes, `lint` skips that language and says so; the run still exits by its findings. `--fix` applies to JS and TS only; fix the other languages by hand.
 
 ## Output
 
@@ -62,6 +77,7 @@ The first line counts findings and files. Each next line is one rule: count, act
 | `base` | `string \| undefined` | The resolved base ref. Absent when files were passed. |
 | `sources` | `string[]` | Taste and repo config files that loaded. `extends` targets are not listed. |
 | `files` | `number` | Files checked. |
+| `skipped` | `{ language, reason }[]` | Languages whose linter was missing or failed. |
 | `byRule` | `Record<string, { count, action, reason? }>` | Totals per rule. |
 | `findings` | `Finding[]` | One entry per finding, as below. |
 
@@ -69,7 +85,7 @@ The first line counts findings and files. Each next line is one rule: count, act
 | --- | --- | --- |
 | `file` | `string` | Path from the git root. |
 | `line` | `number` | 1-based line. |
-| `rule` | `string` | ESLint rule id. `parse-error` when ESLint could not parse the file. `eslint-directive` for a notice about an inline `eslint-` comment. |
+| `rule` | `string` | ESLint rule id, or the prefixed id from another language's linter. `parse-error` when ESLint could not parse the file. `eslint-directive` for a notice about an inline `eslint-` comment. |
 | `message` | `string` | ESLint message. |
 | `action` | `"fix" \| "leave" \| "review"` | From `mop.fix` and `mop.leave`. |
 | `reason` | `string` | Present when `action` is `leave`. |

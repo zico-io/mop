@@ -1,7 +1,8 @@
 import path from "node:path";
 import { parseArgs } from "node:util";
 import { ESLint } from "eslint";
-import { changedCode, git, resolveBase, type Lines, type Target } from "../src/changes";
+import { changedCode, CODE, git, resolveBase, type Lines, type Target } from "../src/changes";
+import { commentFindings, lintLanguages } from "../src/languages";
 import { harness, loadConfig, sortRule, type Sorting } from "../src";
 import type { Finding } from "../src/judge";
 
@@ -55,8 +56,17 @@ const lintTarget = async ({ file, lines }: Target): Promise<LintFinding[]> => {
   );
 };
 
+const scripts = targets.filter(({ file }) => CODE.test(file));
+const others = targets.filter(({ file }) => !CODE.test(file) && !config.ignores.some((glob) => path.matchesGlob(file, glob)));
+const linesOf = new Map(others.map(({ file, lines }) => [file, lines]));
+const { diagnostics, skipped } = lintLanguages(root, others.map(({ file }) => file), config.linters);
+
 const findings: LintFinding[] = [];
-for (const target of targets) findings.push(...(await lintTarget(target)));
+for (const target of scripts) findings.push(...(await lintTarget(target)));
+for (const diagnostic of [...diagnostics, ...others.flatMap(({ file }) => commentFindings(root, file, config.comments.allow))]) {
+  const lines = linesOf.get(diagnostic.file);
+  if (lines && owns(lines, diagnostic.line)) findings.push({ ...diagnostic, ...sortRule(config, diagnostic.rule) });
+}
 
 const byRule: Record<string, Pick<LintFinding, "action" | "reason"> & { count: number }> = {};
 for (const { rule, action, reason } of findings) {
@@ -65,13 +75,14 @@ for (const { rule, action, reason } of findings) {
 }
 
 if (values.json) {
-  console.log(JSON.stringify({ base, sources: config.sources, files: targets.length, byRule, findings }, undefined, 2));
+  console.log(JSON.stringify({ base, sources: config.sources, files: targets.length, skipped, byRule, findings }, undefined, 2));
 } else {
   const rows = Object.entries(byRule).sort(([, a], [, b]) => b.count - a.count);
   console.log(`${findings.length} findings in ${targets.length} files${base ? ` (lines added since ${base})` : ""}`);
   for (const [rule, { count, action, reason }] of rows) {
     console.log(`${String(count).padStart(5)}  ${action.padEnd(6)}  ${rule}${reason ? `  (${reason})` : ""}`);
   }
+  for (const { language, reason } of skipped) console.log(`skipped ${language}: ${reason}`);
 }
 
 process.exitCode = findings.some((finding) => finding.action === "fix") ? 1 : 0;

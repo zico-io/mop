@@ -18,7 +18,7 @@ Run every slop mop that applies to a branch, try to break the result, then verif
    | Mop | Files |
    |---|---|
    | tests | `*.test.*`, `*.spec.*` |
-   | code | other `.ts`, `.tsx`, `.js`, `.mjs`, `.py` |
+   | code | other `.ts`, `.tsx`, `.js`, `.mjs`, `.py`, `.go`, `.rs`, `.tf`, `.yml`, `.yaml` |
    | docs | `.md`, `.mdx`, READMEs, docs content folders |
    | ui | `.tsx`, `.jsx`, `.css`, `.html` that render UI (also in code) |
    | break | every code and ui file |

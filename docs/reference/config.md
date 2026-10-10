@@ -71,7 +71,7 @@ All keys are optional. Defaults are the `strict` values.
 
 ### `comments.allow`
 
-`string[]`. Regular expression fragments. A comment survives `no-comments/disallowComments` when its text, after at most one space, starts with a match. Default: `eslint`, `global`, `@ts-`, `@vitest-environment`, `prettier-ignore`. An empty array allows no comment.
+`string[]`. Regular expression fragments. A comment survives `no-comments/disallowComments` when its text, after at most one space, starts with a match. The same list drives `mop/no-comments` in Python, Go, Rust, Terraform and YAML. Default: `eslint`, `global`, `@ts-`, `@vitest-environment`, `prettier-ignore`, plus the shebang and directives of the other languages (`noqa`, `type: ignore`, `pyright:`, `go:`, `nolint`, `tflint-ignore`, `yamllint`). An empty array allows no comment.
 
 ### `env`
 
@@ -120,13 +120,27 @@ Applies to `*.test.*`, `*.spec.*` and `__tests__/**` files.
 
 `Linter.RulesRecord`. Raw ESLint rule settings, applied last to every source file. Use it to turn a rule off or change its options. Default: `{}`.
 
+### `linters`
+
+`Record<"python" | "go" | "rust" | "terraform" | "yaml", false | string[]>`. Extra arguments for each language's linter. `false` turns the language off. Arrays replace, so copy a default before you add to it.
+
+| Key | Linter | Default |
+| --- | --- | --- |
+| `python` | `ruff check --isolated` | `--select F,E,W,B,C4,C90,SIM,RET,PIE,ERA,UP,PL,RUF,ARG,T20 --ignore E501` |
+| `go` | `staticcheck` | `-checks all` |
+| `rust` | `cargo clippy --`, after the `--` | `-W clippy::pedantic` |
+| `terraform` | `tflint` | none |
+| `yaml` | `yamllint` | `-d "{extends: default, rules: {line-length: disable, document-start: disable}}"` |
+
+ruff runs with `--isolated`, so it ignores `pyproject.toml`, the same way `lint` ignores `eslint.config.mjs`. The other linters still read their own config files.
+
 ### `mop.fix`
 
-`string[]`. Rule ids that `lint` tags `fix` and `--fix` autofixes. A pattern is an exact rule id, or `plugin/*` for every rule of a plugin. Default: 15 rules, including `no-comments/disallowComments`, `unicorn/no-nested-ternary` and `@typescript-eslint/no-non-null-assertion`. See `src/presets/strict.ts`.
+`string[]`. Rule ids that `lint` tags `fix` and `--fix` autofixes. A pattern is an exact rule id, or `plugin/*` for every rule of a plugin. Default: 31 rules, including `no-comments/disallowComments`, `mop/no-comments`, `unicorn/no-nested-ternary`, `@typescript-eslint/no-non-null-assertion`, `ruff/F401` and `clippy/needless_return`. See `src/presets/strict.ts`.
 
 ### `mop.leave`
 
-`Record<string, string | null>`. Rule patterns that `lint` tags `leave`, each mapped to the reason. A `null` or empty reason drops the entry. `leave` wins over `fix`. Default: 10 entries, including `unicorn/filename-case`, `unicorn/no-null` and the four size rules.
+`Record<string, string | null>`. Rule patterns that `lint` tags `leave`, each mapped to the reason. A `null` or empty reason drops the entry. `leave` wins over `fix`. Default: 21 entries, including `unicorn/filename-case`, `unicorn/no-null`, the size rules of every language and `yamllint/truthy`.
 
 A rule in neither list is tagged `review`.
 
