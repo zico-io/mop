@@ -1,5 +1,11 @@
 # slopmop
 
+## 0.4.0
+
+### Minor Changes
+
+- [#16](https://github.com/zico-io/mop/pull/16) [`3b905e4`](https://github.com/zico-io/mop/commit/3b905e4758e26709ffaeab80d39c09d9c8ae78f7) Thanks [@zico-io](https://github.com/zico-io)! - Ship mop as a Codex plugin. Install it with `codex plugin marketplace add zico-io/mop` and `codex plugin add mop@zico-io`.
+
 ## 0.3.0
 
 ### Minor Changes
