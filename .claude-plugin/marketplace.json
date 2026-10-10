@@ -6,7 +6,7 @@
     {
       "name": "mop",
       "source": "./plugins/mop",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "description": "Slop mops: /mop cleans everything a branch changed; /mop:tests, /mop:code, /mop:docs and /mop:ui each run one detect, fix and verify loop with proof nothing broke; /mop:break tries to break the result.",
       "category": "development",
       "keywords": ["slop", "cleanup", "tests", "lint", "docs", "ui"]

@@ -1,5 +1,13 @@
 # slopmop
 
+## 0.3.0
+
+### Minor Changes
+
+- [#14](https://github.com/zico-io/mop/pull/14) [`b1f288a`](https://github.com/zico-io/mop/commit/b1f288a566c8b6d3670250113ef1c7a64f6e5faa) Thanks [@zico-io](https://github.com/zico-io)! - Add `slopmop init`, which inspects the git repo for Tailwind, Playwright and an env module, then asks about each setting and writes `mop.config.json`. Pass `--yes` to take the detected defaults.
+
+- [#15](https://github.com/zico-io/mop/pull/15) [`9821b44`](https://github.com/zico-io/mop/commit/9821b442c8f3f4ddc4d4cf43de056de9a8e67c4f) Thanks [@zico-io](https://github.com/zico-io)! - `slopmop lint` now mops Python, Go, Rust, Terraform and YAML. Each language runs through its own linter (ruff, staticcheck, clippy, tflint, yamllint) plus a shared `mop/no-comments` check, filtered to the lines the branch added and sorted by `mop.fix` and `mop.leave` like ESLint findings. Tune each linter with the new `linters` config key. A missing linter skips its language and shows under `skipped`.
+
 ## 0.2.0
 
 ### Minor Changes
