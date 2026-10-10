@@ -1,0 +1,12 @@
+{
+  "name": "zico-io",
+  "interface": { "displayName": "zico-io" },
+  "plugins": [
+    {
+      "name": "mop",
+      "source": { "source": "local", "path": "./plugins/mop" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
+      "category": "Developer Tools"
+    }
+  ]
+}

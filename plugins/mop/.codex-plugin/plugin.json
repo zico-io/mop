@@ -1,0 +1,25 @@
+{
+  "name": "mop",
+  "version": "0.3.0",
+  "description": "Slop mops: audit what a branch changed and clean it up, with proof nothing broke. mop routes by file type; mop:tests, mop:code, mop:docs and mop:ui each run one detect, fix and verify loop; mop:break attacks the result and fixes what it can reproduce.",
+  "author": { "name": "Nico Zamora", "url": "https://github.com/zico-io" },
+  "homepage": "https://github.com/zico-io/mop",
+  "repository": "https://github.com/zico-io/mop",
+  "license": "MIT",
+  "keywords": ["slop", "cleanup", "tests", "lint", "docs", "ui", "review", "adversarial"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "mop",
+    "shortDescription": "Clean up what a branch changed, with proof",
+    "longDescription": "Sorts a branch's changed files by type and runs a slop mop on each group: tests, code, docs and UI. Each mop fixes slop on the lines the branch owns and proves nothing broke; mop:break then attacks the result and fixes the holes it can reproduce.",
+    "developerName": "Nico Zamora",
+    "category": "Developer Tools",
+    "capabilities": ["Instructions", "Write"],
+    "websiteURL": "https://github.com/zico-io/mop",
+    "defaultPrompt": [
+      "Mop this branch before review.",
+      "Consolidate the tests this branch touched.",
+      "Try to break the code this branch changed."
+    ]
+  }
+}
