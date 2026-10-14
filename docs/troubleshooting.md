@@ -121,12 +121,14 @@ export default { tests: { allowMocks: ["^@acme/payments-sdk$"] } };
 
 ## Every verdict is `unjudged`
 
-**Cause.** `judge` could not use Jev. The `why` field says which case applies.
+**Cause.** `judge` could not use Jev. `judge` prints a warning with the first error, and the `why` field says which case applies.
 
 | `why` | Fix |
 | --- | --- |
-| `jev failed: spawn jev ENOENT` | Install the `jev` CLI and put it on the `PATH`. |
-| `jev failed: <other error>` | Run `jev auth status`, then `jev doctor`. |
+| `jev failed: spawn jev ENOENT` | Install jev-cli with `uv tool install jev-cli` and put it on the `PATH`. |
+| `jev failed: this jev CLI has neither ...` | The `jev` on the `PATH` is another tool. Install jev-cli 0.7 or later. |
+| `... API key is not stored ...` | Run `jev auth set`, or export `TYPESAFE_API_KEY`. |
+| Any other error | Run `jev auth status`, then `jev auth test`. |
 | `JEV_ENABLED=0` | Unset `JEV_ENABLED`. |
 | `jev returned no answer` | Jev skipped that finding. Run the command again. |
 

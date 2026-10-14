@@ -71,7 +71,7 @@ Run `slopmop lint --print-config` to see the merged result and its `sources`.
 
 ### The judge
 
-`judge` sends every finding to Jev in one `jev batch` call. Jev answers three questions: is it real slop, does the code around it follow the pattern on purpose, and could the fix change behavior. The verdict is `enforce` only when Jev is at least 90% sure of each answer and all three point to a safe fix. Any doubt becomes `human`. See the [`slopmop judge` reference](reference/judge.md).
+`judge` sends each finding to Jev in its own `jev run -` request, 8 at a time. Jev answers three questions: is it real slop, does the code around it follow the pattern on purpose, and could the fix change behavior. The verdict is `enforce` only when Jev is at least 90% sure of each answer and all three point to a safe fix. Any doubt becomes `human`. See the [`slopmop judge` reference](reference/judge.md).
 
 ## Guarantees
 

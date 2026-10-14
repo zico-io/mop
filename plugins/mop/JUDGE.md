@@ -10,7 +10,7 @@ Write the findings as a JSON array of `{file, line, rule, message}`. `slopmop li
 npx -y slopmop judge --mop <code|ui|tests|docs> --json /tmp/mop-<mop>-findings.json > /tmp/mop-<mop>-judged.json
 ```
 
-It runs `jev batch` once for all findings, so it needs `jev` on the `PATH` with a key (`jev auth status`; `jev doctor` checks the round trip). `JEV_ENABLED=0` turns judging off.
+It sends one `jev run -` request per finding, so it needs [jev-cli](https://github.com/tumf/jev-cli) 0.7+ (`uv tool install jev-cli`) on the `PATH` with a key (`jev auth status`; `jev doctor` checks the round trip). `JEV_ENABLED=0` turns judging off.
 
 ## Act on the verdict
 

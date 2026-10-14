@@ -27,6 +27,9 @@ const judged: Judged<Finding>[] = process.env.JEV_ENABLED === "0"
 
 const counts: Partial<Record<Judged<Finding>["verdict"], number>> = {};
 for (const { verdict } of judged) counts[verdict] = (counts[verdict] ?? 0) + 1;
+if (judged.length > 0 && counts.unjudged === judged.length) {
+  console.error(`warning: Jev judged none of the ${judged.length} findings: ${judged[0]?.why}`);
+}
 
 if (values.json) {
   console.log(JSON.stringify({ counts, findings: judged }, undefined, 2));
