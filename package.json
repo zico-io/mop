@@ -1,6 +1,6 @@
 {
   "name": "slopmop",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "A strict, layered ESLint harness for cleaning up what a branch changed. Ships the mop Claude Code plugin.",
   "type": "module",
   "license": "MIT",

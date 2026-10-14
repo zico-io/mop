@@ -1,5 +1,15 @@
 # slopmop
 
+## 0.4.0
+
+### Minor Changes
+
+- [#16](https://github.com/zico-io/mop/pull/16) [`3b905e4`](https://github.com/zico-io/mop/commit/3b905e4758e26709ffaeab80d39c09d9c8ae78f7) Thanks [@zico-io](https://github.com/zico-io)! - Ship mop as a Codex plugin. Install it with `codex plugin marketplace add zico-io/mop` and `codex plugin add mop@zico-io`.
+
+### Patch Changes
+
+- [#19](https://github.com/zico-io/mop/pull/19) [`d036652`](https://github.com/zico-io/mop/commit/d036652cf0443df481fe1ec3e26909fa702691a7) Thanks [@zico-io](https://github.com/zico-io)! - `slopmop judge` sends each finding to Jev with `jev run -`, which jev-cli 0.7 supports, instead of `jev batch`, which no published jev CLI provides. When Jev judges none of the findings, `judge` prints one warning with the cause.
+
 ## 0.3.0
 
 ### Minor Changes
