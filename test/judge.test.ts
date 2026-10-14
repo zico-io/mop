@@ -43,13 +43,14 @@ test("sorts findings into enforce, waive and human, and never guesses when Jev f
 });
 
 const FAKE_JEV = `#!/usr/bin/env node
-let input = "";
-process.stdin.on("data", (chunk) => (input += chunk)).on("end", () => {
-  for (const line of input.split("\\n").filter(Boolean)) {
-    const { id, state } = JSON.parse(line);
-    console.log(JSON.stringify({ id, error: state.snippet }));
-  }
-});
+if (process.argv[2] === "--help") console.log("usage: jev {auth,noul,run}");
+else {
+  let input = "";
+  process.stdin.on("data", (chunk) => (input += chunk)).on("end", () => {
+    console.error(JSON.stringify({ ok: false, error: JSON.parse(input).state.snippet }));
+    process.exit(1);
+  });
+}
 `;
 
 test("judge reads snippets from the git root when run from a subdirectory", async () => {

@@ -2,7 +2,7 @@
 title: slopmop judge
 description: The slopmop judge command: input, Jev questions, verdict rules, output format and the judge() API.
 type: reference
-updated: 2026-10-08
+updated: 2026-10-14
 owner: zico-io
 ---
 
@@ -36,7 +36,7 @@ slopmop judge [--mop <name>] [--json] [<file>]
 | --- | --- |
 | `JEV_ENABLED=0` | Skip Jev. Every finding is `unjudged`. |
 
-`judge` needs the `jev` CLI on the `PATH` with a key. Run `jev auth status` to check the key.
+`judge` needs a `jev` CLI on the `PATH` with a key: [jev-cli](https://github.com/tumf/jev-cli) 0.7 or later (`uv tool install jev-cli`), or a `jev` with an `ask` command that reads a request with `-f -`. Run `jev auth status` to check the key.
 
 ## Input
 
@@ -55,7 +55,7 @@ Other properties pass through to the output.
 
 ## How a verdict is chosen
 
-`judge` sends all findings in one `jev batch` call, with up to 8 in flight. Jev answers three yes-or-no questions per finding, each as a probability:
+`judge` sends one `jev run -` request per finding (`jev ask -f -` on a CLI without `run`), with up to 8 in flight. Jev answers three yes-or-no questions per finding, each as a probability:
 
 | Question | Yes means |
 | --- | --- |
@@ -74,7 +74,7 @@ An answer is sure when its probability is at least `0.9` or at most `0.1`. The r
 | `risky` not sure, or yes | `human` | the fix could change behaviour, copy, an API or a test |
 | Otherwise | `enforce` | real slop with a mechanical fix |
 
-When `jev` fails or returns no answer for a finding, that finding is `unjudged`, and `why` holds the error.
+When `jev` fails or returns no answer for a finding, that finding is `unjudged`, and `why` holds the error. When every finding is `unjudged`, `judge` also prints a warning with the first error on stderr.
 
 ## Output
 
@@ -93,7 +93,7 @@ The exit code is `0` unless the input cannot be read or parsed. A Jev failure do
 
 ## `judge()`
 
-`judge(findings, { root, run })` in `src/judge.ts` does the work behind the CLI. It is internal: the package entry does not export it. `run` replaces the `jev batch` call, so tests pass a fake, as `test/judge.test.ts` does.
+`judge(findings, { root, run })` in `src/judge.ts` does the work behind the CLI. It is internal: the package entry does not export it. `run` replaces the `jev` calls, so tests pass a fake, as `test/judge.test.ts` does.
 
 ## Don't
 

@@ -68,7 +68,7 @@ Exits 1 while `fix` findings remain. See the [`slopmop lint` reference](docs/ref
 
 ## `slopmop judge`
 
-Asks Jev, through one `jev batch` call, whether each finding should be enforced. Verdicts are `enforce`, `waive`, `human` (you decide) or `unjudged` (Jev unavailable). See the [`slopmop judge` reference](docs/reference/judge.md). Needs the `jev` CLI on the `PATH` with a key (`jev auth status`).
+Asks Jev, through one `jev run -` request per finding, whether each finding should be enforced. Verdicts are `enforce`, `waive`, `human` (you decide) or `unjudged` (Jev unavailable). See the [`slopmop judge` reference](docs/reference/judge.md). Needs [jev-cli](https://github.com/tumf/jev-cli) 0.7+ on the `PATH` with a key (`uv tool install jev-cli`, then `jev auth status`).
 
 ```bash
 npx -y slopmop lint --base main --json > findings.json

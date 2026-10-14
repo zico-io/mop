@@ -98,19 +98,49 @@ export const snippetOf = async (
   }
 };
 
-export const jevBatch = (rows: JevRow[]): Promise<JevResult[]> =>
+// Both jev CLIs print a failure as one JSON line, `{"ok": false, "error": ...}`, on stderr.
+const errorOf = (line = ""): string => {
+  try {
+    return String(JSON.parse(line).error ?? line);
+  } catch {
+    return line;
+  }
+};
+
+const exec = (args: string[], input?: string): Promise<string> =>
   new Promise((resolve, reject) => {
-    const child = execFile(
-      "jev",
-      ["batch", "--input", "-", "--state-key", "state", "--questions-json", JSON.stringify(QUESTIONS), "--concurrency", "8", "--compact"],
-      { maxBuffer: 64 * 1024 * 1024 },
-      (error, stdout) => {
-        if (error) return reject(error);
-        resolve(stdout.split("\n").filter((line) => line.startsWith("{")).map((line): JevResult => JSON.parse(line)));
-      },
-    );
-    child.stdin?.end(rows.map((row) => JSON.stringify(row)).join("\n"));
+    const child = execFile("jev", args, { maxBuffer: 64 * 1024 * 1024 }, (error, stdout, stderr) => {
+      if (!error) return resolve(stdout);
+      reject(new Error(errorOf(stderr.trim().split("\n").at(-1)) || error.message));
+    });
+    child.stdin?.end(input);
   });
+
+// jev-cli (PyPI) takes a full request through `run -`; the other `jev` CLI takes it through `ask -f -`.
+const requestArgs = async (): Promise<string[]> => {
+  const commands = (await exec(["--help"])).match(/\{([\w,-]+)\}/)?.[1]?.split(",") ?? [];
+  if (commands.includes("run")) return ["run", "-"];
+  if (commands.includes("ask")) return ["ask", "-f", "-", "--json", "--compact"];
+  throw new Error("this jev CLI has neither `run` nor `ask`; install jev-cli 0.7+ with `uv tool install jev-cli`");
+};
+
+export const jevRun = async (rows: JevRow[], concurrency = 8): Promise<JevResult[]> => {
+  const args = await requestArgs();
+  const results: JevResult[] = [];
+  const queue = rows.values();
+  const worker = async (): Promise<void> => {
+    for (const { id, state } of queue) {
+      try {
+        const { answers } = JSON.parse(await exec(args, JSON.stringify({ state, questions: QUESTIONS })));
+        results.push({ id, answers });
+      } catch (error) {
+        results.push({ id, error: error instanceof Error ? error.message : String(error) });
+      }
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(concurrency, rows.length) }, worker));
+  return results;
+};
 
 const isAnswered = (answers: JevResult["answers"]): answers is Answers =>
   QUESTION_IDS.every((key) => typeof answers?.[key]?.noul === "number");
@@ -123,7 +153,7 @@ const unjudged = <Input extends Finding>(finding: Input, why: string): Judged<In
 
 export const judge = async <Input extends Finding>(
   findings: Input[],
-  { root = process.cwd(), run = jevBatch }: { root?: string; run?: (rows: JevRow[]) => Promise<JevResult[]> } = {},
+  { root = process.cwd(), run = jevRun }: { root?: string; run?: (rows: JevRow[]) => Promise<JevResult[]> } = {},
 ): Promise<Judged<Input>[]> => {
   const rows = await Promise.all(
     findings.map(async (finding, id): Promise<JevRow> => ({
