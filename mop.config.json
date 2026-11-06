@@ -1,0 +1,10 @@
+{
+  "mop": {
+    "leave": {
+      "no-console": "the CLI writes its output to the console",
+      "unicorn/no-process-exit": "the CLI sets its exit code on purpose",
+      "security/detect-non-literal-fs-filename": "the CLI reads and writes paths the user passes",
+      "sonarjs/no-os-command-from-path": "the CLI runs git and jev from PATH on purpose"
+    }
+  }
+}

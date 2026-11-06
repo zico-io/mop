@@ -12,6 +12,7 @@ Pass these rules to each subagent verbatim.
 6. No code comments in tests, except environment directives such as `// @vitest-environment`.
 7. Do not commit. Never use bare `git stash`.
 8. Mutation-check at least 3 merged behaviours: copy the source file aside, break the behaviour, run the tests, confirm a remaining test fails, restore the copy. End with `git diff` showing no source file changed.
+9. Make every edit yourself. Do not hand it to another agent or CLI, such as `codex exec`.
 
 ## Subagent report
 
