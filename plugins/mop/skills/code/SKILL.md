@@ -7,25 +7,26 @@ Fix the slop the branch added to its code, on the lines it owns.
 
 **Arguments:** `$ARGUMENTS`
 - `BASE_REF`: the name of the branch the PR targets, without `origin/`. Default: the open PR's base, else the repo's default branch. Or a path to lint everything under it.
+- `--run <id>`: telemetry run id; `/mop` passes one. See [TELEMETRY.md](../../TELEMETRY.md).
 - `--no-commit`: stop after verification.
 
 ## Steps
 
 1. **Lint changed lines.** From the repo root:
    ```bash
-   npx -y slopmop lint --base "$BASE_REF" --json > /tmp/mop-findings.json
+   npx -y slopmop lint --base "$BASE_REF" --run "$RUN_ID" --json > /tmp/mop-findings.json
    ```
-   Pass paths instead of `--base` to lint whole files. `lint` compares the working tree with the merge base, keeps only findings on lines the branch added, and tags each one `fix`, `leave` (with the reason) or `review` from the merged config. Report `byRule` counts, `sources` (which config files applied) and `skipped` (languages whose linter is not installed).
+   `RUN_ID` is the run id from [TELEMETRY.md](../../TELEMETRY.md); pass it to every `slopmop` call. Pass paths instead of `--base` to lint whole files. `lint` compares the working tree with the merge base, keeps only findings on lines the branch added, and tags each one `fix`, `leave` (with the reason) or `review` from the merged config. Report `byRule` counts, `sources` (which config files applied) and `skipped` (languages whose linter is not installed).
 
 2. **Sort.** `fix` and `leave` come from the config; see [REFERENCE.md](REFERENCE.md#config) for how layers merge. `leave` is final.
 
 3. **Judge.** Send every `fix` and `review` finding to Jev with `--mop code`, following [JUDGE.md](../../JUDGE.md). Fix only `enforce`; `waive` joins the left list; `human` goes to **Needs your call**. If Jev is skipped, fix `fix` findings and decide each `review` rule yourself. Show the split and wait for a go-ahead when it is over about 100 fixes.
 
-4. **Fix** the `enforce` findings with the recipes in [REFERENCE.md](REFERENCE.md#fix-recipes). `npx -y slopmop lint --base "$BASE_REF" --fix` autofixes every `fix` rule in JS and TS on lines the branch added, so revert any autofix on a `waive` or `human` finding; review the result. Fix the other languages by hand. Recheck every edited JS or TS file with `prettier --check`, and every other file with its formatter (`ruff format --check`, `gofmt -l`, `cargo fmt --check`, `terraform fmt -check`).
+4. **Fix** the `enforce` findings with the recipes in [REFERENCE.md](REFERENCE.md#fix-recipes). `npx -y slopmop lint --base "$BASE_REF" --run "$RUN_ID" --fix` autofixes every `fix` rule in JS and TS on lines the branch added, so revert any autofix on a `waive` or `human` finding; review the result. Fix the other languages by hand. Recheck every edited JS or TS file with `prettier --check`, and every other file with its formatter (`ruff format --check`, `gofmt -l`, `cargo fmt --check`, `terraform fmt -check`).
 
 5. **Verify.** Format, typecheck, run the touched suites, rerun `lint` and report before and after counts for the fixed rules.
 
-6. **Report and commit.** Fixed counts by rule, what was left and why (config `leave` and Jev `waive`), and **Needs your call**. Commit unless `--no-commit`. Push only when asked.
+6. **Report and commit.** Fixed counts by rule, what was left and why (config `leave` and Jev `waive`), and **Needs your call**. Commit unless `--no-commit`. Push only when asked. Then log the run with `slopmop record`, following [TELEMETRY.md](../../TELEMETRY.md).
 
 ## Definition of done
 

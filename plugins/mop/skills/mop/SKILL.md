@@ -23,11 +23,11 @@ Run every slop mop that applies to a branch, try to break the result, then verif
    | ui | `.tsx`, `.jsx`, `.css`, `.html` that render UI (also in code) |
    | break | every code and ui file |
 
-   Print the counts per mop before running anything.
+   Print the counts per mop before running anything. Make one run id, `mop-$(date -u +%Y%m%dT%H%M%SZ)`, for telemetry ([TELEMETRY.md](../../TELEMETRY.md)).
 
 2. **Order.** Run `code`, then `ui`, then `tests`, then `docs`, then `break`. Code edits can break tests, the test mop proves coverage against the final source, and `break` attacks the code as it will ship.
 
-3. **Run.** Invoke each mop's skill (`/mop:code` and so on) with its file list, one mop at a time. Each mop commits its own work before the next one starts, so code and ui edits to the same file stay in separate commits. Pass `--no-commit` to every mop only when the user passed it to `/mop`. A mop with more than about 15 files fans out to subagents itself; do not nest a second fan-out on top.
+3. **Run.** Invoke each mop's skill (`/mop:code` and so on) with its file list and `--run <id>`, one mop at a time. Each mop commits its own work before the next one starts, so code and ui edits to the same file stay in separate commits. Pass `--no-commit` to every mop only when the user passed it to `/mop`. A mop with more than about 15 files fans out to subagents itself; do not nest a second fan-out on top.
 
 4. **Collect the calls.** Each slop mop judges its findings with Jev ([JUDGE.md](../../JUDGE.md)), and `break` proves its findings by reproduction. Each returns its **Needs your call** rows. Keep them; do not act on them.
 

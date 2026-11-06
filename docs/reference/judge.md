@@ -2,7 +2,7 @@
 title: slopmop judge
 description: The slopmop judge command: input, Jev questions, verdict rules, output format and the judge() API.
 type: reference
-updated: 2026-10-14
+updated: 2026-11-05
 owner: zico-io
 ---
 
@@ -21,7 +21,7 @@ human  src/cart.ts:42  sonarjs/no-nested-conditional  the fix could change behav
 ## Usage
 
 ```text
-slopmop judge [--mop <name>] [--json] [<file>]
+slopmop judge [--mop <name>] [--json] [--run <id>] [<file>]
 ```
 
 | Argument | Description |
@@ -29,12 +29,14 @@ slopmop judge [--mop <name>] [--json] [<file>]
 | `<file>` | JSON input. When absent, `judge` reads stdin. |
 | `--mop <name>` | Mop name sent to Jev as context: `code`, `ui`, `tests` or `docs`. A finding's own `mop` field wins. Default: `code`. |
 | `--json` | Print counts and every judged finding as JSON. |
+| `--run <id>` | Tag the telemetry event with this run id. |
 
 ### Environment
 
 | Variable | Effect |
 | --- | --- |
 | `JEV_ENABLED=0` | Skip Jev. Every finding is `unjudged`. |
+| `MOP_TELEMETRY=0` | Do not append a `judge` event to the local telemetry file. See [Run telemetry](telemetry.md). |
 
 `judge` needs a `jev` CLI on the `PATH` with a key: [jev-cli](https://github.com/tumf/jev-cli) 0.7 or later (`uv tool install jev-cli`), or a `jev` with an `ask` command that reads a request with `-f -`. Run `jev auth status` to check the key.
 

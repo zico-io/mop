@@ -8,6 +8,7 @@ Start with the concept page, then go to the reference you need.
 | [mop.config](reference/config.md) | Look up a config key, its default, or how layers merge |
 | [`slopmop lint`](reference/lint.md) | Look up a flag, the JSON output, or an exit code |
 | [`slopmop judge`](reference/judge.md) | Learn how Jev turns a finding into a verdict |
+| [Run telemetry](reference/telemetry.md) | See what each run records, turn it off, or summarize it with `stats` |
 | [Harness API](reference/harness.md) | Use the harness in your own ESLint config |
 | [Troubleshooting](troubleshooting.md) | Match an error message to its fix |
 | [Contribute to mop](contributing.md) | Change the harness or a mop, and ship it |

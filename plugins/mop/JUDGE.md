@@ -7,10 +7,10 @@ Every mop asks Jev, through the `jev` CLI from TypeSafe, whether each finding sh
 Write the findings as a JSON array of `{file, line, rule, message}`. `slopmop lint --json` output works as it is.
 
 ```bash
-npx -y slopmop judge --mop <code|ui|tests|docs> --json /tmp/mop-<mop>-findings.json > /tmp/mop-<mop>-judged.json
+npx -y slopmop judge --mop <code|ui|tests|docs> --run <id> --json /tmp/mop-<mop>-findings.json > /tmp/mop-<mop>-judged.json
 ```
 
-It sends one `jev run -` request per finding, so it needs [jev-cli](https://github.com/tumf/jev-cli) 0.7+ (`uv tool install jev-cli`) on the `PATH` with a key (`jev auth status`; `jev doctor` checks the round trip). `JEV_ENABLED=0` turns judging off.
+It sends one `jev run -` request per finding, so it needs [jev-cli](https://github.com/tumf/jev-cli) 0.7+ (`uv tool install jev-cli`) on the `PATH` with a key (`jev auth status`; `jev doctor` checks the round trip). `JEV_ENABLED=0` turns judging off. `--run` is the run id from [TELEMETRY.md](TELEMETRY.md).
 
 ## Act on the verdict
 
