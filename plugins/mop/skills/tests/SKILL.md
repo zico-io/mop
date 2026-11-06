@@ -9,7 +9,7 @@ Shrink a branch's tests to one test per behaviour, with proof that coverage held
 - `BASE_REF`: the name of the branch the PR targets, without `origin/`. Default: the open PR's base, else the repo's default branch.
 - A path or package: audit every test file under it instead of the branch's changes.
 - `--scope touched` (default): every test in each touched file. `--scope added`: only tests the branch added or changed.
-- `--run <id>`: telemetry run id; `/mop` passes one. See [TELEMETRY.md](../../TELEMETRY.md).
+- `--run <id>`: telemetry run id; `/mop:slop` passes one. See [TELEMETRY.md](../../TELEMETRY.md).
 - `--no-commit`: stop after verification.
 
 ## Steps

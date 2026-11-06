@@ -23,7 +23,7 @@ This repo ships two things that release together under one version:
 
 | Part | What it is | Where |
 | --- | --- | --- |
-| mop plugin | Claude Code skills: `/mop`, `/mop:tests`, `/mop:code`, `/mop:docs`, `/mop:ui`, `/mop:break` | `plugins/mop/` |
+| mop plugin | Claude Code skills: `/mop:slop`, `/mop:tests`, `/mop:code`, `/mop:docs`, `/mop:ui`, `/mop:break` | `plugins/mop/` |
 | `slopmop` | npm package: the ESLint harness, the `slopmop` CLI and its `lint` and `judge` commands | `src/`, `bin/` |
 
 ## Why it exists
@@ -34,7 +34,7 @@ AI-written branches add the same slop again and again: comments that narrate the
 
 ### The mops
 
-Each mop runs one loop on one kind of file: detect, judge, fix, verify, report. `/mop` sorts the changed files by type and runs `code`, `ui`, `tests`, `docs`, then `break`, one at a time, each in its own commit. Every mop takes `[BASE_REF|path] [--no-commit]` and never pushes unless you ask.
+Each mop runs one loop on one kind of file: detect, judge, fix, verify, report. `/mop:slop` sorts the changed files by type and runs `code`, `ui`, `tests`, `docs`, then `break`, one at a time, each in its own commit. Every mop takes `[BASE_REF|path] [--no-commit]` and never pushes unless you ask.
 
 | Mop | Detector | Proof that nothing broke |
 | --- | --- | --- |
