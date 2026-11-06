@@ -1,5 +1,21 @@
 # slopmop
 
+## 0.4.0
+
+### Minor Changes
+
+- [#16](https://github.com/zico-io/mop/pull/16) [`3b905e4`](https://github.com/zico-io/mop/commit/3b905e4758e26709ffaeab80d39c09d9c8ae78f7) Thanks [@zico-io](https://github.com/zico-io)! - Ship mop as a Codex plugin. Install it with `codex plugin marketplace add zico-io/mop` and `codex plugin add mop@zico-io`.
+
+- [#20](https://github.com/zico-io/mop/pull/20) [`a8203c7`](https://github.com/zico-io/mop/commit/a8203c7b2f66b59b3c30d53a085ddc7a79182794) Thanks [@zico-io](https://github.com/zico-io)! - Record mop runs locally so they can be analyzed and tuned. `slopmop lint`, `judge` and the new `record` command append rule ids, paths, counts, verdicts and timings to `~/.local/state/mop/runs.jsonl`, never file contents, and nothing is sent anywhere. `slopmop stats` summarizes the file per rule: findings, config action, Jev verdicts, how many the mops cleared, and which rules to move into `mop.fix` or `mop.leave`. `lint` and `judge` take `--run <id>` to group a run's events, every mop now passes one and ends with `slopmop record`, and `MOP_TELEMETRY=0` turns recording off.
+
+- [#21](https://github.com/zico-io/mop/pull/21) [`e568599`](https://github.com/zico-io/mop/commit/e568599289c511d61f4dbee41520f42bd6f0b8e6) Thanks [@zico-io](https://github.com/zico-io)! - Rename the `/mop:mop` command to `/mop:slop`. The eve skill is now `slopmop__slop`.
+
+### Patch Changes
+
+- [#19](https://github.com/zico-io/mop/pull/19) [`d036652`](https://github.com/zico-io/mop/commit/d036652cf0443df481fe1ec3e26909fa702691a7) Thanks [@zico-io](https://github.com/zico-io)! - `slopmop judge` sends each finding to Jev with `jev run -`, which jev-cli 0.7 supports, instead of `jev batch`, which no published jev CLI provides. When Jev judges none of the findings, `judge` prints one warning with the cause.
+
+- [#21](https://github.com/zico-io/mop/pull/21) [`e568599`](https://github.com/zico-io/mop/commit/e568599289c511d61f4dbee41520f42bd6f0b8e6) Thanks [@zico-io](https://github.com/zico-io)! - `/mop:tests` subagents make their edits themselves instead of handing them to another agent such as `codex exec`. Nested agents took 45 seconds to 10 minutes per test file.
+
 ## 0.3.0
 
 ### Minor Changes
