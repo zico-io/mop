@@ -5,4 +5,4 @@ allowBuilds:
   esbuild: true
   sharp: false
 minimumReleaseAgeExclude:
-  - eve@0.76.0
+  - eve@1.0.0-rc.6
