@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
-import { mkdtemp } from "node:fs/promises";
+import { mkdtemp, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { readEvents, record, summarize, telemetryFile } from "../src/telemetry";
+import { collectGarbage, readEvents, record, summarize, telemetryFile } from "../src/telemetry";
 
 test("records runs to the state dir and summarizes found, cleared and judged findings per rule", async () => {
   const env = { XDG_STATE_HOME: await mkdtemp(path.join(os.tmpdir(), "mop-telemetry-")) };
@@ -45,4 +45,16 @@ test("records runs to the state dir and summarizes found, cleared and judged fin
     "no-comments": { found: 3, fix: 3, leave: 0, review: 0, enforce: 0, waive: 0, human: 0, unjudged: 0, cleared: 3, suggest: undefined },
     "id-length": { found: 6, fix: 0, leave: 0, review: 6, enforce: 0, waive: 6, human: 0, unjudged: 0, cleared: 0, suggest: "mop.leave" },
   });
+});
+
+test("drops events older than 90 days", async () => {
+  const file = path.join(await mkdtemp(path.join(os.tmpdir(), "mop-gc-")), "runs.jsonl");
+  const day = 24 * 60 * 60 * 1000;
+  const now = Date.parse("2026-11-05T00:00:00Z");
+  const line = (daysAgo: number) => JSON.stringify({ v: 1, at: new Date(now - daysAgo * day).toISOString(), event: "lint" });
+  await writeFile(file, [line(91), line(89), line(1)].map((entry) => `${entry}\n`).join(""));
+
+  collectGarbage(file, now);
+
+  assert.deepEqual(readEvents(file).map(({ at }) => at), [new Date(now - 89 * day).toISOString(), new Date(now - day).toISOString()]);
 });

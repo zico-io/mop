@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { appendFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
+import { appendFileSync, existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
@@ -55,6 +55,7 @@ export interface Summary {
 
 const SUGGEST_MIN_JUDGED = 5;
 const SUGGEST_SHARE = 0.8;
+const RETAIN_MS = 90 * 24 * 60 * 60 * 1000;
 
 export const telemetryFile = (env: Env = process.env): string | undefined =>
   env.MOP_TELEMETRY === "0"
@@ -77,12 +78,31 @@ export const record = (event: TelemetryEvent, env: Env = process.env): string | 
   if (!file) return undefined;
   try {
     mkdirSync(path.dirname(file), { recursive: true });
+    collectGarbage(file);
     appendFileSync(file, `${JSON.stringify({ v: 1, at: new Date().toISOString(), ...event })}\n`);
     return file;
   } catch {
-    // Telemetry must never fail a mop run.
     return undefined;
   }
+};
+
+const isRecent = (line: string, cutoff: number): boolean => {
+  try {
+    return Date.parse(JSON.parse(line).at) >= cutoff;
+  } catch {
+    return false;
+  }
+};
+
+export const collectGarbage = (file: string, now = Date.now()): void => {
+  if (!existsSync(file)) return;
+  const cutoff = now - RETAIN_MS;
+  const lines = readFileSync(file, "utf8").split("\n").filter(Boolean);
+  const [first] = lines;
+  if (!first || isRecent(first, cutoff)) return;
+  const kept = lines.filter((line) => isRecent(line, cutoff));
+  writeFileSync(`${file}.tmp`, kept.map((line) => `${line}\n`).join(""));
+  renameSync(`${file}.tmp`, file);
 };
 
 export const readEvents = (file: string): StoredEvent[] => {
@@ -111,7 +131,6 @@ const suggestion = (stats: RuleStats): string | undefined => {
   return undefined;
 };
 
-// The first lint of a run is the "before" count and the last one the "after"; events without a run id stand alone.
 const lintsByRun = (lints: StoredEvent[]): (readonly [StoredEvent, StoredEvent])[] => {
   const groups = new Map<string, StoredEvent[]>();
   for (const [index, event] of lints.entries()) {

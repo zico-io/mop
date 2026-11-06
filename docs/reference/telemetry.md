@@ -26,7 +26,8 @@ median lint 2.1s, median judge 34.0s
 | Item | Value |
 | --- | --- |
 | File | `$XDG_STATE_HOME/mop/runs.jsonl`, else `~/.local/state/mop/runs.jsonl` |
-| Format | One JSON object per line, appended. Nothing is rewritten or rotated. |
+| Format | One JSON object per line, appended. |
+| Retention | 90 days. Each write first drops events older than that. |
 | Network | None. The file never leaves your machine unless you send it. |
 | Turn off | `MOP_TELEMETRY=0`. Nothing is written, and `stats` says telemetry is off. |
 
