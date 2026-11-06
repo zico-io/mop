@@ -9,6 +9,7 @@ Shrink a branch's tests to one test per behaviour, with proof that coverage held
 - `BASE_REF`: the name of the branch the PR targets, without `origin/`. Default: the open PR's base, else the repo's default branch.
 - A path or package: audit every test file under it instead of the branch's changes.
 - `--scope touched` (default): every test in each touched file. `--scope added`: only tests the branch added or changed.
+- `--run <id>`: telemetry run id; `/mop` passes one. See [TELEMETRY.md](../../TELEMETRY.md).
 - `--no-commit`: stop after verification.
 
 ## Steps
@@ -23,7 +24,7 @@ Shrink a branch's tests to one test per behaviour, with proof that coverage held
 
 5. **Verify.** `git status --short` shows no stray files. Review each diff and reject merges that dropped an `expect`, swapped a literal for `expect.any`, or added a mock. Run typecheck and every touched suite with its own package runner. Compare failures with `BASE_REF`; report pre-existing ones.
 
-6. **Report and commit.** One table: area, tests before, tests after. Then deletions beyond merges, mutation results, pre-existing failures, what subagents flagged but left (such as service mocks), and **Needs your call**. Commit as `test: cover the same behaviour with fewer tests` with the totals in the body. Push only when asked.
+6. **Report and commit.** One table: area, tests before, tests after. Then deletions beyond merges, mutation results, pre-existing failures, what subagents flagged but left (such as service mocks), and **Needs your call**. Commit as `test: cover the same behaviour with fewer tests` with the totals in the body. Push only when asked. Then log the run with `slopmop record`, following [TELEMETRY.md](../../TELEMETRY.md).
 
 ## Definition of done
 

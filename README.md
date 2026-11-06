@@ -75,6 +75,15 @@ npx -y slopmop lint --base main --json > findings.json
 npx -y slopmop judge --mop code findings.json
 ```
 
+## `slopmop stats`
+
+`lint`, `judge` and `record` append rule ids, paths, counts, verdicts and timings to `~/.local/state/mop/runs.jsonl`, never file contents. Nothing is sent anywhere. `stats` shows which rules fire, what Jev decides, what the mops cleared, and which rules to move into `mop.fix` or `mop.leave`. `MOP_TELEMETRY=0` turns recording off. See [Run telemetry](docs/reference/telemetry.md).
+
+```bash
+npx -y slopmop stats
+npx -y slopmop stats --run mop-20261105T120000Z --json
+```
+
 ## Config
 
 Four layers, last wins. Objects merge key by key; arrays replace.

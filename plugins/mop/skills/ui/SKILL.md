@@ -7,6 +7,7 @@ Remove the design slop a branch added, without redesigning anything.
 
 **Arguments:** `$ARGUMENTS`
 - `BASE_REF` or a path, as for the other mops. A URL scans the rendered page instead.
+- `--run <id>`: telemetry run id; `/mop` passes one. See [TELEMETRY.md](../../TELEMETRY.md).
 - `--no-commit`: stop after verification.
 
 ## Steps
@@ -26,7 +27,7 @@ Remove the design slop a branch added, without redesigning anything.
 
 5. **Verify in the app.** Rerun the detector to zero new findings apart from `waive` and `human` ones. Then render the changed surfaces at desktop and mobile widths with the browser tooling available (T3 preview, Playwright, or the cmux browser) and check light and dark themes once. If the app needs a login you cannot get, say so and list what to check by eye.
 
-6. **Report and commit.** Fixed findings, `waive` findings with their reason, and **Needs your call**. Commit unless `--no-commit`. Push only when asked.
+6. **Report and commit.** Fixed findings, `waive` findings with their reason, and **Needs your call**. Commit unless `--no-commit`. Push only when asked. Then log the run with `slopmop record`, following [TELEMETRY.md](../../TELEMETRY.md).
 
 ## Definition of done
 

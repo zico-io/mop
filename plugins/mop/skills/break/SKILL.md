@@ -8,6 +8,7 @@ Try to break what the branch changed. Report only what you can reproduce, fix th
 **Arguments:** `$ARGUMENTS`
 - `BASE_REF`: the name of the branch the PR targets, without `origin/`. Default: the open PR's base, else the repo's default branch.
 - A path or package: attack everything under it instead of the branch's changes.
+- `--run <id>`: telemetry run id; `/mop` passes one. See [TELEMETRY.md](../../TELEMETRY.md).
 - `--no-commit`: stop after verification.
 
 ## Steps
@@ -27,7 +28,7 @@ Try to break what the branch changed. Report only what you can reproduce, fix th
 
 5. **Verify.** Run typecheck, every touched suite and every remaining reproduction. Compare failures with `BASE_REF` and report pre-existing ones. `git status --short` shows no scratch files.
 
-6. **Report and commit.** One table with one row per finding: where, lens, attack, outcome (`fixed`, `question`, `pre-existing`). Then the attacks that held, grouped by lens, so the reader sees what was tried. End with **Needs your call**, one row per `question` and `pre-existing` finding, in the table format from [JUDGE.md](../../JUDGE.md#needs-your-call), with the reproduction as the reason. Commit as `fix: close holes found by adversarial review` unless `--no-commit`. Push only when asked.
+6. **Report and commit.** One table with one row per finding: where, lens, attack, outcome (`fixed`, `question`, `pre-existing`). Then the attacks that held, grouped by lens, so the reader sees what was tried. End with **Needs your call**, one row per `question` and `pre-existing` finding, in the table format from [JUDGE.md](../../JUDGE.md#needs-your-call), with the reproduction as the reason. Commit as `fix: close holes found by adversarial review` unless `--no-commit`. Push only when asked. Then log the run with `slopmop record`, following [TELEMETRY.md](../../TELEMETRY.md).
 
 ## Definition of done
 

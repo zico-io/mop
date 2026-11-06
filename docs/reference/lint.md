@@ -2,7 +2,7 @@
 title: slopmop lint
 description: The slopmop lint command: flags, scope, output format and exit codes.
 type: reference
-updated: 2026-10-10
+updated: 2026-11-05
 owner: zico-io
 ---
 
@@ -22,8 +22,8 @@ npx -y slopmop lint --base main
 ## Usage
 
 ```text
-slopmop lint [--base <ref>] [--fix] [--json]
-slopmop lint <file...> [--fix] [--json]
+slopmop lint [--base <ref>] [--fix] [--json] [--run <id>]
+slopmop lint <file...> [--fix] [--json] [--run <id>]
 slopmop lint --print-config
 ```
 
@@ -37,6 +37,7 @@ Run it anywhere inside a git repository. It loads config from the git root, not 
 | `--fix` | Autofix findings tagged `fix` in JS and TS, only on lines in scope. Other findings stay. |
 | `--json` | Print one JSON object instead of the summary. |
 | `--print-config` | Print the merged config and its `sources`, then exit 0. |
+| `--run <id>` | Tag the telemetry event with this run id, so `stats` can compare the first and last `lint` of a run. |
 | `<file...>` | Lint these whole files. `--base` is ignored. |
 
 ## Scope
@@ -92,6 +93,10 @@ The first line counts findings and files. Each next line is one rule: count, act
 
 `judge` reads this JSON as it is.
 
+## Telemetry
+
+Each run except `--print-config` appends one `lint` event to the local telemetry file: paths, rule ids, counts and timings, never file contents. `MOP_TELEMETRY=0` turns it off. See [Run telemetry](telemetry.md).
+
 ## Exit codes
 
 | Code | Meaning |
@@ -109,5 +114,6 @@ The first line counts findings and files. Each next line is one rule: count, act
 
 - **Config keys**: what decides `fix`, `leave` and `review`. [Learn more](config.md)
 - **Judge the findings**: pipe the JSON into `judge`. [Learn more](judge.md)
+- **Telemetry**: what each run records, and `stats`. [Learn more](telemetry.md)
 - **Errors**: what each crash means. [Learn more](../troubleshooting.md)
 - **Source**: the CLI. [Learn more](../../bin/lint.ts)

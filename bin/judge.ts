@@ -1,12 +1,14 @@
 import { readFile } from "node:fs/promises";
+import { performance } from "node:perf_hooks";
 import { text } from "node:stream/consumers";
 import { parseArgs } from "node:util";
 import { git } from "../src/changes";
 import { judge, type Finding, type Judged } from "../src/judge";
+import { record, runContext } from "../src/telemetry";
 
 const { values, positionals } = parseArgs({
   allowPositionals: true,
-  options: { json: { type: "boolean" }, mop: { type: "string" } },
+  options: { json: { type: "boolean" }, mop: { type: "string" }, run: { type: "string" } },
 });
 
 const raw = positionals[0] ? await readFile(positionals[0], "utf8") : await text(process.stdin);
@@ -21,15 +23,33 @@ const repoRoot = (): string => {
   }
 };
 
-const judged: Judged<Finding>[] = process.env.JEV_ENABLED === "0"
-  ? findings.map((finding) => ({ ...finding, verdict: "unjudged", why: "JEV_ENABLED=0" }))
-  : await judge(findings, { root: repoRoot() });
+const started = performance.now();
+const jevEnabled = process.env.JEV_ENABLED !== "0";
+const judged: Judged<Finding>[] = jevEnabled
+  ? await judge(findings, { root: repoRoot() })
+  : findings.map((finding) => ({ ...finding, verdict: "unjudged", why: "JEV_ENABLED=0" }));
 
 const counts: Partial<Record<Judged<Finding>["verdict"], number>> = {};
 for (const { verdict } of judged) counts[verdict] = (counts[verdict] ?? 0) + 1;
 if (judged.length > 0 && counts.unjudged === judged.length) {
   console.error(`warning: Jev judged none of the ${judged.length} findings: ${judged[0]?.why}`);
 }
+
+record({
+  event: "judge",
+  ...runContext(process.cwd(), values.run),
+  mop: values.mop ?? "code",
+  jev: jevEnabled,
+  durationMs: Math.round(performance.now() - started),
+  counts,
+  findings: judged.map((finding) => ({
+    file: finding.file,
+    line: finding.line,
+    rule: finding.rule,
+    verdict: finding.verdict,
+    probabilities: "probabilities" in finding ? finding.probabilities : undefined,
+  })),
+});
 
 if (values.json) {
   console.log(JSON.stringify({ counts, findings: judged }, undefined, 2));

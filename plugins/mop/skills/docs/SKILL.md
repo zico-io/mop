@@ -7,6 +7,7 @@ Clean the prose a branch changed, keeping every fact.
 
 **Arguments:** `$ARGUMENTS`
 - `BASE_REF` or a path, as for the other mops.
+- `--run <id>`: telemetry run id; `/mop` passes one. See [TELEMETRY.md](../../TELEMETRY.md).
 - `--no-commit`: stop after verification.
 
 ## Steps
@@ -30,7 +31,7 @@ Clean the prose a branch changed, keeping every fact.
 
 7. **Verify.** Rerun the doc linter to zero warnings apart from `waive` and `human` findings, and run Prettier on the files. Report before and after findings, `waive` findings with their reason, and **Needs your call**.
 
-8. **Commit** unless `--no-commit`. Push only when asked.
+8. **Commit** unless `--no-commit`. Push only when asked. Then log the run with `slopmop record`, following [TELEMETRY.md](../../TELEMETRY.md).
 
 ## Definition of done
 

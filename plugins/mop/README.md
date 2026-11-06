@@ -15,4 +15,6 @@ Every mop takes `[BASE_REF|path] [--no-commit]` and never pushes unless asked.
 
 Every slop mop asks Jev which findings to enforce and hands the uncertain ones to you under **Needs your call**; see [JUDGE.md](JUDGE.md). `/mop:break` reports only holes it can reproduce and hands you the ones that are product calls.
 
+Every mop logs its run to a local file (rule ids, paths, counts, verdicts and timings, never file contents) and ends with `slopmop record`; `npx -y slopmop stats` summarizes the runs. See [TELEMETRY.md](TELEMETRY.md). `MOP_TELEMETRY=0` turns it off.
+
 Depends on: Node 22+ for `lint` and `judge` (the `slopmop` package on npm, run with `npx`), and for each non-JS language its linter on `PATH` (`ruff`, `staticcheck`, `cargo clippy`, `tflint`, `yamllint`), pstack's `unslop` (docs), the `impeccable` plugin (ui). Judging needs the `jev` CLI with a key; without it, the mops fall back to their own sort.

@@ -2,7 +2,7 @@
 title: How mop works
 description: The mop plugin, the slopmop package, and how a finding moves from lint to fix.
 type: concept
-updated: 2026-10-10
+updated: 2026-11-05
 owner: zico-io
 ---
 
@@ -73,6 +73,10 @@ Run `slopmop lint --print-config` to see the merged result and its `sources`.
 
 `judge` sends each finding to Jev in its own `jev run -` request, 8 at a time. Jev answers three questions: is it real slop, does the code around it follow the pattern on purpose, and could the fix change behavior. The verdict is `enforce` only when Jev is at least 90% sure of each answer and all three point to a safe fix. Any doubt becomes `human`. See the [`slopmop judge` reference](reference/judge.md).
 
+### Telemetry
+
+`lint`, `judge` and `record` append one event each to `~/.local/state/mop/runs.jsonl`: rule ids, paths, counts, verdicts and timings, never file contents. Each mop passes one `--run` id to every call and ends with `slopmop record`. `slopmop stats` shows which rules fire, what Jev decides about them, how many the mops cleared, and which rules to move into `mop.fix` or `mop.leave`. Nothing is sent anywhere; `MOP_TELEMETRY=0` turns it off. See [Run telemetry](reference/telemetry.md).
+
 ## Guarantees
 
 - **Branch lines only.** With `--base`, `lint` reports and autofixes lines the branch added since the merge base. Commits that land on the base later never count.
@@ -105,5 +109,6 @@ Do not use mop to find bugs or add coverage; use a code review instead. Do not u
 - **mop.config**: every key, default and merge rule. [Learn more](reference/config.md)
 - **`slopmop lint`**: flags, scope, output and exit codes. [Learn more](reference/lint.md)
 - **`slopmop judge`**: the Jev questions and verdict rules. [Learn more](reference/judge.md)
+- **Run telemetry**: what each run records, and `stats`. [Learn more](reference/telemetry.md)
 - **Harness API**: use the rules in your own ESLint config. [Learn more](reference/harness.md)
 - **Troubleshooting**: errors and what fixes them. [Learn more](troubleshooting.md)
