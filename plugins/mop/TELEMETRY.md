@@ -4,7 +4,7 @@
 
 ## Run id
 
-Use one run id for every `slopmop` call in a run. Take the `--run` argument when one was passed, as `/mop` does for each mop. Otherwise make one once at the start, from the mop name and the UTC time:
+Use one run id for every `slopmop` call in a run. Take the `--run` argument when one was passed, as `/mop:slop` does for each mop. Otherwise make one once at the start, from the mop name and the UTC time:
 
 ```bash
 echo "code-$(date -u +%Y%m%dT%H%M%SZ)"

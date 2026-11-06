@@ -68,7 +68,7 @@ node --import tsx /path/to/mop/bin/slopmop.ts lint --base main
 
 ### Edit the skill
 
-Each mop is `plugins/mop/skills/<name>/SKILL.md`, with recipes in `REFERENCE.md`. Keep the Arguments, Steps, Definition of done and Gotchas sections, because `/mop` relies on every mop having the same shape.
+Each mop is `plugins/mop/skills/<name>/SKILL.md`, with recipes in `REFERENCE.md`. Keep the Arguments, Steps, Definition of done and Gotchas sections, because `/mop:slop` relies on every mop having the same shape.
 
 ### Load your local copy
 

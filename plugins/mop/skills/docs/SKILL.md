@@ -7,7 +7,7 @@ Clean the prose a branch changed, keeping every fact.
 
 **Arguments:** `$ARGUMENTS`
 - `BASE_REF` or a path, as for the other mops.
-- `--run <id>`: telemetry run id; `/mop` passes one. See [TELEMETRY.md](../../TELEMETRY.md).
+- `--run <id>`: telemetry run id; `/mop:slop` passes one. See [TELEMETRY.md](../../TELEMETRY.md).
 - `--no-commit`: stop after verification.
 
 ## Steps

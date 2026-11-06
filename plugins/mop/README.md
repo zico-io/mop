@@ -4,7 +4,7 @@ Slop mops for a branch. Each one finds the slop a branch added, fixes it on the 
 
 | Skill | Cleans | Proof |
 |---|---|---|
-| `/mop` | Everything the branch changed, routed by file type | One typecheck and test run at the end |
+| `/mop:slop` | Everything the branch changed, routed by file type | One typecheck and test run at the end |
 | `/mop:tests` | Test files: one test per behaviour, no service mocks | Breaks the source and watches a remaining test fail |
 | `/mop:code` | Code (JS, TS, Python, Go, Rust, Terraform, YAML): `lint` findings on changed lines, tuned by `mop.config` | Typecheck, tests, lint rerun |
 | `/mop:docs` | Markdown and MDX: doc lint and AI prose tells | Doc linter at zero warnings |

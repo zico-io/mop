@@ -20,7 +20,7 @@ codex plugin add mop@zico-io
 
 | Skill | Cleans |
 |---|---|
-| `/mop` | Everything the branch changed, routed by file type |
+| `/mop:slop` | Everything the branch changed, routed by file type |
 | `/mop:tests` | Test files: one test per behaviour, no service mocks |
 | `/mop:code` | Code: `lint` findings on changed lines |
 | `/mop:docs` | Markdown and MDX: doc lint and AI prose tells |
@@ -39,7 +39,7 @@ npm i slopmop-eve
 export { default } from "slopmop-eve";
 ```
 
-The mount exposes `slopmop__mop`, `slopmop__code` and the rest, and the agent loads them on `/mop` and `/mop:<name>`. The skills run `npx -y slopmop` and `git` in the agent's sandbox, so it needs Node 22+ and network access to npm. `/mop:ui` needs the Impeccable detector, which the eve sandbox does not have, so it stops and says so.
+The mount exposes `slopmop__slop`, `slopmop__code` and the rest, and the agent loads them on `/mop:slop` and `/mop:<name>`. The skills run `npx -y slopmop` and `git` in the agent's sandbox, so it needs Node 22+ and network access to npm. `/mop:ui` needs the Impeccable detector, which the eve sandbox does not have, so it stops and says so.
 
 ## `slopmop init`
 
