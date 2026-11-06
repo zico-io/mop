@@ -35,11 +35,11 @@ The same skills ship as an [eve extension](https://eve.dev/docs/extensions), `sl
 npm i slopmop-eve
 ```
 
-```ts title="agent/extensions/slopmop.ts"
+```ts title="agent/extensions/mop.ts"
 export { default } from "slopmop-eve";
 ```
 
-The mount exposes `slopmop__slop`, `slopmop__code` and the rest, and the agent loads them on `/mop:slop` and `/mop:<name>`. The skills run `npx -y slopmop` and `git` in the agent's sandbox, so it needs Node 22+ and network access to npm. `/mop:ui` needs the Impeccable detector, which the eve sandbox does not have, so it stops and says so.
+The filename sets the prefix, so `mop.ts` exposes `mop__slop`, `mop__code` and the rest, and the agent loads them on `/mop:slop` and `/mop:<name>`. The skills run `npx -y slopmop` and `git` in the agent's sandbox, so it needs Node 22+ and network access to npm. `/mop:ui` needs the Impeccable detector, which the eve sandbox does not have, so it stops and says so.
 
 ## `slopmop init`
 
