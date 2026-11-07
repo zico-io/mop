@@ -1,5 +1,11 @@
 # slopmop
 
+## 0.4.1
+
+### Patch Changes
+
+- [#24](https://github.com/zico-io/mop/pull/24) [`03c2799`](https://github.com/zico-io/mop/commit/03c2799d6377d78b769f6f772fef803782a6d344) Thanks [@zico-io](https://github.com/zico-io)! - `slopmop lint` no longer crashes when Tailwind is on but cannot load. Before, a `tailwind` config without an `entryPoint` (which `slopmop init` writes when you leave the entry point blank) threw a TypeError, and an entry point where `tailwindcss` does not resolve, such as an `npx` run in a repo without it installed, threw "Could not resolve tailwindcss" and stopped the whole lint. Now the lint prints a warning, skips only the Tailwind rules, and checks everything else. Repos with a valid entry point and `tailwindcss` installed lint as before. ([#24](https://github.com/zico-io/mop/issues/24))
+
 ## 0.4.0
 
 ### Minor Changes
