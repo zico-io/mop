@@ -9,6 +9,8 @@ import { configs as sonarjsConfigs } from "eslint-plugin-sonarjs";
 import tailwindcss from "eslint-plugin-tailwindcss";
 import unicorn from "eslint-plugin-unicorn";
 import globals from "globals";
+import { createRequire } from "node:module";
+import path from "node:path";
 import tseslint from "typescript-eslint";
 import type { Linter } from "eslint";
 import strict from "./presets/strict";
@@ -22,6 +24,22 @@ type RestrictedSyntax = { selector: string; message: string };
 
 // Typed as a typescript-eslint FlatConfig or an array, which Linter.Config rejects; at runtime it is one plain config object.
 const tailwindRecommended = tailwindcss.configs.recommended as Linter.Config;
+
+const tailwindEntry = (tailwind: Config["tailwind"]) => {
+  if (!tailwind) return;
+  if (!tailwind.entryPoint) {
+    process.emitWarning("tailwind is on without an entryPoint, so the Tailwind rules are skipped.");
+    return;
+  }
+  const entryPoint = path.resolve(tailwind.entryPoint);
+  try {
+    createRequire(entryPoint).resolve("tailwindcss");
+    return entryPoint;
+  } catch {
+    process.emitWarning(`tailwindcss does not resolve from ${tailwind.entryPoint}, so the Tailwind rules are skipped.`);
+    return;
+  }
+};
 
 const envSyntax = (env: Config["env"]): RestrictedSyntax[] =>
   env
@@ -113,6 +131,7 @@ const testRules = (tests: TestLimits, restrictedSyntax: RestrictedSyntax[]): Lin
 export default function harness(input: UserConfig = {}): Linter.Config[] {
   const config = merge<Config>(strict, input);
   const restrictedSyntax = envSyntax(config.env);
+  const tailwindEntryPoint = tailwindEntry(config.tailwind);
   const playwrightFiles = config.playwright ? [`${config.playwright.dir}/**/*.spec.ts`] : [];
   return defineConfig([
     { ignores: config.ignores },
@@ -125,12 +144,12 @@ export default function harness(input: UserConfig = {}): Linter.Config[] {
     unicorn.configs.recommended,
     security.configs.recommended,
     { files: ["**/*.{jsx,tsx}"], ...eslintReact.configs["recommended-typescript"] },
-    ...(config.tailwind
+    ...(tailwindEntryPoint && config.tailwind
       ? [
           {
             ...tailwindRecommended,
             files: config.tailwind.files ?? ["**/*.{jsx,tsx}"],
-            settings: { tailwindcss: { cssConfigPath: config.tailwind.entryPoint } },
+            settings: { tailwindcss: { cssConfigPath: tailwindEntryPoint } },
           },
         ]
       : []),

@@ -44,3 +44,20 @@ test("lints with the configured taste and reads added lines from a diff", async 
   assert.ok(rules.includes("3:unicorn/no-nested-ternary"), rules.join(", "));
   assert.deepEqual([...addedLines("@@ -1,0 +4,2 @@\n+a\n+b\n@@ -9 +12 @@\n+c")], [4, 5, 12]);
 });
+
+const hasTailwindRules = (entryPoint?: string) =>
+  harness({ tailwind: { entryPoint } }).some(({ settings }) => settings?.tailwindcss);
+
+test("turns on the Tailwind rules only when tailwindcss resolves from the entry point", async () => {
+  const directory = await mkdtemp(path.join(os.tmpdir(), "mop-"));
+  const app = path.join(directory, "app");
+  const tailwind = path.join(app, "node_modules", "tailwindcss");
+  await mkdir(tailwind, { recursive: true });
+  await writeFile(path.join(tailwind, "index.js"), "");
+  await Promise.all(["app.css", "app/app.css"].map((file) => writeFile(path.join(directory, file), '@import "tailwindcss";\n')));
+
+  assert.deepEqual(
+    [undefined, path.join(directory, "app.css"), path.join(app, "app.css")].map((entryPoint) => hasTailwindRules(entryPoint)),
+    [false, false, true],
+  );
+});
