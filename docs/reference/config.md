@@ -110,7 +110,7 @@ Applies to `*.test.*`, `*.spec.*` and `__tests__/**` files.
 
 ### `tailwind`
 
-`false | { entryPoint?: string; files?: string[] }`. Turns on the Tailwind recommended rules. `entryPoint` is the CSS file the plugin reads, and `files` defaults to `**/*.{jsx,tsx}`. Default: `false`.
+`false | { entryPoint?: string; files?: string[] }`. Turns on the Tailwind recommended rules. `entryPoint` is the CSS file the plugin reads, and `files` defaults to `**/*.{jsx,tsx}`. The lint skips the Tailwind rules with a warning when `entryPoint` is missing or `tailwindcss` does not resolve from it. Default: `false`.
 
 ### `playwright`
 
