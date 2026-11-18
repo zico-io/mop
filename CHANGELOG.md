@@ -1,5 +1,15 @@
 # slopmop
 
+## 0.5.0
+
+### Minor Changes
+
+- [#26](https://github.com/zico-io/mop/pull/26) [`e38564d`](https://github.com/zico-io/mop/commit/e38564dbcf60934d23d18ca7cf792db94b7dac8c) Thanks [@zico-io](https://github.com/zico-io)! - `slopmop judge` calls a decisions API itself instead of shelling out to the `jev` CLI, so jev-cli is no longer needed, and the decisions model is no longer tied to Jev. The new `judge` key in `mop.config` picks the provider (`typesafe` by default, or `openrouter`, `vercel`, `cloudflare` or `custom`) and can override its `endpoint`, `model` and `apiKeyVariable`, so `{ "provider": "cloudflare", "model": "clef" }` asks Cloudflare's Clef. Each provider reads its API key from the environment, `TYPESAFE_API_KEY` by default. `MOP_JUDGE=0` replaces `JEV_ENABLED=0`, and the `judge` telemetry event records `judge: { provider, model }` instead of `jev: true`.
+
+### Patch Changes
+
+- [#28](https://github.com/zico-io/mop/pull/28) [`4dfee1b`](https://github.com/zico-io/mop/commit/4dfee1b7c5027bce952db4e0bbc1c1a6f1354a9e) Thanks [@zico-io](https://github.com/zico-io)! - `/mop:ui` finds the Impeccable detector when Impeccable is installed as a user skill in `~/.claude/skills/impeccable`, not only as a plugin in `~/.claude/plugins/cache`.
+
 ## 0.4.1
 
 ### Patch Changes
