@@ -21,7 +21,7 @@ The last command runs `slopmop lint` from source against one file, with no build
 
 - Node 22 or later. CI runs Node 24.
 - pnpm at the version in `packageManager` (`package.json`). An older pnpm reports the lockfile as broken. Run `npx -y pnpm@12.10.1 install` if your global pnpm cannot switch.
-- The `jev` CLI with a key, only to test real judging. `jev auth status` checks the key.
+- A decisions API key (`TYPESAFE_API_KEY`, or the variable of the provider in `judge`), only to test real judging.
 
 ## Find your way around
 
@@ -30,7 +30,7 @@ src/
   harness.ts          harness(config): the flat ESLint config
   config.ts           loadConfig, merge, sortRule: layers and fix/leave/review
   changes.ts          merge base and added-line detection
-  judge.ts            Jev questions and verdictOf
+  judge.ts            judge questions, providers and verdictOf
   presets/strict.ts   the default config every layer merges onto
   rules/              the test-guardrails plugin and restricted test syntax
 bin/                  the slopmop CLI: lint and judge commands
@@ -50,7 +50,7 @@ Add a new rule to the matching block in `src/harness.ts`. Put a value a user sho
 
 ### Decide how mops sort it
 
-Add the rule id to `mop.fix` in the strict preset when its fix is mechanical and safe on any codebase. Add it to `mop.leave` with a reason when it fights common conventions. Leave it in neither list to make it `review`, so Jev or the user decides.
+Add the rule id to `mop.fix` in the strict preset when its fix is mechanical and safe on any codebase. Add it to `mop.leave` with a reason when it fights common conventions. Leave it in neither list to make it `review`, so the judge or the user decides.
 
 ### Test the behavior
 
@@ -104,7 +104,7 @@ On `main`, the release workflow opens a "chore: version packages" PR. It bumps `
 ## Don't
 
 - Don't depend on your own `~/.config/mop` in a test. Pass `loadConfig({ cwd, user })` temporary directories, as `test/harness.test.ts` does.
-- Don't call `jev` in a test. Pass a fake `run` to `judge()`, as `test/judge.test.ts` does.
+- Don't call a real decisions API in a test. Pass a fake `run` to `judge()`, or point a provider at a local server, as `test/judge.test.ts` does.
 - Don't add a rule to `mop.fix` because its autofix exists. unicorn's nested-ternary autofix only adds parentheses and still fails `sonarjs/no-nested-conditional`.
 
 ## Next steps
@@ -112,5 +112,5 @@ On `main`, the release workflow opens a "chore: version packages" PR. It bumps `
 - **How mop works**: the model behind the code. [Learn more](how-mop-works.md)
 - **Harness API**: the exports and rule sets you change. [Learn more](reference/harness.md)
 - **Troubleshooting**: errors you may hit while developing. [Learn more](troubleshooting.md)
-- **Judging**: what the Jev questions decide. [Learn more](../plugins/mop/JUDGE.md)
+- **Judging**: what the judge questions decide. [Learn more](../plugins/mop/JUDGE.md)
 - **Changesets**: bump types and the CLI. [Learn more](https://changesets.dev)

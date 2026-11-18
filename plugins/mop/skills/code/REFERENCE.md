@@ -42,7 +42,7 @@ const pending = failed ? "Failed" : "Running";
 const label = done ? "Done" : pending;
 ```
 
-**Comments in other languages.** `mop/no-comments` flags full-line `#` or `//` comments on added lines. Keep shebangs and tool directives (`# noqa`, `# type: ignore`, `//go:build`, `//nolint`, `# tflint-ignore`, `# yamllint`). A Rust `///` doc comment or a Go doc comment on an exported name is often the house style: let Jev weigh `deliberate`. A `#` line inside a Python string or YAML block scalar is data, not a comment; leave it.
+**Comments in other languages.** `mop/no-comments` flags full-line `#` or `//` comments on added lines. Keep shebangs and tool directives (`# noqa`, `# type: ignore`, `//go:build`, `//nolint`, `# tflint-ignore`, `# yamllint`). A Rust `///` doc comment or a Go doc comment on an exported name is often the house style: let the judge weigh `deliberate`. A `#` line inside a Python string or YAML block scalar is data, not a comment; leave it.
 
 **Python.** `F401` and `F841`: delete the unused import or variable, unless an `__init__.py` re-exports it (then add it to `__all__`). `ERA001`: delete the commented-out code. `T201`: replace `print` with the module's logger, or delete it. `RET505`: drop the `else` after `return` and dedent.
 

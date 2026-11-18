@@ -43,7 +43,7 @@ Try to break what the branch changed. Report only what you can reproduce, fix th
 
 ## Gotchas
 
-- Proof replaces Jev here. A bug fix always changes behaviour, so Jev's `risky` question would send every finding to you. The reproduction is the evidence, and the classes decide what gets fixed.
+- Proof replaces the judge here. A bug fix always changes behaviour, so the judge's `risky` question would send every finding to you. The reproduction is the evidence, and the classes decide what gets fixed.
 - A reproduction that mocks the module under test proves only the mock. Drive the real code.
 - A reproduction that fails only sometimes is a race, not noise. Run it 20 times and report the failure rate.
 - Never make an attack pass by weakening a type, a test or a check. That hides the hole.

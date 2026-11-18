@@ -1,4 +1,3 @@
-import { execFile } from "node:child_process";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
@@ -48,14 +47,14 @@ export interface Finding {
   snippet?: string;
 }
 
-export interface JevRow {
+export interface DecisionRow {
   id: number;
   state: { mop: string; rule: string; finding: string; file?: string; snippet: string };
 }
 
-export interface JevResult {
+export interface DecisionResult {
   id: number;
-  answers?: Partial<Record<string, { noul?: unknown }>>;
+  answers?: unknown;
   error?: string;
 }
 
@@ -72,9 +71,9 @@ const certainty = (answer: { noul: number }): number => Math.max(answer.noul, 1 
 export const verdictOf = (answers: Answers): Ruling => {
   const yes = (id: QuestionId) => answers[id].noul >= 0.5;
   const sure = (id: QuestionId) => certainty(answers[id]) >= AUTO;
-  if (!sure("slop")) return { verdict: "human", why: "Jev is unsure whether this is slop" };
+  if (!sure("slop")) return { verdict: "human", why: "the judge is unsure whether this is slop" };
   if (!yes("slop")) return { verdict: "waive", why: "not slop on this line" };
-  if (!sure("deliberate")) return { verdict: "human", why: "Jev is unsure whether the pattern is deliberate here" };
+  if (!sure("deliberate")) return { verdict: "human", why: "the judge is unsure whether the pattern is deliberate here" };
   if (yes("deliberate")) return { verdict: "waive", why: "the code around it follows this pattern on purpose" };
   if (!sure("risky") || yes("risky")) return { verdict: "human", why: "the fix could change behaviour, copy, an API or a test" };
   return { verdict: "enforce", why: "real slop with a mechanical fix" };
@@ -98,52 +97,142 @@ export const snippetOf = async (
   }
 };
 
-// Both jev CLIs print a failure as one JSON line, `{"ok": false, "error": ...}`, on stderr.
-const errorOf = (line = ""): string => {
-  try {
-    return String(JSON.parse(line).error ?? line);
-  } catch {
-    return line;
-  }
-};
-
-const exec = (args: string[], input?: string): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const child = execFile("jev", args, { maxBuffer: 64 * 1024 * 1024 }, (error, stdout, stderr) => {
-      if (!error) return resolve(stdout);
-      reject(new Error(errorOf(stderr.trim().split("\n").at(-1)) || error.message));
-    });
-    child.stdin?.end(input);
-  });
-
-// jev-cli (PyPI) takes a full request through `run -`; the other `jev` CLI takes it through `ask -f -`.
-const requestArgs = async (): Promise<string[]> => {
-  const commands = (await exec(["--help"])).match(/\{([\w,-]+)\}/)?.[1]?.split(",") ?? [];
-  if (commands.includes("run")) return ["run", "-"];
-  if (commands.includes("ask")) return ["ask", "-f", "-", "--json", "--compact"];
-  throw new Error("this jev CLI has neither `run` nor `ask`; install jev-cli 0.7+ with `uv tool install jev-cli`");
-};
-
-export const jevRun = async (rows: JevRow[], concurrency = 8): Promise<JevResult[]> => {
-  const args = await requestArgs();
-  const results: JevResult[] = [];
-  const queue = rows.values();
-  const worker = async (): Promise<void> => {
-    for (const { id, state } of queue) {
-      try {
-        const { answers } = JSON.parse(await exec(args, JSON.stringify({ state, questions: QUESTIONS })));
-        results.push({ id, answers });
-      } catch (error) {
-        results.push({ id, error: error instanceof Error ? error.message : String(error) });
-      }
-    }
+interface Provider {
+  model?: string;
+  apiKeyVariable: string;
+  endpoint?: (model: string, environment: Environment) => string | undefined;
+  request?: (body: { state: DecisionRow["state"]; model: string; questions: typeof QUESTIONS }) => {
+    body: object;
+    headers: Record<string, string>;
   };
-  await Promise.all(Array.from({ length: Math.min(concurrency, rows.length) }, worker));
-  return results;
+  answers?: (response: Record<string, unknown>) => unknown;
+}
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  value !== null && typeof value === "object" && !Array.isArray(value);
+
+export const PROVIDERS = {
+  typesafe: {
+    model: "jev-latest",
+    apiKeyVariable: "TYPESAFE_API_KEY",
+    endpoint: () => "https://api.typesafe.ai/v1/systemone",
+  },
+  openrouter: {
+    model: "typesafe/jev-1.13",
+    apiKeyVariable: "OPENROUTER_API_KEY",
+    endpoint: () => "https://openrouter.ai/api/alpha/decisions",
+  },
+  vercel: {
+    model: "typesafe-ai/jev",
+    apiKeyVariable: "AI_GATEWAY_API_KEY",
+    endpoint: () => "https://ai-gateway.vercel.sh/v4/ai/evaluation-model",
+    request: ({ model, questions, ...body }) => ({
+      body: {
+        ...body,
+        questions: Object.fromEntries(
+          Object.entries(questions).map(([id, question]) => [id, { ...question, type: "boolean" }]),
+        ),
+      },
+      headers: {
+        "ai-gateway-protocol-version": "0.0.1",
+        "ai-gateway-auth-method": "api-key",
+        "ai-evaluation-model-specification-version": "4",
+        "ai-model-id": model,
+      },
+    }),
+    answers: ({ answers }) =>
+      isRecord(answers)
+        ? Object.fromEntries(
+            Object.entries(answers).map(([id, answer]) => [id, { noul: isRecord(answer) ? answer.probability : undefined }]),
+          )
+        : undefined,
+  },
+  cloudflare: {
+    model: "clef-flash",
+    apiKeyVariable: "CLOUDFLARE_API_TOKEN",
+    endpoint: (model, { CLOUDFLARE_ACCOUNT_ID: account }) => {
+      return account && `https://api.cloudflare.com/client/v4/accounts/${account}/ai/run/@cf/cloudflare/${model}`;
+    },
+    answers: ({ success, result }) => {
+      if (success !== true) throw new Error("Cloudflare Workers AI reported a failed request");
+      return isRecord(result) && isRecord(result.answers) ? result.answers : undefined;
+    },
+  },
+  custom: {
+    apiKeyVariable: "MOP_JUDGE_API_KEY",
+  },
+} satisfies Record<string, Provider>;
+
+export interface JudgeConfig {
+  provider: keyof typeof PROVIDERS;
+  endpoint?: string;
+  model?: string;
+  apiKeyVariable?: string;
+}
+
+type Environment = Record<string, string | undefined>;
+
+const CONCURRENCY = 8;
+const TIMEOUT_MS = 60_000;
+
+export const modelOf = (config: JudgeConfig): string | undefined =>
+  config.model ?? (PROVIDERS[config.provider] as Provider | undefined)?.model;
+
+const decider = (config: JudgeConfig, environment: Environment) => {
+  const provider: Provider = PROVIDERS[config.provider];
+  if (!provider) throw new Error(`unknown judge provider "${config.provider}"; use one of ${Object.keys(PROVIDERS).join(", ")}`);
+  const model = config.model ?? provider.model;
+  if (!model) throw new Error(`the ${config.provider} provider needs judge.model in mop.config`);
+  const endpoint = config.endpoint ?? provider.endpoint?.(model, environment);
+  if (!endpoint) {
+    throw new Error(
+      config.provider === "cloudflare"
+        ? "the cloudflare provider needs CLOUDFLARE_ACCOUNT_ID"
+        : `the ${config.provider} provider needs judge.endpoint in mop.config`,
+    );
+  }
+  const apiKeyVariable = config.apiKeyVariable ?? provider.apiKeyVariable;
+  const key = environment[apiKeyVariable];
+  if (!key) throw new Error(`${apiKeyVariable} is not set; export the ${config.provider} API key`);
+  return async (state: DecisionRow["state"]): Promise<unknown> => {
+    const { body, headers } = provider.request?.({ state, model, questions: QUESTIONS }) ?? {
+      body: { state, model, questions: QUESTIONS },
+      headers: {},
+    };
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: { authorization: `Bearer ${key}`, "content-type": "application/json", ...headers },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+    const result: unknown = await response.json();
+    if (!isRecord(result)) throw new Error("the decisions API returned a non-object response");
+    return provider.answers ? provider.answers(result) : result.answers;
+  };
 };
 
-const isAnswered = (answers: JevResult["answers"]): answers is Answers =>
-  QUESTION_IDS.every((key) => typeof answers?.[key]?.noul === "number");
+export const decisionsRun =
+  (config: JudgeConfig, environment: Environment) =>
+  async (rows: DecisionRow[]): Promise<DecisionResult[]> => {
+    const decide = decider(config, environment);
+    const results: DecisionResult[] = [];
+    const queue = rows.values();
+    const worker = async (): Promise<void> => {
+      for (const { id, state } of queue) {
+        try {
+          results.push({ id, answers: await decide(state) });
+        } catch (error) {
+          results.push({ id, error: error instanceof Error ? error.message : String(error) });
+        }
+      }
+    };
+    await Promise.all(Array.from({ length: Math.min(CONCURRENCY, rows.length) }, worker));
+    return results;
+  };
+
+const isAnswered = (answers: unknown): answers is Answers =>
+  isRecord(answers) && QUESTION_IDS.every((key) => isRecord(answers[key]) && typeof answers[key].noul === "number");
 
 const unjudged = <Input extends Finding>(finding: Input, why: string): Judged<Input> => ({
   ...finding,
@@ -153,10 +242,10 @@ const unjudged = <Input extends Finding>(finding: Input, why: string): Judged<In
 
 export const judge = async <Input extends Finding>(
   findings: Input[],
-  { root = process.cwd(), run = jevRun }: { root?: string; run?: (rows: JevRow[]) => Promise<JevResult[]> } = {},
+  { root = process.cwd(), run }: { root?: string; run: (rows: DecisionRow[]) => Promise<DecisionResult[]> },
 ): Promise<Judged<Input>[]> => {
   const rows = await Promise.all(
-    findings.map(async (finding, id): Promise<JevRow> => ({
+    findings.map(async (finding, id): Promise<DecisionRow> => ({
       id,
       state: {
         mop: finding.mop ?? "code",
@@ -167,16 +256,16 @@ export const judge = async <Input extends Finding>(
       },
     })),
   );
-  let results: JevResult[];
+  let results: DecisionResult[];
   try {
     results = await run(rows);
   } catch (error) {
-    return findings.map((finding) => unjudged(finding, `jev failed: ${error instanceof Error ? error.message : String(error)}`));
+    return findings.map((finding) => unjudged(finding, `judging failed: ${error instanceof Error ? error.message : String(error)}`));
   }
   const byId = new Map(results.map((result) => [result.id, result]));
   return findings.map((finding, id) => {
     const { answers, error } = byId.get(id) ?? {};
-    if (!isAnswered(answers)) return unjudged(finding, error ?? "jev returned no answer");
+    if (!isAnswered(answers)) return unjudged(finding, error ?? "the decisions API returned no answer");
     const probabilities = Object.fromEntries(
       QUESTION_IDS.map((key) => [key, Math.round(answers[key].noul * 100) / 100]),
     ) as Record<QuestionId, number>;

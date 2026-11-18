@@ -21,7 +21,7 @@ Remove the design slop a branch added, without redesigning anything.
    ```
    Pass paths through `xargs -0` or quote them: route folders such as `(authenticated)` and `[[...slug]]` break word splitting. Keep findings whose line the branch changed; list the rest as pre-existing.
 
-3. **Judge.** Send the detector findings on branch lines to Jev with `--mop ui`, following [JUDGE.md](../../JUDGE.md). Fix only `enforce` findings.
+3. **Judge.** Send the detector findings on branch lines to the judge with `--mop ui`, following [JUDGE.md](../../JUDGE.md). Fix only `enforce` findings.
 
 4. **Fix within the system.** Use the project's tokens and shared components. Do not change copy, layout intent, or behaviour. Fix each finding with the matching row in [REFERENCE.md](REFERENCE.md#fixes).
 
@@ -32,7 +32,7 @@ Remove the design slop a branch added, without redesigning anything.
 ## Definition of done
 
 - [ ] The detector reports zero findings on lines the branch changed, or each one left is listed with a reason.
-- [ ] Every `human` verdict is listed under **Needs your call** and left untouched, or the report says Jev was skipped and why.
+- [ ] Every `human` verdict is listed under **Needs your call** and left untouched, or the report says judging was skipped and why.
 - [ ] Every fix uses the project's existing tokens and components; no new colours, spacing values or one-off components.
 - [ ] Copy, layout intent and behaviour are unchanged.
 - [ ] The changed surfaces were seen rendered at desktop and mobile widths and in light and dark themes, or the report says why not and lists what to check by eye.

@@ -6,7 +6,7 @@ const USAGE = `Usage: slopmop <command> [options]
 Commands:
   init     Inspect the repo and write a mop.config.json, asking before each choice
   lint     Lint the lines a branch added and sort findings into fix, leave and review
-  judge    Ask Jev whether each finding should be fixed
+  judge    Ask a decisions model whether each finding should be fixed
   record   Log a mop's outcome to the local telemetry file
   stats    Summarize the local telemetry: rules, verdicts, fixes and durations`;
 

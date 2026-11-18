@@ -2,7 +2,7 @@
 title: mop.config
 description: Every mop.config key, its type and strict default, and how the layers merge.
 type: reference
-updated: 2026-10-10
+updated: 2026-11-18
 owner: zico-io
 ---
 
@@ -143,6 +143,19 @@ ruff runs with `--isolated`, so it ignores `pyproject.toml`, the same way `lint`
 `Record<string, string | null>`. Rule patterns that `lint` tags `leave`, each mapped to the reason. A `null` or empty reason drops the entry. `leave` wins over `fix`. Default: 21 entries, including `unicorn/filename-case`, `unicorn/no-null`, the size rules of every language and `yamllint/truthy`.
 
 A rule in neither list is tagged `review`.
+
+### `judge`
+
+`{ provider: "typesafe" | "openrouter" | "vercel" | "cloudflare" | "custom"; endpoint?: string; model?: string; apiKeyVariable?: string }`. The decisions provider and model that `slopmop judge` asks. Default: `{ provider: "typesafe" }`, which asks TypeSafe's Jev. To ask Cloudflare's Clef instead, set `{ provider: "cloudflare", model: "clef" }`.
+
+| Key | Description |
+| --- | --- |
+| `provider` | Which API to call. Each has a default endpoint, model and API key variable; see [`slopmop judge`](judge.md#environment). |
+| `endpoint` | Request URL. Required for `custom`, with `model`. For `cloudflare`, defaults to the Workers AI URL built from `CLOUDFLARE_ACCOUNT_ID` and `model`. |
+| `model` | Model id sent with each request. |
+| `apiKeyVariable` | Name of the environment variable that holds the API key. The key itself never goes in `mop.config`. |
+
+`judge` merges key by key like any object, so a repo that changes `provider` keeps an `endpoint` set by an earlier layer. Set `endpoint` again when you switch providers.
 
 ## Don't
 

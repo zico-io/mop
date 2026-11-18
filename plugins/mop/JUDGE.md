@@ -1,6 +1,6 @@
-# Judging findings with Jev
+# Judging findings
 
-Every mop asks Jev, through the `jev` CLI from TypeSafe, whether each finding should be enforced before fixing it. Jev answers three yes-or-no questions per finding: is it real slop, does the code around it follow the pattern on purpose, and could the fix change behaviour, copy, an API or a test. `judge` turns the answers into a verdict and only acts on answers Jev is at least 90% sure of.
+Every mop asks a decisions model, through `slopmop judge`, whether each finding should be enforced before fixing it. The model is TypeSafe's Jev by default and set by the `judge` key of `mop.config`. It answers three yes-or-no questions per finding: is it real slop, does the code around it follow the pattern on purpose, and could the fix change behaviour, copy, an API or a test. `judge` turns the answers into a verdict and only acts on answers the model is at least 90% sure of.
 
 ## Run
 
@@ -10,7 +10,7 @@ Write the findings as a JSON array of `{file, line, rule, message}`. `slopmop li
 npx -y slopmop judge --mop <code|ui|tests|docs> --run <id> --json /tmp/mop-<mop>-findings.json > /tmp/mop-<mop>-judged.json
 ```
 
-It sends one `jev run -` request per finding, so it needs [jev-cli](https://github.com/tumf/jev-cli) 0.7+ (`uv tool install jev-cli`) on the `PATH` with a key (`jev auth status`; `jev doctor` checks the round trip). `JEV_ENABLED=0` turns judging off. `--run` is the run id from [TELEMETRY.md](TELEMETRY.md).
+It sends one decisions API request per finding to the provider in the `judge` key of `mop.config`, so it needs that provider's API key in the environment: `TYPESAFE_API_KEY` by default. `MOP_JUDGE=0` turns judging off. `--run` is the run id from [TELEMETRY.md](TELEMETRY.md).
 
 ## Act on the verdict
 
@@ -19,9 +19,9 @@ It sends one `jev run -` request per finding, so it needs [jev-cli](https://gith
 | `enforce` | Fix it. |
 | `waive` | Leave it. List it under "left on purpose" with the `why`. |
 | `human` | Leave it untouched. Add it to **Needs your call**. |
-| `unjudged` | Jev was unavailable or failed. Fall back to the mop's own sort and say in the report that Jev was skipped. |
+| `unjudged` | The model was unavailable or failed. Fall back to the mop's own sort and say in the report that judging was skipped. |
 
-Jev never overrides a config `leave`, a rule the user gave, or a mop's definition of done. A finding the mop would refuse to fix stays unfixed whatever Jev says.
+The judge never overrides a config `leave`, a rule the user gave, or a mop's definition of done. A finding the mop would refuse to fix stays unfixed whatever the judge says.
 
 ## Needs your call
 
