@@ -14,9 +14,9 @@ Remove the design slop a branch added, without redesigning anything.
 
 1. **Scope.** Changed `.tsx`, `.jsx`, `.css` and `.html` files that render UI. Skip tests.
 
-2. **Detect.** Run the Impeccable detector (requires the `impeccable` plugin). Find it first; no match means the plugin is missing, so stop and say so:
+2. **Detect.** Run the Impeccable detector (requires Impeccable, installed as the `impeccable` plugin or as a user skill in `~/.claude/skills`). Find it first; no match means Impeccable is missing, so stop and say so:
    ```bash
-   IMPECCABLE=$(find ~/.claude/plugins/cache -path '*impeccable*/scripts/impeccable' -type f | sort | tail -1)
+   IMPECCABLE=$(find ~/.claude/plugins/cache ~/.claude/skills/impeccable -path '*impeccable*/scripts/impeccable' -type f 2>/dev/null | sort | tail -1)
    "$IMPECCABLE" detect --json <files>
    ```
    Pass paths through `xargs -0` or quote them: route folders such as `(authenticated)` and `[[...slug]]` break word splitting. Keep findings whose line the branch changed; list the rest as pre-existing.
