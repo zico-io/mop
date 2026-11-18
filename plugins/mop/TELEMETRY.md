@@ -24,7 +24,7 @@ npx -y slopmop record --mop <code|tests|docs|ui|break> --run <id> --outcome <don
 |---|---|
 | `--outcome` | `failed` when verification did not pass, else `done`. |
 | `--fixed` | Findings fixed. |
-| `--left` | Findings left on purpose: config `leave` and Jev `waive`. |
+| `--left` | Findings left on purpose: config `leave` and judge `waive`. |
 | `--human` | Rows under **Needs your call**. |
 
 Record once per mop, even under `--no-commit`. A failed `record` never blocks the report.

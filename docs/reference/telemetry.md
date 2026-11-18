@@ -6,7 +6,7 @@ updated: 2026-11-05
 owner: zico-io
 ---
 
-`lint`, `judge` and `record` each append one line to a local JSONL file, so you can see which rules fire, what Jev decides and what the mops fix. `stats` summarizes the file.
+`lint`, `judge` and `record` each append one line to a local JSONL file, so you can see which rules fire, what the judge decides and what the mops fix. `stats` summarizes the file.
 
 ```bash
 npx -y slopmop stats
@@ -71,8 +71,8 @@ Every event has these properties:
 | Property | Type | Description |
 | --- | --- | --- |
 | `mop` | `string` | The `--mop` value. Default: `code`. |
-| `jev` | `boolean` | `false` under `JEV_ENABLED=0`. |
-| `durationMs` | `number` | Whole command, mostly Jev. |
+| `judge` | `false \| { provider: string; model?: string }` | The decisions provider and model asked, or `false` under `MOP_JUDGE=0`. |
+| `durationMs` | `number` | Whole command, mostly the decisions API. |
 | `counts` | `Partial<Record<Verdict, number>>` | As in `judge --json`. |
 | `findings` | `{ file, line, rule, verdict, probabilities? }[]` | One entry per finding. |
 
@@ -118,7 +118,7 @@ Per rule, `stats` counts:
 | --- | --- |
 | `found` | Findings in the first `lint` of each run. Later reruns in the same run do not add to it. |
 | `fix`, `leave`, `review` | `found`, split by config action. |
-| `enforce`, `waive`, `human`, `unjudged` | Jev verdicts across every `judge`. |
+| `enforce`, `waive`, `human`, `unjudged` | Judge verdicts across every `judge`. |
 | `cleared` | First `lint` of a run minus its last `lint`. This is how many the mop fixed. |
 
 A rule with at least 5 judged findings gets a hint. When 80% or more are `waive` and the config does not leave it, the hint is `consider mop.leave`. When 80% or more are `enforce` and the config does not fix it, the hint is `consider mop.fix`. See [mop.config](config.md).

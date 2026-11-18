@@ -54,7 +54,7 @@ Each mop runs one loop on one kind of file: detect, judge, fix, verify, report. 
 | --- | --- |
 | `fix` | The rule matches `mop.fix`. `--fix` autofixes it on added lines. |
 | `leave` | The rule matches `mop.leave`. The value is the reason, and it is final. |
-| `review` | Neither list matches. Jev or you decide. |
+| `review` | Neither list matches. The judge or you decide. |
 
 ### The config layers
 
@@ -71,18 +71,18 @@ Run `slopmop lint --print-config` to see the merged result and its `sources`.
 
 ### The judge
 
-`judge` sends each finding to Jev in its own `jev run -` request, 8 at a time. Jev answers three questions: is it real slop, does the code around it follow the pattern on purpose, and could the fix change behavior. The verdict is `enforce` only when Jev is at least 90% sure of each answer and all three point to a safe fix. Any doubt becomes `human`. See the [`slopmop judge` reference](reference/judge.md).
+`judge` sends each finding to a decisions model in its own API request, 8 at a time, through the provider and model set in the `judge` key of `mop.config` (TypeSafe's Jev by default). The model answers three questions: is it real slop, does the code around it follow the pattern on purpose, and could the fix change behavior. The verdict is `enforce` only when the model is at least 90% sure of each answer and all three point to a safe fix. Any doubt becomes `human`. See the [`slopmop judge` reference](reference/judge.md).
 
 ### Telemetry
 
-`lint`, `judge` and `record` append one event each to `~/.local/state/mop/runs.jsonl`: rule ids, paths, counts, verdicts and timings, never file contents. Each mop passes one `--run` id to every call and ends with `slopmop record`. `slopmop stats` shows which rules fire, what Jev decides about them, how many the mops cleared, and which rules to move into `mop.fix` or `mop.leave`. Nothing is sent anywhere; `MOP_TELEMETRY=0` turns it off. See [Run telemetry](reference/telemetry.md).
+`lint`, `judge` and `record` append one event each to `~/.local/state/mop/runs.jsonl`: rule ids, paths, counts, verdicts and timings, never file contents. Each mop passes one `--run` id to every call and ends with `slopmop record`. `slopmop stats` shows which rules fire, what the judge decides about them, how many the mops cleared, and which rules to move into `mop.fix` or `mop.leave`. Nothing is sent anywhere; `MOP_TELEMETRY=0` turns it off. See [Run telemetry](reference/telemetry.md).
 
 ## Guarantees
 
 - **Branch lines only.** With `--base`, `lint` reports and autofixes lines the branch added since the merge base. Commits that land on the base later never count.
-- **`leave` is final.** No Jev verdict and no mop overrides a config `leave`.
-- **No guessing on doubt.** A finding Jev is unsure about, or whose fix could change behavior, goes to **Needs your call** untouched.
-- **Jev is optional.** Without `jev`, or with `JEV_ENABLED=0`, every verdict is `unjudged` and the mops fall back to the config sort.
+- **`leave` is final.** No judge verdict and no mop overrides a config `leave`.
+- **No guessing on doubt.** A finding the judge is unsure about, or whose fix could change behavior, goes to **Needs your call** untouched.
+- **Judging is optional.** Without an API key for the provider, or with `MOP_JUDGE=0`, every verdict is `unjudged` and the mops fall back to the config sort.
 
 Not guaranteed: lint autofixes can rewrite more of a file than the finding. Each mop keeps its edits to lines the branch owns or reports the churn.
 
@@ -92,7 +92,7 @@ Not guaranteed: lint autofixes can rewrite more of a file than the finding. Each
 | --- | --- |
 | Node | 22 or later |
 | Files `lint` checks | JS and TS through ESLint; Python, Go, Rust, Terraform and YAML through their own linters |
-| Jev auto threshold | 0.9 certainty per question |
+| Judge auto threshold | 0.9 certainty per question |
 | Strict size limits | 2 params, 50 lines per function, 250 per file, 600 per `.tsx` file |
 | `eslint-disable` comments | Ignored under `strict` (`inlineConfig: false`) |
 | Repo `eslint.config.mjs` | Ignored by `lint`; put repo taste in `mop.config.mjs` |
@@ -108,7 +108,7 @@ Do not use mop to find bugs or add coverage; use a code review instead. Do not u
 - **Plugin skills**: what each mop does, step by step. [Learn more](../plugins/mop/README.md)
 - **mop.config**: every key, default and merge rule. [Learn more](reference/config.md)
 - **`slopmop lint`**: flags, scope, output and exit codes. [Learn more](reference/lint.md)
-- **`slopmop judge`**: the Jev questions and verdict rules. [Learn more](reference/judge.md)
+- **`slopmop judge`**: the judge questions and verdict rules. [Learn more](reference/judge.md)
 - **Run telemetry**: what each run records, and `stats`. [Learn more](reference/telemetry.md)
 - **Harness API**: use the rules in your own ESLint config. [Learn more](reference/harness.md)
 - **Troubleshooting**: errors and what fixes them. [Learn more](troubleshooting.md)

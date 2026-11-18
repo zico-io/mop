@@ -68,7 +68,7 @@ Exits 1 while `fix` findings remain. See the [`slopmop lint` reference](docs/ref
 
 ## `slopmop judge`
 
-Asks Jev, through one `jev run -` request per finding, whether each finding should be enforced. Verdicts are `enforce`, `waive`, `human` (you decide) or `unjudged` (Jev unavailable). See the [`slopmop judge` reference](docs/reference/judge.md). Needs [jev-cli](https://github.com/tumf/jev-cli) 0.7+ on the `PATH` with a key (`uv tool install jev-cli`, then `jev auth status`).
+Asks a decisions model, through one API request per finding, whether each finding should be enforced. Verdicts are `enforce`, `waive`, `human` (you decide) or `unjudged` (the model was unavailable). See the [`slopmop judge` reference](docs/reference/judge.md). The provider and model come from [`judge`](docs/reference/config.md#judge): TypeSafe's Jev by default (`TYPESAFE_API_KEY`; OpenRouter and Vercel AI Gateway serve it too), Cloudflare's Clef on Workers AI, or any model behind a custom endpoint.
 
 ```bash
 npx -y slopmop lint --base main --json > findings.json
@@ -77,7 +77,7 @@ npx -y slopmop judge --mop code findings.json
 
 ## `slopmop stats`
 
-`lint`, `judge` and `record` append rule ids, paths, counts, verdicts and timings to `~/.local/state/mop/runs.jsonl`, never file contents. Nothing is sent anywhere. `stats` shows which rules fire, what Jev decides, what the mops cleared, and which rules to move into `mop.fix` or `mop.leave`. `MOP_TELEMETRY=0` turns recording off. See [Run telemetry](docs/reference/telemetry.md).
+`lint`, `judge` and `record` append rule ids, paths, counts, verdicts and timings to `~/.local/state/mop/runs.jsonl`, never file contents. Nothing is sent anywhere. `stats` shows which rules fire, what the judge decides, what the mops cleared, and which rules to move into `mop.fix` or `mop.leave`. `MOP_TELEMETRY=0` turns recording off. See [Run telemetry](docs/reference/telemetry.md).
 
 ```bash
 npx -y slopmop stats

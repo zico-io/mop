@@ -1,12 +1,12 @@
 ---
 title: slopmop judge
-description: The slopmop judge command: input, Jev questions, verdict rules, output format and the judge() API.
+description: The slopmop judge command: input, decision questions, providers, verdict rules, output format and the judge() API.
 type: reference
-updated: 2026-11-05
+updated: 2026-11-18
 owner: zico-io
 ---
 
-`judge` asks Jev whether each finding should be fixed, and returns a verdict for each one.
+`judge` asks a decisions model whether each finding should be fixed, and returns a verdict for each one.
 
 ```bash
 npx -y slopmop lint --base main --json > findings.json
@@ -27,7 +27,7 @@ slopmop judge [--mop <name>] [--json] [--run <id>] [<file>]
 | Argument | Description |
 | --- | --- |
 | `<file>` | JSON input. When absent, `judge` reads stdin. |
-| `--mop <name>` | Mop name sent to Jev as context: `code`, `ui`, `tests` or `docs`. A finding's own `mop` field wins. Default: `code`. |
+| `--mop <name>` | Mop name sent to the model as context: `code`, `ui`, `tests` or `docs`. A finding's own `mop` field wins. Default: `code`. |
 | `--json` | Print counts and every judged finding as JSON. |
 | `--run <id>` | Tag the telemetry event with this run id. |
 
@@ -35,10 +35,18 @@ slopmop judge [--mop <name>] [--json] [--run <id>] [<file>]
 
 | Variable | Effect |
 | --- | --- |
-| `JEV_ENABLED=0` | Skip Jev. Every finding is `unjudged`. |
+| `MOP_JUDGE=0` | Skip judging. Every finding is `unjudged`. |
 | `MOP_TELEMETRY=0` | Do not append a `judge` event to the local telemetry file. See [Run telemetry](telemetry.md). |
 
-`judge` needs a `jev` CLI on the `PATH` with a key: [jev-cli](https://github.com/tumf/jev-cli) 0.7 or later (`uv tool install jev-cli`), or a `jev` with an `ask` command that reads a request with `-f -`. Run `jev auth status` to check the key.
+`judge` calls the decisions API of the provider in the [`judge`](config.md#judge) key of `mop.config`, read from the git root. It reads the provider's API key from the environment:
+
+| Provider | API key variable | Default model |
+| --- | --- | --- |
+| `typesafe` (default) | `TYPESAFE_API_KEY` | `jev-latest` |
+| `openrouter` | `OPENROUTER_API_KEY` | `typesafe/jev-1.13` |
+| `vercel` | `AI_GATEWAY_API_KEY` | `typesafe-ai/jev` |
+| `cloudflare` | `CLOUDFLARE_API_TOKEN`, plus `CLOUDFLARE_ACCOUNT_ID` | `clef-flash` |
+| `custom` | `MOP_JUDGE_API_KEY` | None; set `judge.model` and `judge.endpoint` |
 
 ## Input
 
@@ -50,14 +58,14 @@ A JSON array of findings, or an object with a `findings` array, as `slopmop lint
 | `message` | `string` | Yes | What is wrong. |
 | `file` | `string` | No | Path from the git root, as `lint` writes it. Outside a git repository, from the current directory. |
 | `line` | `number` | No | 1-based line. |
-| `snippet` | `string` | No | Code to show Jev. When absent, `judge` reads 4 lines on each side of `line` from `file`. |
+| `snippet` | `string` | No | Code to show the model. When absent, `judge` reads 4 lines on each side of `line` from `file`. |
 | `mop` | `string` | No | Overrides `--mop` for this finding. |
 
 Other properties pass through to the output.
 
 ## How a verdict is chosen
 
-`judge` sends one `jev run -` request per finding (`jev ask -f -` on a CLI without `run`), with up to 8 in flight. Jev answers three yes-or-no questions per finding, each as a probability:
+`judge` sends one decisions API request per finding, with up to 8 in flight and a 60 second timeout each. The model answers three yes-or-no questions per finding, each as a probability:
 
 | Question | Yes means |
 | --- | --- |
@@ -69,14 +77,14 @@ An answer is sure when its probability is at least `0.9` or at most `0.1`. The r
 
 | Check | Verdict | `why` |
 | --- | --- | --- |
-| `slop` not sure | `human` | Jev is unsure whether this is slop |
+| `slop` not sure | `human` | the judge is unsure whether this is slop |
 | `slop` is no | `waive` | not slop on this line |
-| `deliberate` not sure | `human` | Jev is unsure whether the pattern is deliberate here |
+| `deliberate` not sure | `human` | the judge is unsure whether the pattern is deliberate here |
 | `deliberate` is yes | `waive` | the code around it follows this pattern on purpose |
 | `risky` not sure, or yes | `human` | the fix could change behaviour, copy, an API or a test |
 | Otherwise | `enforce` | real slop with a mechanical fix |
 
-When `jev` fails or returns no answer for a finding, that finding is `unjudged`, and `why` holds the error. When every finding is `unjudged`, `judge` also prints a warning with the first error on stderr.
+When the API call fails or returns no answer for a finding, that finding is `unjudged`, and `why` holds the error. When every finding is `unjudged`, `judge` also prints a warning with the first error on stderr.
 
 ## Output
 
@@ -87,15 +95,15 @@ JSON output:
 | Property | Type | Description |
 | --- | --- | --- |
 | `counts` | `Partial<Record<Verdict, number>>` | Findings per verdict. |
-| `findings` | `Judged[]` | Each input finding, plus `verdict`, `why`, and `probabilities` when Jev answered. |
+| `findings` | `Judged[]` | Each input finding, plus `verdict`, `why`, and `probabilities` when the model answered. |
 
 `probabilities` has the keys `slop`, `deliberate` and `risky`, rounded to two decimals.
 
-The exit code is `0` unless the input cannot be read or parsed. A Jev failure does not change it.
+The exit code is `0` unless the input cannot be read or parsed. A judging failure does not change it.
 
 ## `judge()`
 
-`judge(findings, { root, run })` in `src/judge.ts` does the work behind the CLI. It is internal: the package entry does not export it. `run` replaces the `jev` calls, so tests pass a fake, as `test/judge.test.ts` does.
+`judge(findings, { root, run })` in `src/judge.ts` does the work behind the CLI. It is internal: the package entry does not export it. The CLI passes `decisionsRun(config.judge, process.env)` as `run`. Tests pass a fake `run`, or point a provider at a local server, as `test/judge.test.ts` does.
 
 ## Don't
 
@@ -106,5 +114,5 @@ The exit code is `0` unless the input cannot be read or parsed. A Jev failure do
 
 - **Act on verdicts**: what each mop does with them. [Learn more](../../plugins/mop/JUDGE.md)
 - **Produce findings**: `slopmop lint --json`. [Learn more](lint.md)
-- **Jev errors**: `unjudged` causes and fixes. [Learn more](../troubleshooting.md)
+- **Judge errors**: `unjudged` causes and fixes. [Learn more](../troubleshooting.md)
 - **Source**: the questions and `verdictOf`. [Learn more](../../src/judge.ts)

@@ -124,7 +124,7 @@ export const LANGUAGES: Record<LanguageName, Language> = {
 export const languageOf = (file: string): LanguageName | undefined =>
   (Object.keys(LANGUAGES) as LanguageName[]).find((name) => LANGUAGES[name].extensions.test(file));
 
-// ponytail: full-line comments only; a `#` line inside a multi-line string or block scalar is a false positive Jev waives.
+// ponytail: full-line comments only; a `#` line inside a multi-line string or block scalar is a false positive the judge waives.
 export const commentFindings = (root: string, file: string, allow: string[]): Diagnostic[] => {
   const language = languageOf(file);
   if (!language) return [];

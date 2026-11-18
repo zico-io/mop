@@ -3,7 +3,8 @@ import { performance } from "node:perf_hooks";
 import { text } from "node:stream/consumers";
 import { parseArgs } from "node:util";
 import { git } from "../src/changes";
-import { judge, type Finding, type Judged } from "../src/judge";
+import { loadConfig } from "../src/config";
+import { decisionsRun, judge, modelOf, type Finding, type Judged } from "../src/judge";
 import { record, runContext } from "../src/telemetry";
 
 const { values, positionals } = parseArgs({
@@ -24,22 +25,24 @@ const repoRoot = (): string => {
 };
 
 const started = performance.now();
-const jevEnabled = process.env.JEV_ENABLED !== "0";
-const judged: Judged<Finding>[] = jevEnabled
-  ? await judge(findings, { root: repoRoot() })
-  : findings.map((finding) => ({ ...finding, verdict: "unjudged", why: "JEV_ENABLED=0" }));
+const root = repoRoot();
+const config = await loadConfig({ cwd: root });
+const enabled = process.env.MOP_JUDGE !== "0";
+const judged: Judged<Finding>[] = enabled
+  ? await judge(findings, { root, run: decisionsRun(config.judge, process.env) })
+  : findings.map((finding) => ({ ...finding, verdict: "unjudged", why: "MOP_JUDGE=0" }));
 
 const counts: Partial<Record<Judged<Finding>["verdict"], number>> = {};
 for (const { verdict } of judged) counts[verdict] = (counts[verdict] ?? 0) + 1;
 if (judged.length > 0 && counts.unjudged === judged.length) {
-  console.error(`warning: Jev judged none of the ${judged.length} findings: ${judged[0]?.why}`);
+  console.error(`warning: none of the ${judged.length} findings were judged: ${judged[0]?.why}`);
 }
 
 record({
   event: "judge",
   ...runContext(process.cwd(), values.run),
   mop: values.mop ?? "code",
-  jev: jevEnabled,
+  judge: enabled && { provider: config.judge.provider, model: modelOf(config.judge) },
   durationMs: Math.round(performance.now() - started),
   counts,
   findings: judged.map((finding) => ({

@@ -29,11 +29,11 @@ Run every slop mop that applies to a branch, try to break the result, then verif
 
 3. **Run.** Invoke each mop's skill (`/mop:code` and so on) with its file list and `--run <id>`, one mop at a time. Each mop commits its own work before the next one starts, so code and ui edits to the same file stay in separate commits. Pass `--no-commit` to every mop only when the user passed it to `/mop:slop`. A mop with more than about 15 files fans out to subagents itself; do not nest a second fan-out on top.
 
-4. **Collect the calls.** Each slop mop judges its findings with Jev ([JUDGE.md](../../JUDGE.md)), and `break` proves its findings by reproduction. Each returns its **Needs your call** rows. Keep them; do not act on them.
+4. **Collect the calls.** Each slop mop judges its findings with `slopmop judge` ([JUDGE.md](../../JUDGE.md)), and `break` proves its findings by reproduction. Each returns its **Needs your call** rows. Keep them; do not act on them.
 
 5. **Verify once.** Typecheck, lint, and every touched test suite, using the repo's own commands. A failure that also fails on `BASE_REF` is pre-existing: report it, do not fix it here.
 
-6. **Report.** One table: mop, findings before, findings after, `waive`, `human`, files changed. Then what each mop left on purpose and why. End the final message with one **Needs your call** table across every mop, grouped by mop, so the user can answer each row; say so when there are none, or when Jev was skipped. Fixes made during verification go in one final commit, unless `--no-commit`, which leaves every change uncommitted. Push only when the user asks.
+6. **Report.** One table: mop, findings before, findings after, `waive`, `human`, files changed. Then what each mop left on purpose and why. End the final message with one **Needs your call** table across every mop, grouped by mop, so the user can answer each row; say so when there are none, or when judging was skipped. Fixes made during verification go in one final commit, unless `--no-commit`, which leaves every change uncommitted. Push only when the user asks.
 
 ## Definition of done
 
@@ -42,7 +42,7 @@ Run every slop mop that applies to a branch, try to break the result, then verif
 - [ ] Every touched test suite passes, or every failure also fails on `BASE_REF` and is listed as pre-existing.
 - [ ] `git status --short` shows only the intended changes: no backups, temporary configs or agent working copies.
 - [ ] The report has the per-mop table (findings before, after, `waive`, `human`, files changed) and each mop's "left on purpose" list with a reason per item.
-- [ ] The final message ends with the **Needs your call** table, or says there is nothing to decide or that Jev was skipped.
+- [ ] The final message ends with the **Needs your call** table, or says there is nothing to decide or that judging was skipped.
 - [ ] One commit per mop plus at most one verification commit, or nothing committed at all under `--no-commit`. Nothing pushed unless the user asked.
 
 ## Gotchas

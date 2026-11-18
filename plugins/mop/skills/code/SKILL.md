@@ -20,21 +20,21 @@ Fix the slop the branch added to its code, on the lines it owns.
 
 2. **Sort.** `fix` and `leave` come from the config; see [REFERENCE.md](REFERENCE.md#config) for how layers merge. `leave` is final.
 
-3. **Judge.** Send every `fix` and `review` finding to Jev with `--mop code`, following [JUDGE.md](../../JUDGE.md). Fix only `enforce`; `waive` joins the left list; `human` goes to **Needs your call**. If Jev is skipped, fix `fix` findings and decide each `review` rule yourself. Show the split and wait for a go-ahead when it is over about 100 fixes.
+3. **Judge.** Send every `fix` and `review` finding to the judge with `--mop code`, following [JUDGE.md](../../JUDGE.md). Fix only `enforce`; `waive` joins the left list; `human` goes to **Needs your call**. If judging is skipped, fix `fix` findings and decide each `review` rule yourself. Show the split and wait for a go-ahead when it is over about 100 fixes.
 
 4. **Fix** the `enforce` findings with the recipes in [REFERENCE.md](REFERENCE.md#fix-recipes). `npx -y slopmop lint --base "$BASE_REF" --run "$RUN_ID" --fix` autofixes every `fix` rule in JS and TS on lines the branch added, so revert any autofix on a `waive` or `human` finding; review the result. Fix the other languages by hand. Recheck every edited JS or TS file with `prettier --check`, and every other file with its formatter (`ruff format --check`, `gofmt -l`, `cargo fmt --check`, `terraform fmt -check`).
 
 5. **Verify.** Format, typecheck, run the touched suites, rerun `lint` and report before and after counts for the fixed rules.
 
-6. **Report and commit.** Fixed counts by rule, what was left and why (config `leave` and Jev `waive`), and **Needs your call**. Commit unless `--no-commit`. Push only when asked. Then log the run with `slopmop record`, following [TELEMETRY.md](../../TELEMETRY.md).
+6. **Report and commit.** Fixed counts by rule, what was left and why (config `leave` and judge `waive`), and **Needs your call**. Commit unless `--no-commit`. Push only when asked. Then log the run with `slopmop record`, following [TELEMETRY.md](../../TELEMETRY.md).
 
 ## Definition of done
 
 - [ ] `lint` ran on every changed code file, filtered to lines the branch added.
 - [ ] Every `enforce` finding is fixed, or listed with the reason it stays.
-- [ ] Every `human` verdict is listed under **Needs your call** and left untouched, or the report says Jev was skipped and why.
+- [ ] Every `human` verdict is listed under **Needs your call** and left untouched, or the report says judging was skipped and why.
 - [ ] Every `leave` rule is named in the report with its reason from the config.
-- [ ] Every `review` finding has a Jev verdict, or a decision of yours when Jev was skipped.
+- [ ] Every `review` finding has a judge verdict, or a decision of yours when judging was skipped.
 - [ ] Rerunning `lint` shows zero `fix` findings, apart from `waive`, `human` and the listed exceptions.
 - [ ] `prettier --check` or the language's formatter parses every edited file.
 - [ ] Typecheck and the touched suites pass, apart from failures listed as pre-existing on `BASE_REF`.

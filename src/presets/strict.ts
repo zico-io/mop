@@ -124,6 +124,7 @@ const strict: Config = {
       "yamllint/truthy": "yes and on are keys some tools read, like GitHub Actions' on:.",
     },
   },
+  judge: { provider: "typesafe" },
 };
 
 export default strict;

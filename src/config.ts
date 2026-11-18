@@ -5,6 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import type { Linter } from "eslint";
+import type { JudgeConfig } from "./judge";
 import strict from "./presets/strict";
 
 export interface Limits {
@@ -44,6 +45,7 @@ export interface Config {
   rules: Linter.RulesRecord;
   linters: Record<"python" | "go" | "rust" | "terraform" | "yaml", false | string[]>;
   mop: { fix: string[]; leave: Record<string, string | null> };
+  judge: JudgeConfig;
 }
 
 type PartialValue<Value> = Value extends readonly unknown[]

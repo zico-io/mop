@@ -121,18 +121,20 @@ export default { tests: { allowMocks: ["^@acme/payments-sdk$"] } };
 
 ## Every verdict is `unjudged`
 
-**Cause.** `judge` could not use Jev. `judge` prints a warning with the first error, and the `why` field says which case applies.
+**Cause.** `judge` could not reach its decisions model. `judge` prints a warning with the first error, and the `why` field says which case applies.
 
 | `why` | Fix |
 | --- | --- |
-| `jev failed: spawn jev ENOENT` | Install jev-cli with `uv tool install jev-cli` and put it on the `PATH`. |
-| `jev failed: this jev CLI has neither ...` | The `jev` on the `PATH` is another tool. Install jev-cli 0.7 or later. |
-| `... API key is not stored ...` | Run `jev auth set`, or export `TYPESAFE_API_KEY`. |
-| Any other error | Run `jev auth status`, then `jev auth test`. |
-| `JEV_ENABLED=0` | Unset `JEV_ENABLED`. |
-| `jev returned no answer` | Jev skipped that finding. Run the command again. |
+| `judging failed: <VARIABLE> is not set ...` | Export the provider's API key, or point [`judge.apiKeyVariable`](reference/config.md#judge) at the variable that holds it. |
+| `judging failed: unknown judge provider ...` | Set `judge.provider` to `typesafe`, `openrouter`, `vercel`, `cloudflare` or `custom`. |
+| `judging failed: the custom provider needs judge.model ...` or `... judge.endpoint ...` | Set `judge.model` and `judge.endpoint` in `mop.config`. |
+| `judging failed: the cloudflare provider needs CLOUDFLARE_ACCOUNT_ID` | Export `CLOUDFLARE_ACCOUNT_ID`, or set `judge.endpoint`. |
+| `HTTP 401: ...` or `HTTP 403: ...` | The key is wrong for this provider. Check the key and `judge.provider`. |
+| Any other error | Check the network, `judge.endpoint` and `judge.model`. |
+| `MOP_JUDGE=0` | Unset `MOP_JUDGE`. |
+| `the decisions API returned no answer` | The API skipped that finding. Run the command again. |
 
-The mops still run without Jev. They fall back to the config sort and say so in the report.
+The mops still run without the judge. They fall back to the config sort and say so in the report.
 
 ## A mop ignores my local harness change
 

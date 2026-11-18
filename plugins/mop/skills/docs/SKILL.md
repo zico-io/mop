@@ -16,7 +16,7 @@ Clean the prose a branch changed, keeping every fact.
 
 2. **Lint.** Run the repo's doc linter (the command CI runs, for example `node scripts/doclint.mjs docs --max-warnings 0`). Record findings. No linter in the repo: go on, and say in the report that the lint gate was skipped.
 
-3. **Judge.** Write the linter findings, plus each slop pattern you mean to rewrite (rule = the pattern name, message = the phrase), and send them to Jev with `--mop docs`, following [JUDGE.md](../../JUDGE.md). Fix only `enforce` findings.
+3. **Judge.** Write the linter findings, plus each slop pattern you mean to rewrite (rule = the pattern name, message = the phrase), and send them to the judge with `--mop docs`, following [JUDGE.md](../../JUDGE.md). Fix only `enforce` findings.
 
 4. **Fix structure first.** A numbered list needs a blank line before it, or Markdown folds its steps into the paragraph above and Prettier joins them. Long paragraphs (the lint's sentence limit) usually hide a list.
    ```md
@@ -36,7 +36,7 @@ Clean the prose a branch changed, keeping every fact.
 ## Definition of done
 
 - [ ] The repo's doc linter reports zero errors and zero warnings on the files in scope apart from `waive` and `human` findings, or the report says the repo has no linter.
-- [ ] Every `human` verdict is listed under **Needs your call** and left untouched, or the report says Jev was skipped and why.
+- [ ] Every `human` verdict is listed under **Needs your call** and left untouched, or the report says judging was skipped and why.
 - [ ] No em dashes, mid-sentence colons, or "serves as" style phrasing remain in changed paragraphs.
 - [ ] Every numbered procedure renders as a list: a blank line before it, one instruction per step.
 - [ ] Every product name, bold UI label, number and link from the original text is still there.
