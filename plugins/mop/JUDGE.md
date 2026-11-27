@@ -27,8 +27,8 @@ The judge never overrides a config `leave`, a rule the user gave, or a mop's def
 
 End the report with this section when any finding is `human`, one row per finding:
 
-| Where | Rule | Finding | Why it needs you |
-|---|---|---|---|
-| `file:line` | rule | the finding, in a few words | the `why`, plus the deciding probabilities |
+| Id | Where | Rule | Finding | Why it needs you |
+|---|---|---|---|---|
+| `id` | `file:line` | rule | the finding, in a few words | the `why`, plus the deciding probabilities |
 
-Group identical rule-and-reason rows into one with a count. The user's answer is applied in a follow-up commit, not guessed at now.
+Group identical rule-and-reason rows into one with a count, listing every id in the row. Under the table, print the run id and the command to record answers: `npx -y slopmop resolve --run <id> <finding-id>=fixed|left ...`. The user's answer is applied in a follow-up commit, not guessed at now, and then resolved as in [TELEMETRY.md](TELEMETRY.md#resolve-findings).

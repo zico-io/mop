@@ -75,7 +75,7 @@ Run `slopmop lint --print-config` to see the merged result and its `sources`.
 
 ### Telemetry
 
-`lint`, `judge` and `record` append one event each to `~/.local/state/mop/runs.jsonl`: rule ids, paths, counts, verdicts and timings, never file contents. Each mop passes one `--run` id to every call and ends with `slopmop record`. `slopmop stats` shows which rules fire, what the judge decides about them, how many the mops cleared, and which rules to move into `mop.fix` or `mop.leave`. Nothing is sent anywhere; `MOP_TELEMETRY=0` turns it off. See [Run telemetry](reference/telemetry.md).
+`lint`, `judge` and `record` append one event each to `~/.local/state/mop/runs.jsonl`: rule ids, paths, counts, verdicts and timings, never file contents. Each mop passes one `--run` id to every call and ends with `slopmop record`. `slopmop stats` shows which rules fire, what the judge decides about them, how many the mops cleared, and which rules to move into `mop.fix` or `mop.leave`. Nothing is sent anywhere unless `MOP_TELEMETRY=full`, which also ships each event, with finding messages and snippets, to an OTLP endpoint for calibrating the judge. `MOP_TELEMETRY=0` turns it off. See [Run telemetry](reference/telemetry.md).
 
 ## Guarantees
 

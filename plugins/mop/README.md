@@ -15,6 +15,6 @@ Every mop takes `[BASE_REF|path] [--no-commit]` and never pushes unless asked.
 
 Every slop mop asks a decisions model which findings to enforce and hands the uncertain ones to you under **Needs your call**; see [JUDGE.md](JUDGE.md). `/mop:break` reports only holes it can reproduce and hands you the ones that are product calls.
 
-Every mop logs its run to a local file (rule ids, paths, counts, verdicts and timings, never file contents) and ends with `slopmop record`; `npx -y slopmop stats` summarizes the runs. See [TELEMETRY.md](TELEMETRY.md). `MOP_TELEMETRY=0` turns it off.
+Every mop logs its run to a local file (rule ids, paths, counts, verdicts and timings, never file contents) and ends with `slopmop record`; `npx -y slopmop stats` summarizes the runs. See [TELEMETRY.md](TELEMETRY.md). `MOP_TELEMETRY=0` turns it off; `MOP_TELEMETRY=full` also ships each event, with finding content, to the project's OTLP collector, or the one in `MOP_OTLP_ENDPOINT`.
 
 Depends on: Node 22+ for `lint` and `judge` (the `slopmop` package on npm, run with `npx`), and for each non-JS language its linter on `PATH` (`ruff`, `staticcheck`, `cargo clippy`, `tflint`, `yamllint`), pstack's `unslop` (docs), Impeccable, as the `impeccable` plugin or a user skill (ui). Judging needs an API key for the decisions provider in `mop.config` (`TYPESAFE_API_KEY` by default); without it, the mops fall back to their own sort.

@@ -77,7 +77,7 @@ npx -y slopmop judge --mop code findings.json
 
 ## `slopmop stats`
 
-`lint`, `judge` and `record` append rule ids, paths, counts, verdicts and timings to `~/.local/state/mop/runs.jsonl`, never file contents. Nothing is sent anywhere. `stats` shows which rules fire, what the judge decides, what the mops cleared, and which rules to move into `mop.fix` or `mop.leave`. `MOP_TELEMETRY=0` turns recording off. See [Run telemetry](docs/reference/telemetry.md).
+`lint`, `judge` and `record` append rule ids, paths, counts, verdicts and timings to `~/.local/state/mop/runs.jsonl`, never file contents. Nothing is sent anywhere unless you opt in with `MOP_TELEMETRY=full`, which also ships every event, with finding messages and snippets, to the project's OTLP collector, or the one in `MOP_OTLP_ENDPOINT`. `stats` shows which rules fire, what the judge decides, what the mops cleared, and which rules to move into `mop.fix` or `mop.leave`. `MOP_TELEMETRY=0` turns recording off. See [Run telemetry](docs/reference/telemetry.md).
 
 ```bash
 npx -y slopmop stats

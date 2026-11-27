@@ -4,8 +4,8 @@ import { text } from "node:stream/consumers";
 import { parseArgs } from "node:util";
 import { git } from "../src/changes";
 import { loadConfig } from "../src/config";
-import { decisionsRun, judge, modelOf, type Finding, type Judged } from "../src/judge";
-import { record, runContext } from "../src/telemetry";
+import { AUTO, decisionsRun, judge, modelOf, snippetOf, type Finding, type Judged } from "../src/judge";
+import { configHash, findingIds, record, runContext, telemetryMode } from "../src/telemetry";
 
 const { values, positionals } = parseArgs({
   allowPositionals: true,
@@ -27,10 +27,12 @@ const repoRoot = (): string => {
 const started = performance.now();
 const root = repoRoot();
 const config = await loadConfig({ cwd: root });
+const ids = findingIds(root, findings);
+const identified = findings.map((finding, index) => ({ ...finding, id: finding.id ?? ids[index] }));
 const enabled = process.env.MOP_JUDGE !== "0";
 const judged: Judged<Finding>[] = enabled
-  ? await judge(findings, { root, run: decisionsRun(config.judge, process.env) })
-  : findings.map((finding) => ({ ...finding, verdict: "unjudged", why: "MOP_JUDGE=0" }));
+  ? await judge(identified, { root, run: decisionsRun(config.judge, process.env) })
+  : identified.map((finding) => ({ ...finding, verdict: "unjudged", why: "MOP_JUDGE=0" }));
 
 const counts: Partial<Record<Judged<Finding>["verdict"], number>> = {};
 for (const { verdict } of judged) counts[verdict] = (counts[verdict] ?? 0) + 1;
@@ -43,15 +45,23 @@ record({
   ...runContext(process.cwd(), values.run),
   mop: values.mop ?? "code",
   judge: enabled && { provider: config.judge.provider, model: modelOf(config.judge) },
+  auto: AUTO,
+  configHash: configHash(config),
   durationMs: Math.round(performance.now() - started),
   counts,
-  findings: judged.map((finding) => ({
-    file: finding.file,
-    line: finding.line,
-    rule: finding.rule,
-    verdict: finding.verdict,
-    probabilities: "probabilities" in finding ? finding.probabilities : undefined,
-  })),
+  findings: await Promise.all(
+    judged.map(async (finding) => ({
+      id: finding.id,
+      file: finding.file,
+      line: finding.line,
+      rule: finding.rule,
+      verdict: finding.verdict,
+      probabilities: "probabilities" in finding ? finding.probabilities : undefined,
+      message: finding.message,
+      why: finding.why,
+      snippet: telemetryMode() === "full" ? (finding.snippet ?? (await snippetOf(root, finding))) : undefined,
+    })),
+  ),
 });
 
 if (values.json) {

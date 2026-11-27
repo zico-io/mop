@@ -23,6 +23,30 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
       - run: pnpm test
+      - name: Build with the telemetry collector
+        run: |
+          if [ -z "$SLOPMOP_OTLP_ENDPOINT" ]; then
+            echo "::error::The MOP_OTLP_ENDPOINT repository secret is not set. Set it with: gh secret set MOP_OTLP_ENDPOINT --repo ${{ github.repository }}"
+            exit 1
+          fi
+          case "${SLOPMOP_OTLP_PROTOCOL:-http/json}" in
+            http/json | http/protobuf | grpc) ;;
+            *)
+              echo "::error::The MOP_OTLP_PROTOCOL repository variable must be http/json, http/protobuf or grpc, not $SLOPMOP_OTLP_PROTOCOL."
+              exit 1
+              ;;
+          esac
+          pnpm build
+          for name in ENDPOINT PROTOCOL; do
+            value=$(printenv "SLOPMOP_OTLP_$name" || true)
+            if [ -n "$value" ] && ! grep -qF "$value" dist/*.mjs; then
+              echo "::error::The build did not inline MOP_OTLP_$name. Check the define in tsdown.config.ts."
+              exit 1
+            fi
+          done
+        env:
+          SLOPMOP_OTLP_ENDPOINT: ${{ secrets.MOP_OTLP_ENDPOINT }}
+          SLOPMOP_OTLP_PROTOCOL: ${{ vars.MOP_OTLP_PROTOCOL }}
       - uses: changesets/action@v2
         with:
           version-script: pnpm version-packages
@@ -32,3 +56,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
+          SLOPMOP_OTLP_ENDPOINT: ${{ secrets.MOP_OTLP_ENDPOINT }}
+          SLOPMOP_OTLP_PROTOCOL: ${{ vars.MOP_OTLP_PROTOCOL }}

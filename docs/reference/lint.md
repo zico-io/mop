@@ -95,7 +95,7 @@ The first line counts findings and files. Each next line is one rule: count, act
 
 ## Telemetry
 
-Each run except `--print-config` appends one `lint` event to the local telemetry file: paths, rule ids, counts and timings, never file contents. `MOP_TELEMETRY=0` turns it off. See [Run telemetry](telemetry.md).
+Each run except `--print-config` appends one `lint` event to the local telemetry file: paths, rule ids, finding ids, counts and timings, never file contents. `MOP_TELEMETRY=0` turns it off, and `MOP_TELEMETRY=full` also ships it with finding messages to an OTLP endpoint. Each finding in `--json` output carries an `id`, which `judge` and `slopmop resolve` reuse. See [Run telemetry](telemetry.md).
 
 ## Exit codes
 
