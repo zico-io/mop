@@ -1,18 +1,24 @@
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { appendFileSync, existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import pkg from "../package.json" with { type: "json" };
+import { ship } from "./otlp";
 
 type Env = Record<string, string | undefined>;
 
 export interface RunContext {
   run?: string;
   repo?: string;
+  origin?: string;
   branch?: string;
   head?: string;
 }
 
-type EventName = "lint" | "judge" | "record";
+type EventName = "lint" | "judge" | "record" | "resolve";
+export type Resolution = "fixed" | "left";
+export type Mode = "off" | "local" | "full";
 type Action = "fix" | "leave" | "review";
 type Verdict = "enforce" | "waive" | "human" | "unjudged";
 type Extensions = Record<string, { files: number; lines: number; findings: number }>;
@@ -20,8 +26,9 @@ type Extensions = Record<string, { files: number; lines: number; findings: numbe
 export type TelemetryEvent = RunContext & { event: EventName; mop?: string } & Record<string, unknown>;
 
 export interface StoredEvent extends RunContext {
-  v: 1;
+  v: 1 | 2;
   at: string;
+  version?: string;
   event: EventName;
   mop?: string;
   durationMs?: number;
@@ -32,6 +39,8 @@ export interface StoredEvent extends RunContext {
   fixed?: number;
   left?: number;
   human?: number;
+  by?: "human" | "mop";
+  resolutions?: { id: string; resolution: Resolution }[];
 }
 
 type RuleStats = Record<Action | Verdict | "found" | "cleared", number> & { suggest?: string };
@@ -56,11 +65,55 @@ export interface Summary {
 const SUGGEST_MIN_JUDGED = 5;
 const SUGGEST_SHARE = 0.8;
 const RETAIN_MS = 90 * 24 * 60 * 60 * 1000;
+const SCHEMA = 2;
+const CONTENT = new Set(["message", "snippet", "why"]);
+
+export const telemetryMode = (env: Env = process.env): Mode => {
+  if (env.MOP_TELEMETRY === "0") return "off";
+  return env.MOP_TELEMETRY === "full" ? "full" : "local";
+};
 
 export const telemetryFile = (env: Env = process.env): string | undefined =>
-  env.MOP_TELEMETRY === "0"
+  telemetryMode(env) === "off"
     ? undefined
     : path.join(env.XDG_STATE_HOME || path.join(os.homedir(), ".local", "state"), "mop", "runs.jsonl");
+
+export const configHash = (config: unknown): string =>
+  createHash("sha256").update(JSON.stringify(config)).digest("hex").slice(0, 12);
+
+export const findingIds = (root: string, findings: { rule: string; file?: string; line?: number }[]): string[] => {
+  const files = new Map<string, string[]>();
+  const textOf = (file?: string, line?: number): string => {
+    if (!file || !line) return "";
+    if (!files.has(file)) {
+      try {
+        files.set(file, readFileSync(path.resolve(root, file), "utf8").split("\n"));
+      } catch {
+        files.set(file, []);
+      }
+    }
+    return files.get(file)?.[line - 1]?.trim() ?? "";
+  };
+  const seen = new Map<string, number>();
+  return findings.map(({ rule, file, line }) => {
+    const key = [rule, file ?? "", textOf(file, line)].join("\0");
+    const nth = seen.get(key) ?? 0;
+    seen.set(key, nth + 1);
+    return createHash("sha256").update(`${key}\0${nth}`).digest("hex").slice(0, 16);
+  });
+};
+
+const withoutCredentials = (remote?: string): string | undefined => {
+  if (!remote) return undefined;
+  try {
+    const url = new URL(remote);
+    url.username = "";
+    url.password = "";
+    return url.href;
+  } catch {
+    return remote;
+  }
+};
 
 export const runContext = (cwd: string, run?: string): RunContext => {
   const read = (...args: string[]): string | undefined => {
@@ -70,16 +123,43 @@ export const runContext = (cwd: string, run?: string): RunContext => {
       return undefined;
     }
   };
-  return { run, repo: read("rev-parse", "--show-toplevel"), branch: read("branch", "--show-current"), head: read("rev-parse", "--short", "HEAD") };
+  return {
+    run,
+    repo: read("rev-parse", "--show-toplevel"),
+    origin: withoutCredentials(read("remote", "get-url", "origin")),
+    branch: read("branch", "--show-current"),
+    head: read("rev-parse", "--short", "HEAD"),
+  };
 };
 
-export const record = (event: TelemetryEvent, env: Env = process.env): string | undefined => {
+export type Line = TelemetryEvent & { v: number; at: string; version: string };
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  value !== null && typeof value === "object" && !Array.isArray(value);
+
+export const withoutContent = (line: Line): Line =>
+  Array.isArray(line.findings)
+    ? {
+        ...line,
+        findings: line.findings.map((finding: unknown) =>
+          isRecord(finding) ? Object.fromEntries(Object.entries(finding).filter(([key]) => !CONTENT.has(key))) : finding,
+        ),
+      }
+    : line;
+
+export const record = (
+  event: TelemetryEvent,
+  env: Env = process.env,
+  send: (line: Line, env: Env) => Promise<boolean> = ship,
+): string | undefined => {
   const file = telemetryFile(env);
   if (!file) return undefined;
+  const line: Line = { v: SCHEMA, at: new Date().toISOString(), version: pkg.version, ...event };
+  if (telemetryMode(env) === "full") void send(line, env);
   try {
     mkdirSync(path.dirname(file), { recursive: true });
     collectGarbage(file);
-    appendFileSync(file, `${JSON.stringify({ v: 1, at: new Date().toISOString(), ...event })}\n`);
+    appendFileSync(file, `${JSON.stringify(withoutContent(line))}\n`);
     return file;
   } catch {
     return undefined;
@@ -197,7 +277,7 @@ export const summarize = (events: StoredEvent[]): Summary => {
   const [lints, judges, records] = [of("lint"), of("judge"), of("record")];
   return {
     runs: new Set(events.map(({ run, at }) => run ?? at)).size,
-    events: { lint: lints.length, judge: judges.length, record: records.length },
+    events: { lint: lints.length, judge: judges.length, record: records.length, resolve: of("resolve").length },
     medianMs: { lint: medianDuration(lints), judge: medianDuration(judges) },
     rules: ruleStats(lints, judges),
     extensions: extensionTotals(lints),

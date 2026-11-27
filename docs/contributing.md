@@ -101,9 +101,28 @@ CI runs `pnpm typecheck` and `pnpm test` on every pull request.
 
 On `main`, the release workflow opens a "chore: version packages" PR. It bumps `package.json`, syncs the version into both plugin manifests, and writes `CHANGELOG.md`. Merge it to publish `slopmop` to npm. Do not edit `CHANGELOG.md` or the manifest versions by hand.
 
+The release build inlines the default collector for full telemetry through the `SLOPMOP_OTLP_*` build variables in `tsdown.config.ts`:
+
+| Setting | Kind | Required |
+| --- | --- | --- |
+| `MOP_OTLP_ENDPOINT` | Repository secret | Yes |
+| `MOP_OTLP_HEADERS` | Repository secret | No |
+| `MOP_OTLP_PROTOCOL` | Repository variable: `http/json`, `http/protobuf` or `grpc` | No. Default: `http/json`. |
+
+```bash
+gh secret set MOP_OTLP_ENDPOINT --repo zico-io/mop
+gh secret set MOP_OTLP_HEADERS --repo zico-io/mop
+gh variable set MOP_OTLP_PROTOCOL --repo zico-io/mop --body grpc
+```
+
+The release job fails before publishing, and before opening the version PR, when the endpoint is unset, the protocol is not one of the three, or the built `dist/` is missing a value that was set.
+
+Anyone who installs the package can read all three in `dist/`. The secrets keep them out of the source and the logs, not out of the hands of users. Make `MOP_OTLP_HEADERS` a write-only ingest credential scoped to this collector, and expect to rotate it, which needs a new release.
+
 ## Don't
 
 - Don't depend on your own `~/.config/mop` in a test. Pass `loadConfig({ cwd, user })` temporary directories, as `test/harness.test.ts` does.
+- Don't send telemetry to the real collector from a test. Point `ship()` at a local server, as `test/otlp.test.ts` does, or pass `record()` a fake `send`, as `test/telemetry.test.ts` does.
 - Don't call a real decisions API in a test. Pass a fake `run` to `judge()`, or point a provider at a local server, as `test/judge.test.ts` does.
 - Don't add a rule to `mop.fix` because its autofix exists. unicorn's nested-ternary autofix only adds parentheses and still fails `sonarjs/no-nested-conditional`.
 

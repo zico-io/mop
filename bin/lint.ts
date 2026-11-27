@@ -1,4 +1,3 @@
-import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { performance } from "node:perf_hooks";
@@ -8,7 +7,7 @@ import { changedCode, CODE, git, resolveBase, type Lines, type Target } from "..
 import { commentFindings, lintLanguages } from "../src/languages";
 import { harness, loadConfig, sortRule, type Sorting } from "../src";
 import type { Finding } from "../src/judge";
-import { record, runContext } from "../src/telemetry";
+import { configHash, findingIds, record, runContext } from "../src/telemetry";
 
 type LintFinding = Finding & Sorting & { file: string; line: number };
 
@@ -78,6 +77,9 @@ for (const diagnostic of [...diagnostics, ...others.flatMap(({ file }) => commen
   if (lines && owns(lines, diagnostic.line)) findings.push({ ...diagnostic, ...sortRule(config, diagnostic.rule) });
 }
 
+const ids = findingIds(root, findings);
+const identified = findings.map((finding, index) => ({ id: ids[index], ...finding }));
+
 const byRule: Record<string, Pick<LintFinding, "action" | "reason"> & { count: number }> = {};
 for (const { rule, action, reason } of findings) {
   byRule[rule] ??= { count: 0, action, reason };
@@ -112,17 +114,17 @@ record({
   files: targets.length,
   lines: Object.values(byExt).reduce((sum, { lines }) => sum + lines, 0),
   sources: config.sources,
-  configHash: createHash("sha256").update(JSON.stringify(config)).digest("hex").slice(0, 12),
+  configHash: configHash(config),
   skipped: skipped.map(({ language }) => language),
   durationMs: Math.round(performance.now() - started),
   phasesMs: { eslint: Math.round(eslintMs), languages: Math.round(languagesMs) },
   byExt,
   byRule,
-  findings: findings.map(({ file, line, rule, action }) => ({ file, line, rule, action })),
+  findings: identified.map(({ id, file, line, rule, action, message }) => ({ id, file, line, rule, action, message })),
 });
 
 if (values.json) {
-  console.log(JSON.stringify({ base, sources: config.sources, files: targets.length, skipped, byRule, findings }, undefined, 2));
+  console.log(JSON.stringify({ base, sources: config.sources, files: targets.length, skipped, byRule, findings: identified }, undefined, 2));
 } else {
   const rows = Object.entries(byRule).sort(([, a], [, b]) => b.count - a.count);
   console.log(`${findings.length} findings in ${targets.length} files${base ? ` (lines added since ${base})` : ""}`);

@@ -17,8 +17,8 @@ if (values.json) {
 }
 
 const seconds = (ms?: number): string => (ms === undefined ? "-" : `${(ms / 1000).toFixed(1)}s`);
-const { lint, judge, record } = summary.events;
-console.log(`${summary.runs} runs: ${lint} lint, ${judge} judge, ${record} record events in ${file}`);
+const { lint, judge, record, resolve } = summary.events;
+console.log(`${summary.runs} runs: ${lint} lint, ${judge} judge, ${record} record, ${resolve} resolve events in ${file}`);
 console.log(`median lint ${seconds(summary.medianMs.lint)}, median judge ${seconds(summary.medianMs.judge)}`);
 
 const columns = ["found", "fix", "leave", "review", "enforce", "waive", "human", "unjudged", "cleared"] as const;

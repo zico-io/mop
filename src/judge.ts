@@ -39,6 +39,7 @@ const QUESTION_IDS = Object.keys(QUESTIONS) as QuestionId[];
 type Answers = Record<QuestionId, { noul: number }>;
 
 export interface Finding {
+  id?: string;
   rule: string;
   message: string;
   file?: string;
@@ -267,7 +268,7 @@ export const judge = async <Input extends Finding>(
     const { answers, error } = byId.get(id) ?? {};
     if (!isAnswered(answers)) return unjudged(finding, error ?? "the decisions API returned no answer");
     const probabilities = Object.fromEntries(
-      QUESTION_IDS.map((key) => [key, Math.round(answers[key].noul * 100) / 100]),
+      QUESTION_IDS.map((key) => [key, answers[key].noul]),
     ) as Record<QuestionId, number>;
     return { ...finding, ...verdictOf(answers), probabilities };
   });

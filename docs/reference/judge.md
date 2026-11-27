@@ -37,6 +37,7 @@ slopmop judge [--mop <name>] [--json] [--run <id>] [<file>]
 | --- | --- |
 | `MOP_JUDGE=0` | Skip judging. Every finding is `unjudged`. |
 | `MOP_TELEMETRY=0` | Do not append a `judge` event to the local telemetry file. See [Run telemetry](telemetry.md). |
+| `MOP_TELEMETRY=full` | Also ship the event, with each finding's message, snippet and `why`, to `MOP_OTLP_ENDPOINT`. |
 
 `judge` calls the decisions API of the provider in the [`judge`](config.md#judge) key of `mop.config`, read from the git root. It reads the provider's API key from the environment:
 
@@ -95,9 +96,9 @@ JSON output:
 | Property | Type | Description |
 | --- | --- | --- |
 | `counts` | `Partial<Record<Verdict, number>>` | Findings per verdict. |
-| `findings` | `Judged[]` | Each input finding, plus `verdict`, `why`, and `probabilities` when the model answered. |
+| `findings` | `Judged[]` | Each input finding, plus `id`, `verdict`, `why`, and `probabilities` when the model answered. |
 
-`probabilities` has the keys `slop`, `deliberate` and `risky`, rounded to two decimals.
+`probabilities` has the keys `slop`, `deliberate` and `risky`, exactly as the model returned them. `id` is the one `lint --json` gave the finding, or is computed the same way when the input has none.
 
 The exit code is `0` unless the input cannot be read or parsed. A judging failure does not change it.
 
