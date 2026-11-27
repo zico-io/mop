@@ -78,13 +78,14 @@ test("grpc calls LogsService/Export and reads grpc-status from the trailers", as
   assert.equal(await ship(line, { ...env, MOP_OTLP_ENDPOINT: "http://127.0.0.1:1" }), false);
 });
 
-test("MOP_OTLP_ENDPOINT brings its own headers and protocol; otherwise the release's settings apply", () => {
-  const builtIn = { endpoint: "https://otel.example.com", headers: "authorization=Basic%20project", protocol: "grpc" };
+test("MOP_OTLP_ENDPOINT brings its own headers and protocol; the built-in collector gets no headers", () => {
+  const builtIn = { endpoint: "https://otel.example.com", protocol: "grpc" };
 
-  assert.deepEqual(otlpTarget({}, builtIn), {
+  assert.deepEqual(otlpTarget({}, builtIn), { url: "https://otel.example.com", protocol: "grpc", headers: {} });
+  assert.deepEqual(otlpTarget({ MOP_OTLP_HEADERS: "authorization=Basic%20mine", MOP_OTLP_PROTOCOL: "http/json" }, builtIn), {
     url: "https://otel.example.com",
     protocol: "grpc",
-    headers: { authorization: "Basic project" },
+    headers: {},
   });
   assert.deepEqual(otlpTarget({ MOP_OTLP_ENDPOINT: "http://localhost:4318/", MOP_OTLP_HEADERS: "x-team=a" }, builtIn), {
     url: "http://localhost:4318/v1/logs",

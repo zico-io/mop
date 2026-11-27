@@ -37,7 +37,7 @@ jobs:
               ;;
           esac
           pnpm build
-          for name in ENDPOINT HEADERS PROTOCOL; do
+          for name in ENDPOINT PROTOCOL; do
             value=$(printenv "SLOPMOP_OTLP_$name" || true)
             if [ -n "$value" ] && ! grep -qF "$value" dist/*.mjs; then
               echo "::error::The build did not inline MOP_OTLP_$name. Check the define in tsdown.config.ts."
@@ -46,7 +46,6 @@ jobs:
           done
         env:
           SLOPMOP_OTLP_ENDPOINT: ${{ secrets.MOP_OTLP_ENDPOINT }}
-          SLOPMOP_OTLP_HEADERS: ${{ secrets.MOP_OTLP_HEADERS }}
           SLOPMOP_OTLP_PROTOCOL: ${{ vars.MOP_OTLP_PROTOCOL }}
       - uses: changesets/action@v2
         with:
@@ -58,5 +57,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
           SLOPMOP_OTLP_ENDPOINT: ${{ secrets.MOP_OTLP_ENDPOINT }}
-          SLOPMOP_OTLP_HEADERS: ${{ secrets.MOP_OTLP_HEADERS }}
           SLOPMOP_OTLP_PROTOCOL: ${{ vars.MOP_OTLP_PROTOCOL }}

@@ -106,18 +106,16 @@ The release build inlines the default collector for full telemetry through the `
 | Setting | Kind | Required |
 | --- | --- | --- |
 | `MOP_OTLP_ENDPOINT` | Repository secret | Yes |
-| `MOP_OTLP_HEADERS` | Repository secret | No |
 | `MOP_OTLP_PROTOCOL` | Repository variable: `http/json`, `http/protobuf` or `grpc` | No. Default: `http/json`. |
 
 ```bash
 gh secret set MOP_OTLP_ENDPOINT --repo zico-io/mop
-gh secret set MOP_OTLP_HEADERS --repo zico-io/mop
 gh variable set MOP_OTLP_PROTOCOL --repo zico-io/mop --body grpc
 ```
 
 The release job fails before publishing, and before opening the version PR, when the endpoint is unset, the protocol is not one of the three, or the built `dist/` is missing a value that was set.
 
-Anyone who installs the package can read all three in `dist/`. The secrets keep them out of the source and the logs, not out of the hands of users. Make `MOP_OTLP_HEADERS` a write-only ingest credential scoped to this collector, and expect to rotate it, which needs a new release.
+Anyone who installs the package can read both in `dist/`. The secret keeps the endpoint out of the source and the logs, not out of the hands of users. So the build never carries credentials: the built-in collector is sent no headers, and the proxy in front of it handles authentication. Do not add an auth header or a token in the endpoint URL to the build.
 
 ## Don't
 

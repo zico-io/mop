@@ -5,9 +5,8 @@ type Env = Record<string, string | undefined>;
 
 export type Protocol = "http/json" | "http/protobuf" | "grpc";
 
-export interface OtlpSettings {
+export interface BuiltInOtlp {
   endpoint?: string;
-  headers?: string;
   protocol?: string;
 }
 
@@ -17,9 +16,9 @@ export interface OtlpTarget {
   protocol: Protocol;
 }
 
-declare const __SLOPMOP_OTLP__: OtlpSettings | undefined;
+declare const __SLOPMOP_OTLP__: BuiltInOtlp | undefined;
 
-export const BUILT_IN_OTLP: OtlpSettings = typeof __SLOPMOP_OTLP__ === "object" ? __SLOPMOP_OTLP__ : {};
+export const BUILT_IN_OTLP: BuiltInOtlp = typeof __SLOPMOP_OTLP__ === "object" ? __SLOPMOP_OTLP__ : {};
 
 export const PROTOCOLS: readonly Protocol[] = ["http/json", "http/protobuf", "grpc"];
 
@@ -40,15 +39,14 @@ const parseHeaders = (headers = ""): Record<string, string> =>
     }),
   );
 
-export const otlpTarget = (env: Env = process.env, builtIn: OtlpSettings = BUILT_IN_OTLP): OtlpTarget | undefined => {
+export const otlpTarget = (env: Env = process.env, builtIn: BuiltInOtlp = BUILT_IN_OTLP): OtlpTarget | undefined => {
   const own = env.MOP_OTLP_ENDPOINT?.trim();
-  const settings = own ? { endpoint: own, headers: env.MOP_OTLP_HEADERS, protocol: env.MOP_OTLP_PROTOCOL } : builtIn;
-  const endpoint = settings.endpoint?.trim();
-  const protocol = settings.protocol?.trim() || "http/json";
+  const endpoint = own || builtIn.endpoint?.trim();
+  const protocol = (own ? env.MOP_OTLP_PROTOCOL : builtIn.protocol)?.trim() || "http/json";
   if (!endpoint || !isProtocol(protocol)) return undefined;
   const base = endpoint.endsWith("/") ? endpoint.slice(0, -1) : endpoint;
   const url = protocol === "grpc" || base.endsWith("/v1/logs") ? base : `${base}/v1/logs`;
-  return { url, protocol, headers: parseHeaders(settings.headers) };
+  return { url, protocol, headers: own ? parseHeaders(env.MOP_OTLP_HEADERS) : {} };
 };
 
 const attribute = (key: string, value: string) => ({ key, value: { stringValue: value } });
@@ -177,7 +175,7 @@ const exportHttp = async (target: OtlpTarget, logs: Logs): Promise<boolean> => {
   return response.ok;
 };
 
-export const ship = async (line: Line, env: Env = process.env, builtIn: OtlpSettings = BUILT_IN_OTLP): Promise<boolean> => {
+export const ship = async (line: Line, env: Env = process.env, builtIn: BuiltInOtlp = BUILT_IN_OTLP): Promise<boolean> => {
   try {
     const target = otlpTarget(env, builtIn);
     if (!target) return false;

@@ -44,9 +44,9 @@ A write or send that fails, for example on a read-only disk or an unreachable en
 | `MOP_OTLP_HEADERS` | Headers for your collector, in the OpenTelemetry format `key=value,key2=value2`, with values URL-encoded. For example `authorization=Basic%20dXNlcjpwYXNz`. Header names are lowercased. |
 | `MOP_OTLP_PROTOCOL` | `http/json`, `http/protobuf` or `grpc`. Default: `http/json`. Any other value sends nothing. |
 
-Releases from npm have a built-in collector, so `MOP_TELEMETRY=full` alone is enough. The release workflow inlines its endpoint and headers from the `MOP_OTLP_ENDPOINT` and `MOP_OTLP_HEADERS` repository secrets, and its protocol from the `MOP_OTLP_PROTOCOL` repository variable. Builds from a checkout or a fork have none.
+Releases from npm have a built-in collector, so `MOP_TELEMETRY=full` alone is enough. The release workflow inlines its endpoint from the `MOP_OTLP_ENDPOINT` repository secret and its protocol from the `MOP_OTLP_PROTOCOL` repository variable. It is sent no headers and carries no credentials; a proxy in front of it handles authentication. Builds from a checkout or a fork have none.
 
-Setting `MOP_OTLP_ENDPOINT` switches to your own collector, and then only your `MOP_OTLP_HEADERS` and `MOP_OTLP_PROTOCOL` apply. The built-in headers never go to an endpoint you set. `MOP_OTLP_HEADERS` and `MOP_OTLP_PROTOCOL` do nothing without `MOP_OTLP_ENDPOINT`.
+Setting `MOP_OTLP_ENDPOINT` switches to your own collector, and then your `MOP_OTLP_HEADERS` and `MOP_OTLP_PROTOCOL` apply. `MOP_OTLP_HEADERS` and `MOP_OTLP_PROTOCOL` do nothing without `MOP_OTLP_ENDPOINT`, so your headers never reach the built-in collector.
 
 The mop-specific variables mean an `OTEL_EXPORTER_OTLP_*` setting meant for another tool never receives code.
 

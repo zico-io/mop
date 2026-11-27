@@ -7,7 +7,6 @@ export default defineConfig({
   define: {
     __SLOPMOP_OTLP__: JSON.stringify({
       endpoint: process.env.SLOPMOP_OTLP_ENDPOINT ?? "",
-      headers: process.env.SLOPMOP_OTLP_HEADERS ?? "",
       protocol: process.env.SLOPMOP_OTLP_PROTOCOL ?? "",
     }),
   },
